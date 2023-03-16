@@ -1,0 +1,31 @@
+version: '3.4'
+
+services:
+  api:
+    #image: ${DOCKER_REGISTRY-}boardhostapi
+    build:
+      context: .
+      dockerfile: src/Board/Host/Board.Host.Api/Dockerfile
+    ports:
+    - 5000:80
+    environment:
+    - ConnectionStrings__PostgresBoardDb=Host=localhost;Database=Board;Username=postgres;Password=postgres
+    depends_on:
+    - postgres
+ 
+
+  postgres:
+    image: "postgres"
+    restart: always
+    environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_DB=Board
+        - POSTGRES_PASSWORD=postgres
+    ports: 
+        - "5432:5432"
+    volumes:
+        - pg_data:/var/lib/postgresql/data 
+
+volumes:
+   pg_data:
+    
