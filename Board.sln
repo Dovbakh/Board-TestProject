@@ -28,6 +28,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Board.Infrastructure", "src\Board\Infrastructure\Board.Infrastructure\Board.Infrastructure.csproj", "{5963BE7D-53ED-4CF7-932E-1458AE4F7C46}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Board.Infrastructure.DataAccess", "src\Board\Infrastructure\Board.Infrastructure.DataAccess\Board.Infrastructure.DataAccess.csproj", "{64D07985-740A-447D-B6BF-B919088FAB19}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8DEB4BBB-A954-4A12-A678-24F1F754C536} = {8DEB4BBB-A954-4A12-A678-24F1F754C536}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{FFC1C675-723A-41B9-B6FA-58C534F5697A}"
 EndProject

@@ -1,7 +1,7 @@
 version: '3.4'
 
 services:
-  api:
+  board.host.api:
     #image: ${DOCKER_REGISTRY-}boardhostapi
     build:
       context: .

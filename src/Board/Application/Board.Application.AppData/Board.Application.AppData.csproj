@@ -7,8 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Contexts\Comments\" />
-    <Folder Include="Contexts\Posts\" />
+    <ProjectReference Include="..\..\Contracts\Board.Contracts\Board.Contracts.csproj" />
   </ItemGroup>
 
 </Project>
