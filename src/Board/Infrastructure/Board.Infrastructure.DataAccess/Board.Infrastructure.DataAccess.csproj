@@ -7,12 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Contexts\Categories\Configurations\" />
-    <Folder Include="Contexts\Comments\Configurations\" />
-    <Folder Include="Contexts\PostImages\Configurations\" />
-    <Folder Include="Contexts\Posts\Configurations\" />
     <Folder Include="Contexts\Users\Repositories\" />
-    <Folder Include="Contexts\Users\Configurations\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Application\Board.Application.AppData\Board.Application.AppData.csproj" />
+    <ProjectReference Include="..\..\Domain\Board.Domain\Board.Domain.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Board.Infrastructure.DataAccess
 {
-    public class BoardDbContext : DbContext
+    public class BoardDbContext : IdentityDbContext<Domain.User, Domain.Role, int>
     {
         public BoardDbContext(DbContextOptions options) 
             : base(options)

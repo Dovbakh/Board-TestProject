@@ -66,7 +66,7 @@ namespace Board.Domain
         /// <summary>
         /// Идентификатор пользователя-автора обьявления.
         /// </summary>
-        public string UserId { get; set; }
+        public int UserId { get; set; }
 
         /// <summary>
         /// Категория обьявления.

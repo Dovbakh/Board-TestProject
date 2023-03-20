@@ -27,11 +27,11 @@ namespace Board.Domain
         /// <summary>
         /// Идентификатор пользователя, который оставил отзыв.
         /// </summary>
-        public string AuthorId { get; set; }
+        public int AuthorId { get; set; }
         /// <summary>
         /// Идентификатор пользователя, которому оставлен отзыв.
         /// </summary>
-        public string UserId { get; set; }
+        public int UserId { get; set; }
         /// <summary>
         /// Идентификатор пользователя, который оставил отзыв.
         /// </summary>
