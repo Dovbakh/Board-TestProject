@@ -4,5 +4,177 @@
         <name>Board.Host.Api</name>
     </assembly>
     <members>
+        <member name="T:Board.Host.Api.Controllers.AdvertController">
+            <summary>
+            Работа с обьявлениями.
+            </summary>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertController.#ctor(Board.Application.AppData.Contexts.Posts.Services.IAdvertService,Microsoft.Extensions.Logging.ILogger{Board.Host.Api.Controllers.AdvertController})">
+            <summary>
+            Работа с обьявлениями.
+            </summary>
+            <param name="advertisementService">Сервис для работы с обьявлениями.</param>
+            <param name="logger">Логгер.</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertController.GetAll(System.Nullable{System.Int32},System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+            </summary>
+            <param name="page">Номер страницы.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Posts.AdvertSummary"/>.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertController.GetAllFiltered(Board.Contracts.Contexts.Posts.AdvertFilterRequest,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Получить все обьявления по фильтру и с пагинацией.
+            </summary>
+            <param name="filter"></param>
+            <param name="page"></param>
+            <param name="cancellation"></param>
+            <returns>Элемент <see cref="T:Board.Contracts.Contexts.Posts.AdvertSummary"/>.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertController.GetById(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Получить обьявление по идентификатору.
+            </summary>
+            <param name="id">Идентификатор обьявления.</param>
+            <param name="cancellation">Токен отмены</param>
+            <returns>Элемент <see cref="T:Board.Contracts.Contexts.Posts.AdvertDetails"/>.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertController.Add(Board.Contracts.Contexts.Posts.AdvertAddRequest,System.Threading.CancellationToken)">
+            <summary>
+            Добавить новое обьявление.
+            </summary>
+            <param name="addRequest">Элемент <see cref="T:Board.Contracts.Contexts.Posts.AdvertAddRequest"/>.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Идентификатор нового обьявления.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertController.Update(Board.Contracts.Contexts.Posts.AdvertUpdateRequest,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Изменить обьявление.
+            </summary>
+            <param name="id">Идентификатор обьявления.</param>
+            <param name="updateRequest">Элемент <see cref="T:Board.Contracts.Contexts.Posts.AdvertUpdateRequest"/>.</param>
+            <param name="cancellation">Токен отмены.</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertController.Delete(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Удалить обьявление.
+            </summary>
+            <param name="id">Идентификатор обьявления.</param>
+            <param name="cancellation">Токен отмены.</param>
+        </member>
+        <member name="T:Board.Host.Api.Controllers.CategoryController">
+            <summary>
+            Работа с категориями.
+            </summary>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.CategoryController.#ctor(Board.Application.AppData.Contexts.Categories.Services.ICategoryService)">
+            <summary>
+            Работа с категориями.
+            </summary>
+            <param name="categoryService">Сервис для работы с категориями</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.CategoryController.GetAll(System.Threading.CancellationToken)">
+            <summary>
+            Получить все категории с пагинацией.
+            </summary>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Categories.CategoryDetails"/>.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.CategoryController.GetById(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Получить категорию по идентификатору.
+            </summary>
+            <param name="id">Идентификатор категории.</param>
+            <param name="cancellation">Токен отмены</param>
+            <returns>Элемент <see cref="T:Board.Contracts.Contexts.Categories.CategoryDetails"/>.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.CategoryController.Add(Board.Contracts.Contexts.Categories.CategoryDetails,System.Threading.CancellationToken)">
+            <summary>
+            Добавить новую категорию.
+            </summary>
+            <param name="categoryDto">Элемент <see cref="!:CategoryDto"/>.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Идентификатор новой категории.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.CategoryController.Update(System.Int32,Board.Contracts.Contexts.Categories.CategoryDetails,System.Threading.CancellationToken)">
+            <summary>
+            Изменить категорию.
+            </summary>
+            <param name="id">Идентификатор категории.</param>
+            <param name="categoryDto">Элемент <see cref="T:Board.Contracts.Contexts.Categories.CategoryDetails"/>.</param>
+            <param name="cancellation">Токен отмены.</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.CategoryController.Delete(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Удалить категорию.
+            </summary>
+            <param name="id">Идентификатор категории.</param>
+            <param name="cancellation">Токен отмены.</param>
+        </member>
+        <member name="T:Board.Host.Api.Controllers.CommentController">
+            <summary>
+            Работа с комментариями.
+            </summary>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.CommentController.#ctor(Board.Application.AppData.Contexts.Comments.Services.ICommentService)">
+            <summary>
+            Работа с комментариями.
+            </summary>
+            <param name="commentService">Сервис для работы с комментариями.</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.CommentController.GetAll(System.Nullable{System.Int32},System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Получить все комментарии по фильтру и с пагинацией.
+            </summary>
+            <param name="page">Номер страницы с комментариями.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Коллекция элементов <see cref="!:CommentDto"/>.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.CommentController.GetAllFiltered(Board.Contracts.Contexts.Comments.CommentFilterRequest,System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Получить все комментарии по фильтру и с пагинацией.
+            </summary>
+            <param name="page">Номер страницы с комментариями.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Коллекция элементов <see cref="!:CommentDto"/>.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.CommentController.GetById(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Получить комментарий по идентификатору.
+            </summary>
+            <param name="id">Идентификатор комментария.</param>
+            <param name="cancellation">Токен отмены</param>
+            <returns>Элемент <see cref="T:Board.Contracts.Contexts.Comments.CommentDetails"/>.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.CommentController.Add(Board.Contracts.Contexts.Comments.CommentAddRequest,System.Threading.CancellationToken)">
+            <summary>
+            Добавить новый комментарий.
+            </summary>
+            <param name="addRequest">Элемент <see cref="T:Board.Contracts.Contexts.Comments.CommentAddRequest"/>.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Идентификатор нового комментария.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.CommentController.Update(System.Int32,Board.Contracts.Contexts.Comments.CommentUpdateRequest,System.Threading.CancellationToken)">
+            <summary>
+            Изменить комментарий.
+            </summary>
+            <param name="id">Идентификатор комментария.</param>
+            <param name="updateRequest">Элемент <see cref="T:Board.Contracts.Contexts.Comments.CommentUpdateRequest"/>.</param>
+            <param name="cancellation">Токен отмены.</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.CommentController.Delete(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Удалить комментарий.
+            </summary>
+            <param name="id">Идентификатор комментария.</param>
+            <param name="cancellation">Токен отмены.</param>
+        </member>
+        <member name="T:Board.Host.Api.Modules.AuthenticationModule">
+            <summary>
+            Подключение и настройки аутентификации
+            </summary>
+        </member>
     </members>
 </doc>

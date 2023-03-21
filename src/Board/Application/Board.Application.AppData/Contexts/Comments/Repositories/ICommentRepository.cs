@@ -21,13 +21,20 @@ namespace Board.Application.AppData.Contexts.Comments.Repositories
         Task<CommentDetails> GetByIdAsync(int id, CancellationToken cancellation);
 
         /// <summary>
+        /// Получить все комментарии c пагинацией.
+        /// </summary>
+        /// <param name="filterRequest">Фильтр для поиска.</param>
+        /// <param name="cancellation">Токен отмены</param>
+        /// <returns>Элемент <see cref="CommentDetails"/>.</returns>
+        Task<IReadOnlyCollection<CommentDetails>> GetAllAsync(int take, int skip, CancellationToken cancellation);
+
+        /// <summary>
         /// Получить все комментарии по фильтру с пагинацией.
         /// </summary>
         /// <param name="filterRequest">Фильтр для поиска.</param>
         /// <param name="cancellation">Токен отмены</param>
         /// <returns>Элемент <see cref="CommentDetails"/>.</returns>
         Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int take, int skip, CancellationToken cancellation);
-
 
         /// <summary>
         /// Добавить новую комментарий.

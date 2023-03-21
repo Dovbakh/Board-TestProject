@@ -1,14 +1,13 @@
-﻿using Board.Application.AppData.Contexts.Comments.Repositories;
-using Board.Contracts.Contexts.Comments;
+﻿using Board.Contracts.Contexts.Comments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
+namespace Board.Application.AppData.Contexts.Comments.Services
 {
-    public class CommentRepository : ICommentRepository
+    public class CommentService : ICommentService
     {
         public Task<int> AddAsync(CommentAddRequest addRequest, CancellationToken cancellation)
         {
@@ -20,12 +19,12 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyCollection<CommentDetails>> GetAllAsync(int take, int skip, CancellationToken cancellation)
+        public Task<IReadOnlyCollection<CommentDetails>> GetAllAsync(int? offset, int? count, CancellationToken cancellation)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int take, int skip, CancellationToken cancellation)
+        public Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int? offset, int? count, CancellationToken cancellation)
         {
             throw new NotImplementedException();
         }

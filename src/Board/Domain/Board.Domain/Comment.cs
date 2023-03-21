@@ -48,6 +48,6 @@ namespace Board.Domain
         /// <summary>
         /// Обьявление, к которому оставлен отзыв.
         /// </summary>
-        public Post Post { get; set; }
+        public Advert Post { get; set; }
     }
 }

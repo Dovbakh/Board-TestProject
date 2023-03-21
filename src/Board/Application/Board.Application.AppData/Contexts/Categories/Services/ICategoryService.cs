@@ -1,17 +1,16 @@
 ﻿using Board.Contracts.Contexts.Categories;
-using Board.Contracts.Contexts.Comments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Board.Application.AppData.Contexts.Categories.Repositories
+namespace Board.Application.AppData.Contexts.Categories.Services
 {
     /// <summary>
-    /// Репозиторий чтения/записи для работы с категориями.
+    /// Сервис для работы с категориями.
     /// </summary>
-    public interface ICategoryRepository
+    public interface ICategoryService
     {
         /// <summary>
         /// Получить все категории с пагинацией.
@@ -20,9 +19,7 @@ namespace Board.Application.AppData.Contexts.Categories.Repositories
         /// <param name="skip">Количество пропускаемых категорий.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Коллекция элементов <see cref="CategoryDetails"/>.</returns>
-        Task<IReadOnlyCollection<CategoryDetails>> GetAllAsync(int take, int skip, CancellationToken cancellation);
-
-        Task<IReadOnlyCollection<CategoryDetails>> GetAllFilteredAsync(CategoryFilterRequest filterRequest, int take, int skip, CancellationToken cancellation);
+        Task<IReadOnlyCollection<CategoryDetails>> GetAllAsync(CancellationToken cancellation);
 
         /// <summary>
         /// Получить категорию по идентификатору.
@@ -45,12 +42,14 @@ namespace Board.Application.AppData.Contexts.Categories.Repositories
         /// </summary>
         /// <param name="id">Идентификатор категории.</param>
         /// <param name="categoryDto">Элемент <see cref="CategoryDetails"/>.</param>
-        Task UpdateAsync(int id, CommentUpdateRequest updateRequest, CancellationToken cancellation);
+        /// <param name="cancellation">Токен отмены.</param>
+        Task UpdateAsync(int id, CategoryDetails categoryDto, CancellationToken cancellation);
 
         /// <summary>
         /// Удалить категорию.
         /// </summary>
         /// <param name="id">Идентификатор категории.</param>
+        /// <param name="cancellation">Токен отмены.</param>
         Task DeleteAsync(int id, CancellationToken cancellation);
     }
 }
