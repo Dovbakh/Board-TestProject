@@ -2,6 +2,7 @@
 using Board.Contracts.Contexts.Categories;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,30 +22,33 @@ namespace Board.Application.AppData.Contexts.Categories.Services
             _categoryRepository = repository;
         }
 
-        public Task<int> AddAsync(CategoryDetails categoryDto, CancellationToken cancellation)
+        public Task<Guid> CreateAsync(CategoryCreateRequest createRequest, CancellationToken cancellation)
         {
-            return _categoryRepository.AddAsync(categoryDto, cancellation);
+            return _categoryRepository.AddAsync(new CategoryDetails { }, cancellation);
         }
 
-        public Task DeleteAsync(int id, CancellationToken cancellation)
+        public Task DeleteAsync(Guid id, CancellationToken cancellation)
         {
             return _categoryRepository.DeleteAsync(id, cancellation);
 
         }
 
-        public Task<IReadOnlyCollection<CategoryDetails>> GetAllAsync(CancellationToken cancellation)
+        public Task<IReadOnlyCollection<CategorySummary>> GetAllAsync(CancellationToken cancellation)
         {
-            return _categoryRepository.GetAllAsync(0, 0, cancellation);
+            return Task<IReadOnlyCollection<CategorySummary>>.Run(() => (IReadOnlyCollection < CategorySummary > )new List<CategorySummary>());
+            //return _categoryRepository.GetAllAsync(0, 0, cancellation);
         }
 
-        public Task<CategoryDetails> GetByIdAsync(int id, CancellationToken cancellation)
+        public Task<CategoryDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
             throw new NotImplementedException();
         }
 
-        public Task UpdateAsync(int id, CategoryDetails categoryDto, CancellationToken cancellation)
+        public Task UpdateAsync(Guid id, CategoryUpdateRequest updateRequest, CancellationToken cancellation)
         {
             throw new NotImplementedException();
+
+            
         }
     }
 }

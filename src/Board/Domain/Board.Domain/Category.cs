@@ -11,7 +11,7 @@ namespace Board.Domain
         /// <summary>
         /// Идентификатор категории.
         /// </summary>
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         /// <summary>
         /// Название категории.

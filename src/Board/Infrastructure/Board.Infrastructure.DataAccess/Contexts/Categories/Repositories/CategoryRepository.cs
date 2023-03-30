@@ -11,12 +11,12 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
 {
     public class CategoryRepository : ICategoryRepository
     {
-        public Task<int> AddAsync(CategoryDetails categoryDto, CancellationToken cancellation)
+        public Task<Guid> AddAsync(CategoryDetails categoryDto, CancellationToken cancellation)
         {
             throw new NotImplementedException();
         }
 
-        public Task DeleteAsync(int id, CancellationToken cancellation)
+        public Task DeleteAsync(Guid id, CancellationToken cancellation)
         {
             throw new NotImplementedException();
         }
@@ -31,12 +31,12 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<CategoryDetails> GetByIdAsync(int id, CancellationToken cancellation)
+        public Task<CategoryDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
             throw new NotImplementedException();
         }
 
-        public Task UpdateAsync(int id, CommentUpdateRequest updateRequest, CancellationToken cancellation)
+        public Task UpdateAsync(Guid id, CommentUpdateRequest updateRequest, CancellationToken cancellation)
         {
             throw new NotImplementedException();
         }

@@ -1,4 +1,5 @@
 ﻿using Board.Application.AppData.Contexts.Comments.Services;
+using Board.Contracts;
 using Board.Contracts.Contexts.Comments;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,8 @@ namespace Board.Host.Api.Controllers
     /// </summary>
     [ApiController]
     [Route("v1/[controller]")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status500InternalServerError)]
     public class CommentController : ControllerBase
     {
         private readonly ICommentService _commentService;

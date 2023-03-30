@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Board.Contracts.Contexts.Posts
+namespace Board.Contracts.Contexts.Categories
 {
-    public class AdvertFilterRequest
+    public class CategorySummary
     {
-        public int id { get; set; }
     }
 }

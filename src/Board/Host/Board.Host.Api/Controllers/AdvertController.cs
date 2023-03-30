@@ -1,4 +1,5 @@
 ﻿using Board.Application.AppData.Contexts.Posts.Services;
+using Board.Contracts;
 using Board.Contracts.Contexts.Posts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,8 @@ namespace Board.Host.Api.Controllers
     /// </summary>
     [ApiController]
     [Route("v1/[controller]")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status500InternalServerError)]
     public class AdvertController : ControllerBase
     {
         private readonly IAdvertService _postService;
@@ -35,7 +38,6 @@ namespace Board.Host.Api.Controllers
         /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
         [HttpGet]
         [ProducesResponseType(typeof(IReadOnlyCollection<AdvertSummary>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [AllowAnonymous]
         public async Task<IActionResult> GetAll(int? offset, int? limit, CancellationToken cancellation)
         {
@@ -53,7 +55,6 @@ namespace Board.Host.Api.Controllers
         /// <returns>Элемент <see cref="AdvertSummary"/>.</returns>
         [HttpGet("filter")]
         [ProducesResponseType(typeof(IReadOnlyCollection<AdvertSummary>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [AllowAnonymous]
         public async Task<IActionResult> GetAllFiltered([FromQuery] AdvertFilterRequest filter, int? offset, int? count, CancellationToken cancellation)
         {

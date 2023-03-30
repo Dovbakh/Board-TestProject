@@ -30,7 +30,7 @@ namespace Board.Application.AppData.Contexts.Categories.Repositories
         /// <param name="id">Идентификатор категории.</param>
         /// <param name="cancellation">Токен отмены</param>
         /// <returns>Элемент <see cref="CategoryDetails"/>.</returns>
-        Task<CategoryDetails> GetByIdAsync(int id, CancellationToken cancellation);
+        Task<CategoryDetails> GetByIdAsync(Guid id, CancellationToken cancellation);
 
         /// <summary>
         /// Добавить новую категорию.
@@ -38,19 +38,19 @@ namespace Board.Application.AppData.Contexts.Categories.Repositories
         /// <param name="categoryDto">Элемент <see cref="CategoryDetails"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор новой категории.</returns>
-        Task<int> AddAsync(CategoryDetails categoryDto, CancellationToken cancellation);
+        Task<Guid> AddAsync(CategoryDetails categoryDto, CancellationToken cancellation);
 
         /// <summary>
         /// Изменить категорию.
         /// </summary>
         /// <param name="id">Идентификатор категории.</param>
         /// <param name="categoryDto">Элемент <see cref="CategoryDetails"/>.</param>
-        Task UpdateAsync(int id, CommentUpdateRequest updateRequest, CancellationToken cancellation);
+        Task UpdateAsync(Guid id, CommentUpdateRequest updateRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Удалить категорию.
         /// </summary>
         /// <param name="id">Идентификатор категории.</param>
-        Task DeleteAsync(int id, CancellationToken cancellation);
+        Task DeleteAsync(Guid id, CancellationToken cancellation);
     }
 }
