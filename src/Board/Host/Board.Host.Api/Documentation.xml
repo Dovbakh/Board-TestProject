@@ -9,7 +9,7 @@
             Работа с обьявлениями.
             </summary>
         </member>
-        <member name="M:Board.Host.Api.Controllers.AdvertController.#ctor(Board.Application.AppData.Contexts.Posts.Services.IAdvertService,Microsoft.Extensions.Logging.ILogger{Board.Host.Api.Controllers.AdvertController})">
+        <member name="M:Board.Host.Api.Controllers.AdvertController.#ctor(Board.Application.AppData.Contexts.Adverts.Services.IAdvertService,Microsoft.Extensions.Logging.ILogger{Board.Host.Api.Controllers.AdvertController})">
             <summary>
             Работа с обьявлениями.
             </summary>
@@ -23,6 +23,7 @@
             <param name="page">Номер страницы.</param>
             <param name="cancellation">Токен отмены.</param>
             <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Posts.AdvertSummary"/>.</returns>
+            <response code="200">Запрос выполнен успешно.</response>
         </member>
         <member name="M:Board.Host.Api.Controllers.AdvertController.GetAllFiltered(Board.Contracts.Contexts.Posts.AdvertFilterRequest,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Threading.CancellationToken)">
             <summary>
@@ -33,7 +34,7 @@
             <param name="cancellation"></param>
             <returns>Элемент <see cref="T:Board.Contracts.Contexts.Posts.AdvertSummary"/>.</returns>
         </member>
-        <member name="M:Board.Host.Api.Controllers.AdvertController.GetById(System.Int32,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.AdvertController.GetById(System.Guid,System.Threading.CancellationToken)">
             <summary>
             Получить обьявление по идентификатору.
             </summary>
@@ -41,7 +42,7 @@
             <param name="cancellation">Токен отмены</param>
             <returns>Элемент <see cref="T:Board.Contracts.Contexts.Posts.AdvertDetails"/>.</returns>
         </member>
-        <member name="M:Board.Host.Api.Controllers.AdvertController.Add(Board.Contracts.Contexts.Posts.AdvertAddRequest,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.AdvertController.Create(Board.Contracts.Contexts.Posts.AdvertAddRequest,System.Threading.CancellationToken)">
             <summary>
             Добавить новое обьявление.
             </summary>
@@ -49,7 +50,7 @@
             <param name="cancellation">Токен отмены.</param>
             <returns>Идентификатор нового обьявления.</returns>
         </member>
-        <member name="M:Board.Host.Api.Controllers.AdvertController.Update(Board.Contracts.Contexts.Posts.AdvertUpdateRequest,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.AdvertController.Update(System.Guid,Board.Contracts.Contexts.Posts.AdvertUpdateRequest,System.Threading.CancellationToken)">
             <summary>
             Изменить обьявление.
             </summary>
@@ -57,7 +58,21 @@
             <param name="updateRequest">Элемент <see cref="T:Board.Contracts.Contexts.Posts.AdvertUpdateRequest"/>.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
-        <member name="M:Board.Host.Api.Controllers.AdvertController.Delete(System.Int32,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.AdvertController.Patch(System.Guid,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{Board.Contracts.Contexts.Posts.AdvertUpdateRequest},System.Threading.CancellationToken)">
+            <summary>
+            Частично обновить обьявление.
+            </summary>
+            <param name="id">Идентификатор.</param>
+            <param name="updateRequest">Модель запроса обновления обьявления <see cref="T:Board.Contracts.Contexts.Posts.AdvertUpdateRequest"/>.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <response code="200">Запрос выполнен успешно.</response>
+            <response code="400">Модель данных запроса невалидна.</response>
+            <response code="403">Доступ запрещён.</response>
+            <response code="404">Обьявление с указанным идентификатором не найдено.</response>
+            <response code="422">Произошёл конфликт бизнес-логики.</response>
+            <returns>Модель обновленной категории <see cref="T:Board.Contracts.Contexts.Posts.AdvertDetails"/>.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertController.DeleteById(System.Guid,System.Threading.CancellationToken)">
             <summary>
             Удалить обьявление.
             </summary>
@@ -133,7 +148,7 @@
             <response code="422">Произошёл конфликт бизнес-логики.</response>
             <returns>Модель обновленной категории <see cref="T:Board.Contracts.Contexts.Categories.CategoryDetails"/>.</returns>
         </member>
-        <member name="M:Board.Host.Api.Controllers.CategoryController.Delete(System.Guid,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.CategoryController.DeleteById(System.Guid,System.Threading.CancellationToken)">
             <summary>
             Удалить категорию по идентификатору.
             </summary>
@@ -170,7 +185,7 @@
             <param name="cancellation">Токен отмены.</param>
             <returns>Коллекция элементов <see cref="!:CommentDto"/>.</returns>
         </member>
-        <member name="M:Board.Host.Api.Controllers.CommentController.GetById(System.Int32,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.CommentController.GetById(System.Guid,System.Threading.CancellationToken)">
             <summary>
             Получить комментарий по идентификатору.
             </summary>
@@ -178,7 +193,7 @@
             <param name="cancellation">Токен отмены</param>
             <returns>Элемент <see cref="T:Board.Contracts.Contexts.Comments.CommentDetails"/>.</returns>
         </member>
-        <member name="M:Board.Host.Api.Controllers.CommentController.Add(Board.Contracts.Contexts.Comments.CommentAddRequest,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.CommentController.Create(Board.Contracts.Contexts.Comments.CommentAddRequest,System.Threading.CancellationToken)">
             <summary>
             Добавить новый комментарий.
             </summary>
@@ -186,7 +201,7 @@
             <param name="cancellation">Токен отмены.</param>
             <returns>Идентификатор нового комментария.</returns>
         </member>
-        <member name="M:Board.Host.Api.Controllers.CommentController.Update(System.Int32,Board.Contracts.Contexts.Comments.CommentUpdateRequest,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.CommentController.Update(System.Guid,Board.Contracts.Contexts.Comments.CommentUpdateRequest,System.Threading.CancellationToken)">
             <summary>
             Изменить комментарий.
             </summary>
@@ -194,7 +209,15 @@
             <param name="updateRequest">Элемент <see cref="T:Board.Contracts.Contexts.Comments.CommentUpdateRequest"/>.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
-        <member name="M:Board.Host.Api.Controllers.CommentController.Delete(System.Int32,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.CommentController.Patch(System.Guid,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{Board.Contracts.Contexts.Comments.CommentUpdateRequest},System.Threading.CancellationToken)">
+            <summary>
+            Частично изменить комментарий.
+            </summary>
+            <param name="id">Идентификатор комментария.</param>
+            <param name="updateRequest">Элемент <see cref="T:Board.Contracts.Contexts.Comments.CommentUpdateRequest"/>.</param>
+            <param name="cancellation">Токен отмены.</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.CommentController.DeleteById(System.Guid,System.Threading.CancellationToken)">
             <summary>
             Удалить комментарий.
             </summary>

@@ -8,5 +8,6 @@ namespace Board.Contracts.Contexts.Posts
 {
     public class AdvertUpdateRequest
     {
+        public int Id { get; set; }
     }
 }

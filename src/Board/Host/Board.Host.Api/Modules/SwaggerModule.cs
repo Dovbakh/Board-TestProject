@@ -42,7 +42,7 @@ namespace Board.Host.Api.Modules
                         new List<string>()
                     }
                 });
-            });
+            }).AddSwaggerGenNewtonsoftSupport();
 
             return services;
         }

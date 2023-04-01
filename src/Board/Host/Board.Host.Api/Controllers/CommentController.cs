@@ -1,7 +1,9 @@
 ﻿using Board.Application.AppData.Contexts.Comments.Services;
 using Board.Contracts;
 using Board.Contracts.Contexts.Comments;
+using Board.Contracts.Conventions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Board.Host.Api.Controllers
@@ -10,9 +12,9 @@ namespace Board.Host.Api.Controllers
     /// Работа с комментариями.
     /// </summary>
     [ApiController]
-    [Route("v1/[controller]")]
+    [Route("v1/comments")]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status500InternalServerError)]
+    [ApiConventionType(typeof(AppConventions))]
     public class CommentController : ControllerBase
     {
         private readonly ICommentService _commentService;
@@ -32,11 +34,9 @@ namespace Board.Host.Api.Controllers
         /// <param name="page">Номер страницы с комментариями.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Коллекция элементов <see cref="CommentDto"/>.</returns>
-        [HttpGet("comments")]
-        [ProducesResponseType(typeof(IReadOnlyCollection<CommentDetails>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAll(int? offset, int? count, CancellationToken cancellation)
+        public async Task<ActionResult<IReadOnlyCollection<CommentDetails>>> GetAll(int? offset, int? count, CancellationToken cancellation)
         {
             var result = await _commentService.GetAllAsync(offset, count, cancellation);
 
@@ -50,10 +50,8 @@ namespace Board.Host.Api.Controllers
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Коллекция элементов <see cref="CommentDto"/>.</returns>
         [HttpGet("filter")]
-        [ProducesResponseType(typeof(IReadOnlyCollection<CommentDetails>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAllFiltered([FromQuery] CommentFilterRequest filter, int take, int skip, CancellationToken cancellation)
+        public async Task<ActionResult<IReadOnlyCollection<CommentDetails>>> GetAllFiltered([FromQuery] CommentFilterRequest filter, int take, int skip, CancellationToken cancellation)
         {
             var result = await _commentService.GetAllFilteredAsync(filter, take, skip, cancellation);
 
@@ -68,10 +66,8 @@ namespace Board.Host.Api.Controllers
         /// <param name="cancellation">Токен отмены</param>
         /// <returns>Элемент <see cref="CommentDetails"/>.</returns>
         [HttpGet("{id:int}")]
-        [ProducesResponseType(typeof(CommentDetails), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [AllowAnonymous]
-        public async Task<IActionResult> GetById(int id, CancellationToken cancellation)
+        public async Task<ActionResult<CommentDetails>> GetById(Guid id, CancellationToken cancellation)
         {
             var result = await _commentService.GetByIdAsync(id, cancellation);
 
@@ -86,16 +82,12 @@ namespace Board.Host.Api.Controllers
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор нового комментария.</returns>
         [HttpPost]
-        [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-
         [Authorize]
-        public async Task<IActionResult> Add(CommentAddRequest addRequest, CancellationToken cancellation)
+        public async Task<ActionResult<Guid>> Create([FromBody] CommentAddRequest addRequest, CancellationToken cancellation)
         {
-            var commentId = await _commentService.AddAsync(addRequest, cancellation);
+            var commentId = await _commentService.CreateAsync(addRequest, cancellation);
 
-            return CreatedAtAction(nameof(GetById), new { id = commentId }, addRequest);
+            return CreatedAtAction(nameof(GetById), new { id = commentId, cancellation = cancellation });
         }
 
         /// <summary>
@@ -105,16 +97,28 @@ namespace Board.Host.Api.Controllers
         /// <param name="updateRequest">Элемент <see cref="CommentUpdateRequest"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
         [HttpPut]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [Authorize]
-        public async Task<IActionResult> Update(int id, CommentUpdateRequest updateRequest, CancellationToken cancellation)
+        public async Task<ActionResult<CommentDetails>> Update(Guid id, [FromBody] CommentUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            await _commentService.UpdateAsync(id, updateRequest, cancellation);
+            var result = await _commentService.UpdateAsync(id, updateRequest, cancellation);
 
-            return NoContent();
+            return Ok(result);
+        }
+
+
+        /// <summary>
+        /// Частично изменить комментарий.
+        /// </summary>
+        /// <param name="id">Идентификатор комментария.</param>
+        /// <param name="updateRequest">Элемент <see cref="CommentUpdateRequest"/>.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        [HttpPatch]
+        [Authorize]
+        public async Task<ActionResult<CommentDetails>> Patch(Guid id, [FromBody] JsonPatchDocument<CommentUpdateRequest> updateRequest, CancellationToken cancellation)
+        {
+            var result = await _commentService.PatchAsync(id, updateRequest, cancellation);
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -123,10 +127,8 @@ namespace Board.Host.Api.Controllers
         /// <param name="id">Идентификатор комментария.</param>
         /// <param name="cancellation">Токен отмены.</param>
         [HttpDelete]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize]
-        public async Task<IActionResult> Delete(int id, CancellationToken cancellation)
+        public async Task<IActionResult> DeleteById(Guid id, CancellationToken cancellation)
         {
             await _commentService.DeleteAsync(id, cancellation);
 

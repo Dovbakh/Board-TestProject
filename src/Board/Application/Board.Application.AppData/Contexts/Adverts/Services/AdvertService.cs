@@ -1,5 +1,6 @@
-﻿using Board.Application.AppData.Contexts.Posts.Services;
+﻿using Board.Application.AppData.Contexts.Adverts.Services;
 using Board.Contracts.Contexts.Posts;
+using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +11,12 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
 {
     public class AdvertService : IAdvertService
     {
-        public Task<int> AddAsync(AdvertAddRequest addRequest, CancellationToken cancellation)
+        public Task<int> CreateAsync(AdvertAddRequest addRequest, CancellationToken cancellation)
         {
             throw new NotImplementedException();
         }
 
-        public Task DeleteAsync(int id, CancellationToken cancellation)
+        public Task DeleteAsync(Guid id, CancellationToken cancellation)
         {
             throw new NotImplementedException();
         }
@@ -30,12 +31,17 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
             throw new NotImplementedException();
         }
 
-        public Task<AdvertDetails> GetByIdAsync(int id, CancellationToken cancellation)
+        public Task<AdvertDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
             throw new NotImplementedException();
         }
 
-        public Task UpdateAsync(int id, AdvertUpdateRequest updateRequest, CancellationToken cancellation)
+        public Task<AdvertDetails> PatchAsync(Guid id, JsonPatchDocument<AdvertUpdateRequest> updateRequest, CancellationToken cancellation)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<AdvertDetails> UpdateAsync(Guid id, AdvertUpdateRequest updateRequest, CancellationToken cancellation)
         {
             throw new NotImplementedException();
         }
