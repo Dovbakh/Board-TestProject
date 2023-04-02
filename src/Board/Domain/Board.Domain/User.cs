@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Board.Domain
 {
-    public class User : IdentityUser<int>
+    public class User : IdentityUser<Guid>
     {
 
         // <summary>
@@ -29,7 +29,7 @@ namespace Board.Domain
         /// <summary>
         /// Идентификатор роли пользователя.
         /// </summary>
-        public int RoleId { get; set; }
+        public Guid RoleId { get; set; }
 
         /// <summary>
         /// Роль пользователя.

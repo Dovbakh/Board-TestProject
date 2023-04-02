@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Board.Infrastructure.DataAccess
 {
-    public class BoardDbContext : IdentityDbContext<Domain.User, Domain.Role, int>
+    public class BoardDbContext : IdentityDbContext<Domain.User, Domain.Role, Guid>
     {
         public BoardDbContext(DbContextOptions options) 
             : base(options)

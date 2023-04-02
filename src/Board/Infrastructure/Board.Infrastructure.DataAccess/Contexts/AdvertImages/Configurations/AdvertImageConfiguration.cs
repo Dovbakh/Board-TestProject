@@ -16,10 +16,12 @@ namespace Board.Infrastructure.DataAccess.Contexts.PostImages.Configurations
         /// <inheritdoc />
         public void Configure(EntityTypeBuilder<Domain.AdvertImage> builder)
         {
-            builder.ToTable("PostImages");
+            builder.ToTable("AdvertImages");
 
-            builder.HasKey(pi => pi.Id);
-            builder.Property(pi => pi.Id).ValueGeneratedOnAdd();
+            builder.Property(ai => ai.CreatedAt).HasConversion(d => d, d => DateTime.SpecifyKind(d, DateTimeKind.Utc));
+
+            builder.HasKey(ai => ai.Id);
+            builder.Property(ai => ai.Id).ValueGeneratedOnAdd();
 
         }
     }

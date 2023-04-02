@@ -11,7 +11,7 @@ namespace Board.Domain
         /// <summary>
         /// Идентификатор отзыва.
         /// </summary>
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         /// <summary>
         /// Текст отзыва.
         /// </summary>
@@ -27,15 +27,15 @@ namespace Board.Domain
         /// <summary>
         /// Идентификатор пользователя, который оставил отзыв.
         /// </summary>
-        public int AuthorId { get; set; }
+        public Guid AuthorId { get; set; }
         /// <summary>
         /// Идентификатор пользователя, которому оставлен отзыв.
         /// </summary>
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
         /// <summary>
         /// Идентификатор пользователя, который оставил отзыв.
         /// </summary>
-        public int AdvertisementId { get; set; }
+        public Guid AdvertisementId { get; set; }
         /// <summary>
         /// Пользователь-автор.
         /// </summary>

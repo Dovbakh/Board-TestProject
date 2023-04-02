@@ -21,7 +21,7 @@ namespace Board.Domain
         /// <summary>
         /// Идентификатор родительской категории.
         /// </summary>
-        public int? ParentId { get; set; }
+        public Guid? ParentId { get; set; }
 
         /// <summary>
         /// Родительская категория.

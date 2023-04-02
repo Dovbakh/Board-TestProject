@@ -24,17 +24,25 @@ namespace Board.Infrastructure.DataAccess.Contexts.Users.Configurations
             builder.Property(u => u.Name).HasMaxLength(100);
             builder.Property(u => u.Address).HasMaxLength(500);
 
+            builder.Property(u => u.CreatedAt).HasConversion(d => d, d => DateTime.SpecifyKind(d, DateTimeKind.Utc));
+
             builder.HasMany(u => u.Posts)
                 .WithOne(a => a.User)
-                .HasForeignKey(a => a.UserId);
+                .HasForeignKey(a => a.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(u => u.CommentsBy)
                 .WithOne(c => c.Author)
-                .HasForeignKey(c => c.AuthorId);
+                .HasForeignKey(c => c.AuthorId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(u => u.CommentsFor)
                 .WithOne(c => c.User)
-                .HasForeignKey(c => c.UserId);
+                .HasForeignKey(c => c.UserId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

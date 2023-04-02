@@ -19,6 +19,8 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Configurations
             builder.Property(c => c.Id).ValueGeneratedOnAdd();
             builder.Property(c => c.Text).HasMaxLength(1000);
 
+            builder.Property(c => c.CreatedAt).HasConversion(d => d, d => DateTime.SpecifyKind(d, DateTimeKind.Utc));
+
         }
     }
 }

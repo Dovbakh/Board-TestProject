@@ -11,7 +11,7 @@ namespace Board.Domain
         /// <summary>
         /// Идентификатор обьявления.
         /// </summary>
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         /// <summary>
         /// Название обьявления.
@@ -61,12 +61,12 @@ namespace Board.Domain
         /// <summary>
         /// Идентификатор категории обьявления.
         /// </summary>
-        public int CategoryId { get; set; }
+        public Guid CategoryId { get; set; }
 
         /// <summary>
         /// Идентификатор пользователя-автора обьявления.
         /// </summary>
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
 
         /// <summary>
         /// Категория обьявления.
@@ -81,7 +81,7 @@ namespace Board.Domain
         /// <summary>
         /// Коллекция изображений обьявления.
         /// </summary>
-        public ICollection<AdvertImage> PostImages { get; set; }
+        public ICollection<AdvertImage> AdvertImages { get; set; }
 
     }
 }

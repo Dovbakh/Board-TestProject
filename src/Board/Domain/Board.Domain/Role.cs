@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Board.Domain
 {
-    public class Role : IdentityRole<int>
+    public class Role : IdentityRole<Guid>
     {
         /// <summary>
         /// Коллекция пользователей с этой ролью.

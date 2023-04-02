@@ -16,11 +16,16 @@ namespace Board.Domain
         /// <summary>
         /// Идентификатор обьявления.
         /// </summary>
-        public int PostId { get; set; }
+        public Guid AdvertId { get; set; }
+
+        /// <summary>
+        /// Дата загрузки изображения.
+        /// </summary>
+        public DateTime CreatedAt { get; set; }
 
         /// <summary>
         /// Обьявление, к которому относится изображение.
         /// </summary>
-        public Advert Post { get; set; }
+        public Advert Advert { get; set; }
     }
 }

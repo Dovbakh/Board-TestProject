@@ -41,7 +41,9 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Board.Infrastructure.Migrations", "src\Board\Infrastructure\Board.Infrastructure.Migrations\Board.Infrastructure.Migrations.csproj", "{D11B6B00-733E-4A7D-AD13-C10490A17517}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Board.Infrastructure.Registrar", "..\src\Board\Infrastructure\Board.Infrastructure.Registrar\Board.Infrastructure.Registrar.csproj", "{BCE188E8-3221-41EA-A203-34566373BAAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Board.Infrastructure.Registrar", "..\src\Board\Infrastructure\Board.Infrastructure.Registrar\Board.Infrastructure.Registrar.csproj", "{BCE188E8-3221-41EA-A203-34566373BAAB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Board.Host.DbMigrator", "src\Board\Host\Board.Host.DbMigrator\Board.Host.DbMigrator.csproj", "{B23154A6-3F0D-48EC-A28B-AB490C708BFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,6 +87,10 @@ Global
 		{BCE188E8-3221-41EA-A203-34566373BAAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCE188E8-3221-41EA-A203-34566373BAAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BCE188E8-3221-41EA-A203-34566373BAAB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B23154A6-3F0D-48EC-A28B-AB490C708BFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B23154A6-3F0D-48EC-A28B-AB490C708BFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B23154A6-3F0D-48EC-A28B-AB490C708BFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B23154A6-3F0D-48EC-A28B-AB490C708BFF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -106,6 +112,7 @@ Global
 		{BD5DA431-FAC8-4CFB-BFBD-9F695AA75514} = {BACDC671-6FB1-44CE-B39A-69C19F146FB8}
 		{D11B6B00-733E-4A7D-AD13-C10490A17517} = {31217A2D-189D-42C2-91D9-27756C7059A8}
 		{BCE188E8-3221-41EA-A203-34566373BAAB} = {31217A2D-189D-42C2-91D9-27756C7059A8}
+		{B23154A6-3F0D-48EC-A28B-AB490C708BFF} = {BACDC671-6FB1-44CE-B39A-69C19F146FB8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B9D5D80F-F972-4298-816B-B505ADAA6D00}
