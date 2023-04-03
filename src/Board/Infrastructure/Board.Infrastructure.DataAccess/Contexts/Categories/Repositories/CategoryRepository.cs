@@ -1,6 +1,11 @@
-﻿using Board.Application.AppData.Contexts.Categories.Repositories;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Board.Application.AppData.Contexts.Categories.Repositories;
 using Board.Contracts.Contexts.Categories;
 using Board.Contracts.Contexts.Comments;
+using Board.Domain;
+using Board.Infrastructure.Repository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,34 +16,72 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
 {
     public class CategoryRepository : ICategoryRepository
     {
-        public Task<Guid> AddAsync(CategoryDetails categoryDto, CancellationToken cancellation)
+        private readonly IRepository<Category> _repository;
+        private readonly IMapper _mapper;
+
+        public CategoryRepository(Repository.IRepository<Category> repository, IMapper mapper)
         {
-            throw new NotImplementedException();
+            _repository = repository;
+            _mapper = mapper;
         }
 
-        public Task DeleteAsync(Guid id, CancellationToken cancellation)
+        public async Task<IReadOnlyCollection<CategorySummary>> GetAllAsync(CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            return await _repository.GetAll().ProjectTo<CategorySummary>(_mapper.ConfigurationProvider).ToListAsync(cancellation);
         }
 
-        public Task<IReadOnlyCollection<CategoryDetails>> GetAllAsync(int take, int skip, CancellationToken cancellation)
+        public async Task<IReadOnlyCollection<CategorySummary>> GetAllFilteredAsync(CategoryFilterRequest filterRequest, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            var query = _repository.GetAll();
+
+
+            if (!string.IsNullOrWhiteSpace(filterRequest.Name))
+            {
+                query = query.Where(p => p.Name.ToLower().Contains(filterRequest.Name.ToLower()));
+            }
+
+            if (filterRequest.ParentId.HasValue)
+            {
+                query = query.Where(a => a.ParentId == filterRequest.ParentId);
+            }
+
+
+            return await query.ProjectTo<CategorySummary>(_mapper.ConfigurationProvider).ToListAsync(cancellation);
+  
         }
 
-        public Task<IReadOnlyCollection<CategoryDetails>> GetAllFilteredAsync(CategoryFilterRequest filterRequest, int take, int skip, CancellationToken cancellation)
+        public async Task<CategoryDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            return await _repository.GetAll().Where(c => c.Id == id).ProjectTo<CategoryDetails>(_mapper.ConfigurationProvider).FirstOrDefaultAsync(cancellation);
         }
 
-        public Task<CategoryDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
+        public async Task<Guid> AddAsync(Category entity, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            await _repository.AddAsync(entity, cancellation);
+            
+            return entity.Id;
         }
 
-        public Task UpdateAsync(Guid id, CommentUpdateRequest updateRequest, CancellationToken cancellation)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            var existingEntity = await _repository.GetByIdAsync(id, cancellation);
+            if (existingEntity == null)
+            {
+                throw new KeyNotFoundException();
+            }
+            
+            await _repository.DeleteAsync(existingEntity, cancellation);
+        }
+
+        public async Task UpdateAsync(Category entity, CancellationToken cancellation)
+        {
+            var existingEntity = await _repository.GetByIdAsync(entity.Id, cancellation);
+            if (existingEntity == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            await _repository.UpdateAsync(entity, cancellation);
         }
     }
 }

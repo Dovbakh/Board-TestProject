@@ -31,24 +31,24 @@ namespace Board.Infrastructure.Repository
         /// </summary>
         /// <param name="id">Идентификатор <see cref="TEntity"/>.</param>
         /// <returns><see cref="TEntity"/>.</returns>
-        Task<TEntity> GetByIdAsync(int id);
+        Task<TEntity> GetByIdAsync(Guid id, CancellationToken cancellation);
 
         /// <summary>
         /// Добавить элемент <see cref="TEntity"/>.
         /// </summary>
         /// <param name="model">Новая сущность <see cref="TEntity"/>.</param>
-        Task AddAsync(TEntity model);
+        Task AddAsync(TEntity model, CancellationToken cancellation);
 
         /// <summary>
         /// Изменить элемент <see cref="TEntity"/>.
         /// </summary>
         /// <param name="model">Существующая сущность <see cref="TEntity"/>.</param>
-        Task UpdateAsync(TEntity model);
+        Task UpdateAsync(TEntity model, CancellationToken cancellation);
 
         /// <summary>
         /// Удалить элемент <see cref="TEntity"/>.
         /// </summary>
         /// <param name="model">Существующая сущность <see cref="TEntity"/>.</param>
-        Task DeleteAsync(TEntity model);
+        Task DeleteAsync(TEntity model, CancellationToken cancellation);
     }
 }

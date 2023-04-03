@@ -41,26 +41,25 @@ namespace Board.Infrastructure.Repository
         }
 
         /// <inheritdoc />
-        public async Task<TEntity> GetByIdAsync(int id)
+        public async Task<TEntity> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
-            //DbSet.Sin
-            return await DbSet.FindAsync(id);
+            return await DbSet.FindAsync(id, cancellation);
         }
 
         /// <inheritdoc />
-        public async Task AddAsync(TEntity model)
+        public async Task AddAsync(TEntity model, CancellationToken cancellation)
         {
             if (model == null)
             {
                 throw new ArgumentNullException(nameof(model));
             }
 
-            await DbSet.AddAsync(model);
-            await DbContext.SaveChangesAsync();
+            await DbSet.AddAsync(model, cancellation);
+            await DbContext.SaveChangesAsync(cancellation);
         }
 
         /// <inheritdoc />
-        public async Task UpdateAsync(TEntity model)
+        public async Task UpdateAsync(TEntity model, CancellationToken cancellation)
         {
             if (model == null)
             {
@@ -68,11 +67,11 @@ namespace Board.Infrastructure.Repository
             }
 
             DbSet.Update(model);
-            await DbContext.SaveChangesAsync();
+            await DbContext.SaveChangesAsync(cancellation);
         }
 
         /// <inheritdoc />
-        public async Task DeleteAsync(TEntity model)
+        public async Task DeleteAsync(TEntity model, CancellationToken cancellation)
         {
             if (model == null)
             {
@@ -80,7 +79,7 @@ namespace Board.Infrastructure.Repository
             }
 
             DbSet.Remove(model);
-            await DbContext.SaveChangesAsync();
+            await DbContext.SaveChangesAsync(cancellation);
         }
 
 

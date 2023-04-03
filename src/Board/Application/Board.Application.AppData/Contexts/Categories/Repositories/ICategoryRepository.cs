@@ -1,5 +1,6 @@
 ﻿using Board.Contracts.Contexts.Categories;
 using Board.Contracts.Contexts.Comments;
+using Board.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,9 +21,9 @@ namespace Board.Application.AppData.Contexts.Categories.Repositories
         /// <param name="skip">Количество пропускаемых категорий.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Коллекция элементов <see cref="CategoryDetails"/>.</returns>
-        Task<IReadOnlyCollection<CategoryDetails>> GetAllAsync(int take, int skip, CancellationToken cancellation);
+        Task<IReadOnlyCollection<CategorySummary>> GetAllAsync(CancellationToken cancellation);
 
-        Task<IReadOnlyCollection<CategoryDetails>> GetAllFilteredAsync(CategoryFilterRequest filterRequest, int take, int skip, CancellationToken cancellation);
+        Task<IReadOnlyCollection<CategorySummary>> GetAllFilteredAsync(CategoryFilterRequest filterRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Получить категорию по идентификатору.
@@ -38,14 +39,15 @@ namespace Board.Application.AppData.Contexts.Categories.Repositories
         /// <param name="categoryDto">Элемент <see cref="CategoryDetails"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор новой категории.</returns>
-        Task<Guid> AddAsync(CategoryDetails categoryDto, CancellationToken cancellation);
+        Task<Guid> AddAsync(Category entity, CancellationToken cancellation);
+
 
         /// <summary>
         /// Изменить категорию.
         /// </summary>
         /// <param name="id">Идентификатор категории.</param>
         /// <param name="categoryDto">Элемент <see cref="CategoryDetails"/>.</param>
-        Task UpdateAsync(Guid id, CommentUpdateRequest updateRequest, CancellationToken cancellation);
+        Task UpdateAsync(Category entity, CancellationToken cancellation);
 
         /// <summary>
         /// Удалить категорию.

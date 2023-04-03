@@ -19,17 +19,20 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Configurations
             builder.ToTable("Categories");
 
             builder.HasKey(c => c.Id);
-            builder.Property(c => c.Id).ValueGeneratedOnAdd();
+            builder.Property(c => c.Id)
+                .ValueGeneratedOnAdd();
+            //builder.Property(c => c.Par
 
             builder.Property(c => c.Name).HasMaxLength(100);
 
-            builder.HasMany(с => с.Posts)
+            builder.HasMany(с => с.Adverts)
                 .WithOne(a => a.Category)
                 .HasForeignKey(a => a.CategoryId);
 
             builder.HasOne(c => c.Parent)
                 .WithMany(c => c.Children)
-                .HasForeignKey(c => c.ParentId);
+                .HasForeignKey(c => c.ParentId)
+                .OnDelete(DeleteBehavior.Cascade);
 
         }
     }

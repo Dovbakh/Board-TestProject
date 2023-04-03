@@ -47,14 +47,6 @@ namespace Board.Application.AppData.Contexts.Categories.Services
         Task<CategoryDetails> UpdateAsync(Guid id, CategoryUpdateRequest updateRequest, CancellationToken cancellation);
 
         /// <summary>
-        /// Изменить категорию.
-        /// </summary>
-        /// <param name="id">Идентификатор категории.</param>
-        /// <param name="categoryDto">Элемент <see cref="CategoryDetails"/>.</param>
-        /// <param name="cancellation">Токен отмены.</param>
-        Task<CategoryDetails> PatchAsync(Guid id, JsonPatchDocument<CategoryUpdateRequest> updateRequest, CancellationToken cancellation);
-
-        /// <summary>
         /// Удалить категорию.
         /// </summary>
         /// <param name="id">Идентификатор категории.</param>

@@ -36,6 +36,6 @@ namespace Board.Domain
         /// <summary>
         /// Коллекция обьявлений в категории.
         /// </summary>
-        public ICollection<Advert> Posts { get; set; }
+        public ICollection<Advert> Adverts { get; set; }
     }
 }

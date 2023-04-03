@@ -72,12 +72,12 @@ namespace Board.Host.Api.Controllers
         /// <response code="422">Произошёл конфликт бизнес-логики.</response>
         /// <returns>Идентификатор новой категории.</returns>
         [HttpPost]
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         public async Task<ActionResult<Guid>> Create([FromBody] CategoryCreateRequest createRequest, CancellationToken cancellation)
         {
             var categoryId = await _categoryService.CreateAsync(createRequest, cancellation);
 
-            return CreatedAtAction(nameof(GetById), new { id = categoryId, cancellation = cancellation });
+            return CreatedAtAction(nameof(GetById), new { id = categoryId});
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Board.Host.Api.Controllers
         /// <response code="422">Произошёл конфликт бизнес-логики.</response>
         /// <returns>Модель обновленной категории <see cref="CategoryDetails"/>.</returns>
         [HttpPut("{id:Guid}")]
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         public async Task<ActionResult<CategoryDetails>> Update(Guid id, [FromBody] CategoryUpdateRequest updateRequest, CancellationToken cancellation)
         {
             var result = await _categoryService.UpdateAsync(id, updateRequest, cancellation);
@@ -114,7 +114,7 @@ namespace Board.Host.Api.Controllers
         /// <response code="422">Произошёл конфликт бизнес-логики.</response>
         /// <returns>Модель обновленной категории <see cref="CategoryDetails"/>.</returns>
         [HttpPatch("{id:Guid}")]
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         public async Task<ActionResult<CategoryDetails>> Patch(Guid id, [FromBody] JsonPatchDocument<CategoryUpdateRequest> updateRequest, CancellationToken cancellation)
         {
             var result = await _categoryService.PatchAsync(id, updateRequest, cancellation);
@@ -131,7 +131,7 @@ namespace Board.Host.Api.Controllers
         /// <response code="403">Доступ запрещён.</response>
         /// <response code="404">Категория с указанным идентификатором не найдена.</response>
         [HttpDelete("{id:Guid}")]
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteById(Guid id, CancellationToken cancellation)
         {
             await _categoryService.DeleteAsync(id, cancellation);

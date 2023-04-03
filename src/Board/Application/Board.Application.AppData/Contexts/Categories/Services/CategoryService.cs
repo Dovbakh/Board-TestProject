@@ -1,5 +1,8 @@
-﻿using Board.Application.AppData.Contexts.Categories.Repositories;
+﻿using AutoMapper;
+using AutoMapper.Configuration.Annotations;
+using Board.Application.AppData.Contexts.Categories.Repositories;
 using Board.Contracts.Contexts.Categories;
+using Board.Domain;
 using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Collections.Generic;
@@ -13,35 +16,46 @@ namespace Board.Application.AppData.Contexts.Categories.Services
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IMapper _mapper;
 
-        public Task<Guid> CreateAsync(CategoryCreateRequest createRequest, CancellationToken cancellation)
+        public CategoryService(ICategoryRepository categoryRepository, IMapper mapper)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteAsync(Guid id, CancellationToken cancellation)
-        {
-            throw new NotImplementedException();
+            _categoryRepository = categoryRepository;
+            _mapper = mapper;
         }
 
         public Task<IReadOnlyCollection<CategorySummary>> GetAllAsync(CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            return _categoryRepository.GetAllAsync(cancellation);
         }
 
         public Task<CategoryDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            return _categoryRepository.GetByIdAsync(id, cancellation);
         }
 
-        public Task<CategoryDetails> PatchAsync(Guid id, JsonPatchDocument<CategoryUpdateRequest> updateRequest, CancellationToken cancellation)
+        public async Task<Guid> CreateAsync(CategoryCreateRequest createRequest, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            var entity = _mapper.Map<CategoryCreateRequest, Category>(createRequest);
+            var entityId = await _categoryRepository.AddAsync(entity, cancellation);
+
+            return entityId;
         }
 
-        public Task<CategoryDetails> UpdateAsync(Guid id, CategoryUpdateRequest updateRequest, CancellationToken cancellation)
+        public Task DeleteAsync(Guid id, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            return _categoryRepository.DeleteAsync(id, cancellation);
+        }
+
+
+        public async Task<CategoryDetails> UpdateAsync(Guid id, CategoryUpdateRequest updateRequest, CancellationToken cancellation)
+        {
+            var entity = _mapper.Map<CategoryUpdateRequest, Category>(updateRequest);
+            entity.Id = id;
+            await _categoryRepository.UpdateAsync(entity, cancellation);
+
+            var dto = _mapper.Map<Category, CategoryDetails>(entity);
+            return dto;
         }
     }
 }
