@@ -34,7 +34,7 @@ namespace Board.Application.AppData.Contexts.Categories.Services
             return _categoryRepository.GetByIdAsync(id, cancellation);
         }
 
-        public async Task<Guid> CreateAsync(CategoryCreateRequest createRequest, CancellationToken cancellation)
+        public async Task<Guid> CreateAsync(CategoryAddRequest createRequest, CancellationToken cancellation)
         {           
             var newCategoryId = await _categoryRepository.AddAsync(createRequest, cancellation);
 

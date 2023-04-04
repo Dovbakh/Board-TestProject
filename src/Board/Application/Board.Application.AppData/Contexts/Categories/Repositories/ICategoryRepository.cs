@@ -39,7 +39,7 @@ namespace Board.Application.AppData.Contexts.Categories.Repositories
         /// <param name="categoryDto">Элемент <see cref="CategoryDetails"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор новой категории.</returns>
-        Task<Guid> AddAsync(CategoryCreateRequest createRequest, CancellationToken cancellation);
+        Task<Guid> AddAsync(CategoryAddRequest createRequest, CancellationToken cancellation);
 
 
         /// <summary>

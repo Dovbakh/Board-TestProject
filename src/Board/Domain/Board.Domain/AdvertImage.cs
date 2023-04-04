@@ -27,5 +27,7 @@ namespace Board.Domain
         /// Обьявление, к которому относится изображение.
         /// </summary>
         public Advert Advert { get; set; }
+
+        public bool isActive { get; set; }
     }
 }

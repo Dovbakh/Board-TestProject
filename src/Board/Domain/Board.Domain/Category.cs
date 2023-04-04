@@ -37,5 +37,9 @@ namespace Board.Domain
         /// Коллекция обьявлений в категории.
         /// </summary>
         public ICollection<Advert> Adverts { get; set; }
+
+        public bool isActive { get; set; }
+
+        public DateTime CreatedAt { get; set; }
     }
 }

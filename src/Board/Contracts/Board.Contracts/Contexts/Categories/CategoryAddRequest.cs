@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Categories
 {
-    public class CategoryCreateRequest
+    public class CategoryAddRequest
     {
         /// <summary>
         /// Название категории.

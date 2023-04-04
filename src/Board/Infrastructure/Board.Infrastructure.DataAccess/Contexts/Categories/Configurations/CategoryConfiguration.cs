@@ -23,6 +23,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Configurations
                 .ValueGeneratedOnAdd();
             //builder.Property(c => c.Par
 
+
             builder.Property(c => c.Name).HasMaxLength(100);
 
             builder.HasMany(с => с.Adverts)

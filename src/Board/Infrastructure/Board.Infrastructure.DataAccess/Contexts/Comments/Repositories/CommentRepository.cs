@@ -88,6 +88,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
         {
             var existingDto = await _repository.GetAll()
                 .Where(c => c.Id == commentId)
+                .Include(c => c.Author)
                 .ProjectTo<CommentDetails>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellation);
 

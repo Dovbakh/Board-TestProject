@@ -57,5 +57,7 @@ namespace Board.Domain
         /// Обьявление, к которому оставлен отзыв.
         /// </summary>
         public Advert Post { get; set; }
+
+        public bool isActive { get; set; }
     }
 }

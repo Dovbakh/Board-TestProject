@@ -29,8 +29,6 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Configurations
 
             builder.Property(a => a.Phone).HasMaxLength(50);
 
-            builder.Property(a => a.CreatedAt).HasConversion(d => d, d => DateTime.SpecifyKind(d, DateTimeKind.Utc));
-
             builder.HasMany(a => a.AdvertImages)
                 .WithOne(ai => ai.Advert)
                 .HasForeignKey(ai => ai.AdvertId)

@@ -66,9 +66,9 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
             return existingDto;
         }
 
-        public async Task<Guid> AddAsync(CategoryCreateRequest createRequest, CancellationToken cancellation)
+        public async Task<Guid> AddAsync(CategoryAddRequest createRequest, CancellationToken cancellation)
         {
-            var newEntity = _mapper.Map<CategoryCreateRequest, Category>(createRequest);
+            var newEntity = _mapper.Map<CategoryAddRequest, Category>(createRequest);
             await _repository.AddAsync(newEntity, cancellation);
             
             return newEntity.Id;

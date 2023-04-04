@@ -109,11 +109,11 @@
             <response code="404">Категория с указанным идентификатором не найдена.</response>
             <returns>Модель категории <see cref="T:Board.Contracts.Contexts.Categories.CategoryDetails"/>.</returns>
         </member>
-        <member name="M:Board.Host.Api.Controllers.CategoryController.Create(Board.Contracts.Contexts.Categories.CategoryCreateRequest,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.CategoryController.Create(Board.Contracts.Contexts.Categories.CategoryAddRequest,System.Threading.CancellationToken)">
             <summary>
             Создать новую категорию.
             </summary>
-            <param name="createRequest">Модель запроса создания категории <see cref="T:Board.Contracts.Contexts.Categories.CategoryCreateRequest"/>.</param>
+            <param name="createRequest">Модель запроса создания категории <see cref="T:Board.Contracts.Contexts.Categories.CategoryAddRequest"/>.</param>
             <param name="cancellation">Токен отмены.</param>
             <response code="201">Категория успешно создана.</response>
             <response code="400">Модель данных запроса невалидна.</response>

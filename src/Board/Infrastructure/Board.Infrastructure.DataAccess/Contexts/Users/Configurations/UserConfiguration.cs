@@ -24,7 +24,6 @@ namespace Board.Infrastructure.DataAccess.Contexts.Users.Configurations
             builder.Property(u => u.Name).HasMaxLength(100);
             builder.Property(u => u.Address).HasMaxLength(500);
 
-            builder.Property(u => u.CreatedAt).HasConversion(d => d, d => DateTime.SpecifyKind(d, DateTimeKind.Utc));
 
             builder.HasMany(u => u.Posts)
                 .WithOne(a => a.User)

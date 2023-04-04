@@ -36,7 +36,7 @@ namespace Board.Application.AppData.Contexts.Categories.Services
         /// <param name="categoryDto">Элемент <see cref="CategoryDetails"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор новой категории.</returns>
-        Task<Guid> CreateAsync(CategoryCreateRequest createRequest, CancellationToken cancellation);
+        Task<Guid> CreateAsync(CategoryAddRequest createRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Изменить категорию.

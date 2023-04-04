@@ -18,7 +18,6 @@ namespace Board.Infrastructure.DataAccess.Contexts.PostImages.Configurations
         {
             builder.ToTable("AdvertImages");
 
-            builder.Property(ai => ai.CreatedAt).HasConversion(d => d, d => DateTime.SpecifyKind(d, DateTimeKind.Utc));
 
             builder.HasKey(ai => ai.Id);
             builder.Property(ai => ai.Id).ValueGeneratedOnAdd();

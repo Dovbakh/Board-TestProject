@@ -39,16 +39,18 @@ namespace Board.Domain
         /// <summary>
         /// Коллекция обьявлений пользователя.
         /// </summary>
-        public virtual ICollection<Advert> Posts { get; set; }
+        public ICollection<Advert> Posts { get; set; }
 
         /// <summary>
         /// Коллекция отзывов, написанных пользователем.
         /// </summary>
-        public virtual ICollection<Comment> CommentsBy { get; set; }
+        public ICollection<Comment> CommentsBy { get; set; }
 
         /// <summary>
         /// Коллекция отзывов, написанных о пользователе.
         /// </summary>
-        public virtual ICollection<Comment> CommentsFor { get; set; }
+        public ICollection<Comment> CommentsFor { get; set; }
+
+        public bool isActive { get; set; }
     }
 }

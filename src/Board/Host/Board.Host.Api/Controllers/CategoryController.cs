@@ -65,7 +65,7 @@ namespace Board.Host.Api.Controllers
         /// <summary>
         /// Создать новую категорию.
         /// </summary>
-        /// <param name="createRequest">Модель запроса создания категории <see cref="CategoryCreateRequest"/>.</param>
+        /// <param name="createRequest">Модель запроса создания категории <see cref="CategoryAddRequest"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <response code="201">Категория успешно создана.</response>
         /// <response code="400">Модель данных запроса невалидна.</response>
@@ -73,7 +73,7 @@ namespace Board.Host.Api.Controllers
         /// <returns>Идентификатор новой категории.</returns>
         [HttpPost]
         //[Authorize(Roles = "admin")]
-        public async Task<ActionResult<Guid>> Create([FromBody] CategoryCreateRequest createRequest, CancellationToken cancellation)
+        public async Task<ActionResult<Guid>> Create([FromBody] CategoryAddRequest createRequest, CancellationToken cancellation)
         {
             var categoryId = await _categoryService.CreateAsync(createRequest, cancellation);
 

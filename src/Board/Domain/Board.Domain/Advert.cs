@@ -68,5 +68,7 @@ namespace Board.Domain
         /// </summary>
         public ICollection<AdvertImage> AdvertImages { get; set; }
 
+        public bool isActive { get; set; }
+
     }
 }
