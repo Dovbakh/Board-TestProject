@@ -1,4 +1,4 @@
-﻿using Board.Contracts.Contexts.Posts;
+﻿using Board.Contracts.Contexts.Adverts;
 using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Collections.Generic;
@@ -44,7 +44,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         /// <param name="addRequest">Элемент <see cref="AdvertAddRequest"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор нового обьявления.</returns>
-        Task<int> CreateAsync(AdvertAddRequest addRequest, CancellationToken cancellation);
+        Task<Guid> CreateAsync(AdvertAddRequest addRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Изменить обьявление.

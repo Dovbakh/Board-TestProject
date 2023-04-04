@@ -35,27 +35,22 @@ namespace Board.Application.AppData.Contexts.Categories.Services
         }
 
         public async Task<Guid> CreateAsync(CategoryCreateRequest createRequest, CancellationToken cancellation)
-        {
-            var entity = _mapper.Map<CategoryCreateRequest, Category>(createRequest);
-            var entityId = await _categoryRepository.AddAsync(entity, cancellation);
+        {           
+            var newCategoryId = await _categoryRepository.AddAsync(createRequest, cancellation);
 
-            return entityId;
+            return newCategoryId;
+        }
+
+        public async Task<CategoryDetails> UpdateAsync(Guid id, CategoryUpdateRequest updateRequest, CancellationToken cancellation)
+        {
+            var updatedDto = await _categoryRepository.UpdateAsync(id, updateRequest, cancellation);
+
+            return updatedDto;
         }
 
         public Task DeleteAsync(Guid id, CancellationToken cancellation)
         {
             return _categoryRepository.DeleteAsync(id, cancellation);
-        }
-
-
-        public async Task<CategoryDetails> UpdateAsync(Guid id, CategoryUpdateRequest updateRequest, CancellationToken cancellation)
-        {
-            var entity = _mapper.Map<CategoryUpdateRequest, Category>(updateRequest);
-            entity.Id = id;
-            await _categoryRepository.UpdateAsync(entity, cancellation);
-
-            var dto = _mapper.Map<Category, CategoryDetails>(entity);
-            return dto;
         }
     }
 }

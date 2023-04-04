@@ -77,7 +77,7 @@ namespace Board.Host.Api.Controllers
         {
             var categoryId = await _categoryService.CreateAsync(createRequest, cancellation);
 
-            return CreatedAtAction(nameof(GetById), new { id = categoryId});
+            return CreatedAtAction(nameof(GetById), new { id = categoryId });
         }
 
         /// <summary>
@@ -97,27 +97,6 @@ namespace Board.Host.Api.Controllers
         public async Task<ActionResult<CategoryDetails>> Update(Guid id, [FromBody] CategoryUpdateRequest updateRequest, CancellationToken cancellation)
         {
             var result = await _categoryService.UpdateAsync(id, updateRequest, cancellation);
-
-            return Ok(result);
-        }
-
-        /// <summary>
-        /// Частично обновить категорию.
-        /// </summary>
-        /// <param name="id">Идентификатор.</param>
-        /// <param name="updateRequest">Модель запроса обновления категории <see cref="CategoryUpdateRequest"/>.</param>
-        /// <param name="cancellation">Токен отмены.</param>
-        /// <response code="200">Запрос выполнен успешно.</response>
-        /// <response code="400">Модель данных запроса невалидна.</response>
-        /// <response code="403">Доступ запрещён.</response>
-        /// <response code="404">Категория с указанным идентификатором не найдена.</response>
-        /// <response code="422">Произошёл конфликт бизнес-логики.</response>
-        /// <returns>Модель обновленной категории <see cref="CategoryDetails"/>.</returns>
-        [HttpPatch("{id:Guid}")]
-        //[Authorize(Roles = "admin")]
-        public async Task<ActionResult<CategoryDetails>> Patch(Guid id, [FromBody] JsonPatchDocument<CategoryUpdateRequest> updateRequest, CancellationToken cancellation)
-        {
-            var result = await _categoryService.PatchAsync(id, updateRequest, cancellation);
 
             return Ok(result);
         }

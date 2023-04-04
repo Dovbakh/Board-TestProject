@@ -1,12 +1,12 @@
-﻿using Board.Application.AppData.Contexts.PostImages.Repositories;
-using Board.Contracts.Contexts.PostImages;
+﻿using Board.Application.AppData.Contexts.AdvertImages.Repositories;
+using Board.Contracts.Contexts.AdvertImages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Board.Infrastructure.DataAccess.Contexts.PostImages.Repositories
+namespace Board.Infrastructure.DataAccess.Contexts.AdvertImages.Repositories
 {
     public class AdvertImageRepository : IAdvertImageRepository
     {

@@ -27,13 +27,16 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
 
         public async Task<IReadOnlyCollection<CategorySummary>> GetAllAsync(CancellationToken cancellation)
         {
-            return await _repository.GetAll().ProjectTo<CategorySummary>(_mapper.ConfigurationProvider).ToListAsync(cancellation);
+            var existingDtoList = await _repository.GetAll()
+                .ProjectTo<CategorySummary>(_mapper.ConfigurationProvider)
+                .ToListAsync(cancellation);
+
+            return existingDtoList;
         }
 
         public async Task<IReadOnlyCollection<CategorySummary>> GetAllFilteredAsync(CategoryFilterRequest filterRequest, CancellationToken cancellation)
         {
             var query = _repository.GetAll();
-
 
             if (!string.IsNullOrWhiteSpace(filterRequest.Name))
             {
@@ -45,43 +48,56 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
                 query = query.Where(a => a.ParentId == filterRequest.ParentId);
             }
 
+            var existingDtoList = await query
+                .ProjectTo<CategorySummary>(_mapper.ConfigurationProvider)
+                .ToListAsync(cancellation);
 
-            return await query.ProjectTo<CategorySummary>(_mapper.ConfigurationProvider).ToListAsync(cancellation);
-  
+
+            return existingDtoList;
         }
 
-        public async Task<CategoryDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
+        public async Task<CategoryDetails> GetByIdAsync(Guid categoryId, CancellationToken cancellation)
         {
-            return await _repository.GetAll().Where(c => c.Id == id).ProjectTo<CategoryDetails>(_mapper.ConfigurationProvider).FirstOrDefaultAsync(cancellation);
+            var existingDto = await _repository.GetAll()
+                .Where(c => c.Id == categoryId)
+                .ProjectTo<CategoryDetails>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync(cancellation);
+
+            return existingDto;
         }
 
-        public async Task<Guid> AddAsync(Category entity, CancellationToken cancellation)
+        public async Task<Guid> AddAsync(CategoryCreateRequest createRequest, CancellationToken cancellation)
         {
-            await _repository.AddAsync(entity, cancellation);
+            var newEntity = _mapper.Map<CategoryCreateRequest, Category>(createRequest);
+            await _repository.AddAsync(newEntity, cancellation);
             
-            return entity.Id;
+            return newEntity.Id;
         }
 
-        public async Task DeleteAsync(Guid id, CancellationToken cancellation)
+        public async Task<CategoryDetails> UpdateAsync(Guid categoryId, CategoryUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            var existingEntity = await _repository.GetByIdAsync(id, cancellation);
+            var existingEntity = await _repository.GetByIdAsync(categoryId, cancellation);
             if (existingEntity == null)
             {
                 throw new KeyNotFoundException();
             }
-            
+
+            var updatedEntity = _mapper.Map<CategoryUpdateRequest, Category>(updateRequest, existingEntity);
+            await _repository.UpdateAsync(updatedEntity, cancellation);
+            var updatedDto = _mapper.Map<Category, CategoryDetails>(updatedEntity);
+
+            return updatedDto;
+        }
+
+        public async Task DeleteAsync(Guid categoryId, CancellationToken cancellation)
+        {
+            var existingEntity = await _repository.GetByIdAsync(categoryId, cancellation);
+            if (existingEntity == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
             await _repository.DeleteAsync(existingEntity, cancellation);
-        }
-
-        public async Task UpdateAsync(Category entity, CancellationToken cancellation)
-        {
-            var existingEntity = await _repository.GetByIdAsync(entity.Id, cancellation);
-            if (existingEntity == null)
-            {
-                throw new KeyNotFoundException();
-            }
-
-            await _repository.UpdateAsync(entity, cancellation);
         }
     }
 }

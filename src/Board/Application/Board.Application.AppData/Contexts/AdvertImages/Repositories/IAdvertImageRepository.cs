@@ -1,11 +1,11 @@
-﻿using Board.Contracts.Contexts.PostImages;
+﻿using Board.Contracts.Contexts.AdvertImages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Board.Application.AppData.Contexts.PostImages.Repositories
+namespace Board.Application.AppData.Contexts.AdvertImages.Repositories
 {
     /// <summary>
     /// Репозиторий для чтения\записи изображений из обьявления.

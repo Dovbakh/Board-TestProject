@@ -1,5 +1,12 @@
-﻿using Board.Application.AppData.Contexts.Comments.Repositories;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Board.Application.AppData.Contexts.Comments.Repositories;
+using Board.Contracts.Contexts.Adverts;
+using Board.Contracts.Contexts.Categories;
 using Board.Contracts.Contexts.Comments;
+using Board.Domain;
+using Board.Infrastructure.Repository;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,34 +17,115 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
 {
     public class CommentRepository : ICommentRepository
     {
-        public Task<int> AddAsync(CommentAddRequest addRequest, CancellationToken cancellation)
+        private readonly IRepository<Comment> _repository;
+        private readonly IMapper _mapper;
+
+        public CommentRepository(IRepository<Comment> repository, IMapper mapper)
         {
-            throw new NotImplementedException();
+            _repository = repository;
+            _mapper = mapper;
         }
 
-        public Task DeleteAsync(int id, CancellationToken cancellation)
+        public async Task<IReadOnlyCollection<CommentDetails>> GetAllAsync(int offset, int limit, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            var existingDtoList = await _repository.GetAll()
+                .ProjectTo<CommentDetails>(_mapper.ConfigurationProvider)
+                .ToListAsync(cancellation);
+
+            return existingDtoList;
         }
 
-        public Task<IReadOnlyCollection<CommentDetails>> GetAllAsync(int take, int skip, CancellationToken cancellation)
+        public async Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int offset, int limit, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            var query = _repository.GetAll();
+
+
+            if (filterRequest.UserId.HasValue)
+            {
+                query = query.Where(a => a.UserId == filterRequest.UserId);
+            }
+            if (filterRequest.AuthorId.HasValue)
+            {
+                query = query.Where(a => a.AuthorId == filterRequest.AuthorId);
+            }
+            if (filterRequest.AdvertisementId.HasValue)
+            {
+                query = query.Where(a => a.AdvertisementId == filterRequest.AdvertisementId);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filterRequest.Text))
+            {
+                query = query.Where(p => p.Text.ToLower().Contains(filterRequest.Text.ToLower()));
+            }
+
+            if (filterRequest.SortBy.HasValue)
+            {
+                switch (filterRequest.SortBy)
+                {
+                    case 1:
+                        query = filterRequest.OrderDesc == 1 ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt);
+                        break;
+                    case 2:
+                        query = filterRequest.OrderDesc == 1 ? query.OrderByDescending(p => p.Rating) : query.OrderBy(p => p.Rating);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            var existingDtoList = await query
+                .Include(c => c.Author)
+                .ProjectTo<CommentDetails>(_mapper.ConfigurationProvider)
+                .Skip(offset)
+                .Take(limit)
+                .ToListAsync(cancellation);
+
+
+            return existingDtoList;
         }
 
-        public Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int take, int skip, CancellationToken cancellation)
+        public async Task<CommentDetails> GetByIdAsync(Guid commentId, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            var existingDto = await _repository.GetAll()
+                .Where(c => c.Id == commentId)
+                .ProjectTo<CommentDetails>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync(cancellation);
+
+            return existingDto;
         }
 
-        public Task<CommentDetails> GetByIdAsync(int id, CancellationToken cancellation)
+        public async Task<Guid> AddAsync(CommentAddRequest addRequest, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            var newEntity = _mapper.Map<CommentAddRequest, Comment>(addRequest);
+            await _repository.AddAsync(newEntity, cancellation);
+
+            return newEntity.Id;
         }
 
-        public Task UpdateAsync(int id, CommentUpdateRequest updateRequest, CancellationToken cancellation)
+        public async Task<CommentDetails> UpdateAsync(Guid commentId, CommentUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            var existingEntity = await _repository.GetByIdAsync(commentId, cancellation);
+            if (existingEntity == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            var updatedEntity = _mapper.Map<CommentUpdateRequest, Comment>(updateRequest, existingEntity);
+            await _repository.UpdateAsync(updatedEntity, cancellation);
+            var updatedDto = _mapper.Map<Comment, CommentDetails>(updatedEntity);
+
+            return updatedDto;
+        }
+
+        public async Task DeleteAsync(Guid commentId, CancellationToken cancellation)
+        {
+            var existingEntity = await _repository.GetByIdAsync(commentId, cancellation);
+            if (existingEntity == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            await _repository.DeleteAsync(existingEntity, cancellation);
         }
     }
 }

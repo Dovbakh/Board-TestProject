@@ -1,7 +1,7 @@
 ﻿using Board.Application.AppData.Contexts.Adverts.Services;
 using Board.Contracts;
 using Board.Contracts.Contexts.Categories;
-using Board.Contracts.Contexts.Posts;
+using Board.Contracts.Contexts.Adverts;
 using Board.Contracts.Conventions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
@@ -60,9 +60,9 @@ namespace Board.Host.Api.Controllers
         /// <returns>Элемент <see cref="AdvertSummary"/>.</returns>
         [HttpGet("filter")]
         [AllowAnonymous]
-        public async Task<ActionResult<IReadOnlyCollection<AdvertSummary>>> GetAllFiltered([FromQuery] AdvertFilterRequest filter, int? offset, int? count, CancellationToken cancellation)
+        public async Task<ActionResult<IReadOnlyCollection<AdvertSummary>>> GetAllFiltered([FromQuery] AdvertFilterRequest filter, int? offset, int? limit, CancellationToken cancellation)
         {
-            var result = await _advertService.GetAllFilteredAsync(filter, offset, count, cancellation);
+            var result = await _advertService.GetAllFilteredAsync(filter, offset, limit, cancellation);
 
             return Ok(result);
         }
@@ -90,11 +90,12 @@ namespace Board.Host.Api.Controllers
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор нового обьявления.</returns>
         [HttpPost]
-        [Authorize]
+        //[Authorize]
         public async Task<ActionResult<Guid>> Create([FromBody] AdvertAddRequest addRequest, CancellationToken cancellation)
         {
-            var advertisementId = await _advertService.CreateAsync(addRequest, cancellation);
-            return CreatedAtAction(nameof(GetById), new { id = advertisementId }, addRequest);
+            var advertId = await _advertService.CreateAsync(addRequest, cancellation);
+            return Ok(advertId);
+            //return CreatedAtAction(nameof(GetById), new { id = advertId });
         }
 
         /// <summary>
@@ -104,7 +105,7 @@ namespace Board.Host.Api.Controllers
         /// <param name="updateRequest">Элемент <see cref="AdvertUpdateRequest"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
         [HttpPut("{id:Guid}")]
-        [Authorize]
+        //[Authorize]
         public async Task<ActionResult<AdvertDetails>> Update(Guid id, [FromBody] AdvertUpdateRequest updateRequest, CancellationToken cancellation)
         {
             var result = await _advertService.UpdateAsync(id, updateRequest, cancellation);
@@ -126,7 +127,7 @@ namespace Board.Host.Api.Controllers
         /// <response code="422">Произошёл конфликт бизнес-логики.</response>
         /// <returns>Модель обновленной категории <see cref="AdvertDetails"/>.</returns>
         [HttpPatch("{id:Guid}")]
-        [Authorize(Roles = "admin")]
+        //[Authorize(Roles = "admin")]
         public async Task<ActionResult<AdvertDetails>> Patch(Guid id, [FromBody] JsonPatchDocument<AdvertUpdateRequest> updateRequest, CancellationToken cancellation)
         {
             var result = await _advertService.PatchAsync(id, updateRequest, cancellation);
@@ -140,7 +141,7 @@ namespace Board.Host.Api.Controllers
         /// <param name="id">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
         [HttpDelete("{id:Guid}")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> DeleteById(Guid id, CancellationToken cancellation)
         {
             await _advertService.DeleteAsync(id, cancellation);

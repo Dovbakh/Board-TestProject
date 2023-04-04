@@ -39,24 +39,9 @@ namespace Board.Domain
         public string Phone { get; set; }
 
         /// <summary>
-        /// Имя пользователя-автора обьявления.
-        /// </summary>
-        public string UserName { get; set; }
-
-        /// <summary>
         /// Дата создания обьявления.
         /// </summary>
         public DateTime CreatedAt { get; set; }
-
-        /// <summary>
-        /// Дата истечения срока обьявления.
-        /// </summary>
-        public DateTime ExpireAt { get; set; }
-
-        /// <summary>
-        /// Количество просмотров обьявления.
-        /// </summary>
-        public int NumberOfViews { get; set; }
 
         /// <summary>
         /// Идентификатор категории обьявления.

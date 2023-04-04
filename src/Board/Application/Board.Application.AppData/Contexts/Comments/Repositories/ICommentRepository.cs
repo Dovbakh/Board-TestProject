@@ -18,7 +18,7 @@ namespace Board.Application.AppData.Contexts.Comments.Repositories
         /// <param name="id">Идентификатор комментария.</param>
         /// <param name="cancellation">Токен отмены</param>
         /// <returns>Элемент <see cref="CommentDetails"/>.</returns>
-        Task<CommentDetails> GetByIdAsync(int id, CancellationToken cancellation);
+        Task<CommentDetails> GetByIdAsync(Guid id, CancellationToken cancellation);
 
         /// <summary>
         /// Получить все комментарии c пагинацией.
@@ -26,7 +26,7 @@ namespace Board.Application.AppData.Contexts.Comments.Repositories
         /// <param name="filterRequest">Фильтр для поиска.</param>
         /// <param name="cancellation">Токен отмены</param>
         /// <returns>Элемент <see cref="CommentDetails"/>.</returns>
-        Task<IReadOnlyCollection<CommentDetails>> GetAllAsync(int take, int skip, CancellationToken cancellation);
+        Task<IReadOnlyCollection<CommentDetails>> GetAllAsync(int offset, int limit, CancellationToken cancellation);
 
         /// <summary>
         /// Получить все комментарии по фильтру с пагинацией.
@@ -34,7 +34,7 @@ namespace Board.Application.AppData.Contexts.Comments.Repositories
         /// <param name="filterRequest">Фильтр для поиска.</param>
         /// <param name="cancellation">Токен отмены</param>
         /// <returns>Элемент <see cref="CommentDetails"/>.</returns>
-        Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int take, int skip, CancellationToken cancellation);
+        Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int offset, int limit, CancellationToken cancellation);
 
         /// <summary>
         /// Добавить новую комментарий.
@@ -42,19 +42,19 @@ namespace Board.Application.AppData.Contexts.Comments.Repositories
         /// <param name="addRequest">Элемент <see cref="CommentAddRequest"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор новой комментария.</returns>
-        Task<int> AddAsync(CommentAddRequest addRequest, CancellationToken cancellation);
+        Task<Guid> AddAsync(CommentAddRequest addRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Изменить комментарий.
         /// </summary>
         /// <param name="id">Идентификатор комментария.</param>
         /// <param name="updateRequest">Элемент <see cref="CommentUpdateRequest"/>.</param>
-        Task UpdateAsync(int id, CommentUpdateRequest updateRequest, CancellationToken cancellation);
+        Task<CommentDetails> UpdateAsync(Guid id, CommentUpdateRequest updateRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Удалить комментарий.
         /// </summary>
         /// <param name="id">Идентификатор комментария.</param>
-        Task DeleteAsync(int id, CancellationToken cancellation);
+        Task DeleteAsync(Guid id, CancellationToken cancellation);
     }
 }

@@ -39,7 +39,7 @@ namespace Board.Application.AppData.Contexts.Categories.Repositories
         /// <param name="categoryDto">Элемент <see cref="CategoryDetails"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор новой категории.</returns>
-        Task<Guid> AddAsync(Category entity, CancellationToken cancellation);
+        Task<Guid> AddAsync(CategoryCreateRequest createRequest, CancellationToken cancellation);
 
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Board.Application.AppData.Contexts.Categories.Repositories
         /// </summary>
         /// <param name="id">Идентификатор категории.</param>
         /// <param name="categoryDto">Элемент <see cref="CategoryDetails"/>.</param>
-        Task UpdateAsync(Category entity, CancellationToken cancellation);
+        Task<CategoryDetails> UpdateAsync(Guid id, CategoryUpdateRequest updateRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Удалить категорию.

@@ -1,11 +1,12 @@
-﻿using Board.Contracts.Contexts.Posts;
+﻿using Board.Contracts.Contexts.Adverts;
+using Board.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Board.Application.AppData.Contexts.Posts.Repositories
+namespace Board.Application.AppData.Contexts.Adverts.Repositories
 {
     /// <summary>
     /// Репозиторий чтения/записи для работы с обьявлениями.
@@ -19,7 +20,7 @@ namespace Board.Application.AppData.Contexts.Posts.Repositories
         /// <param name="skip">Количество пропускаемых обьявлений.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
-        Task<IReadOnlyCollection<AdvertSummary>> GetAllAsync(int take, int skip, CancellationToken cancellation);
+        Task<IReadOnlyCollection<AdvertSummary>> GetAllAsync(int offset, int count, CancellationToken cancellation);
 
         /// <summary>
         /// Получить все обьявления по фильтру и с пагинацией.
@@ -29,7 +30,7 @@ namespace Board.Application.AppData.Contexts.Posts.Repositories
         /// <param name="skip">Количество пропускаемых обьявлений.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns></returns>
-        Task<IReadOnlyCollection<AdvertSummary>> GetAllFilteredAsync(AdvertFilterRequest filter, int take, int skip, CancellationToken cancellation);
+        Task<IReadOnlyCollection<AdvertSummary>> GetAllFilteredAsync(AdvertFilterRequest filter, int offset, int count, CancellationToken cancellation);
 
         /// <summary>
         /// Получить обьявление по идентификатору.
@@ -37,7 +38,7 @@ namespace Board.Application.AppData.Contexts.Posts.Repositories
         /// <param name="id">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены</param>
         /// <returns>Элемент <see cref="AdvertDetails"/>.</returns>
-        Task<AdvertDetails> GetByIdAsync(int id, CancellationToken cancellation);
+        Task<AdvertDetails> GetByIdAsync(Guid id, CancellationToken cancellation);
 
         /// <summary>
         /// Добавить новое обьявление.
@@ -45,7 +46,7 @@ namespace Board.Application.AppData.Contexts.Posts.Repositories
         /// <param name="addRequest">Элемент <see cref="AdvertAddRequest"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор нового обьявления.</returns>
-        Task<int> AddAsync(AdvertAddRequest addRequest, CancellationToken cancellation);
+        Task<Guid> AddAsync(AdvertAddRequest addRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Изменить обьявление.
@@ -53,14 +54,14 @@ namespace Board.Application.AppData.Contexts.Posts.Repositories
         /// <param name="id">Идентификатор обьявления.</param>
         /// <param name="updateRequest">Элемент <see cref="AdvertUpdateRequest"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        Task UpdateAsync(int id, AdvertUpdateRequest updateRequest, CancellationToken cancellation);
+        Task<AdvertDetails> UpdateAsync(Guid id, AdvertUpdateRequest updateRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Удалить обьявление.
         /// </summary>
         /// <param name="id">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        Task DeleteAsync(int id, CancellationToken cancellation);
+        Task DeleteAsync(Guid id, CancellationToken cancellation);
 
     }
 }
