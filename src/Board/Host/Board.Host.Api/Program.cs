@@ -5,12 +5,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddServiceRegistrationModule();
+
 builder.Services.AddControllers().AddNewtonsoftJson();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerModule();
+builder.Services.AddIdentityModule();
 
 builder.Services.AddAuthentication("Bearer")
     .AddIdentityServerAuthentication("Bearer", options =>
@@ -19,7 +22,7 @@ builder.Services.AddAuthentication("Bearer")
         options.ApiName = "BoardApi";
     });
 
-builder.Services.AddServiceRegistrationModule();
+
 
 var app = builder.Build();
 

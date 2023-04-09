@@ -25,7 +25,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Users.Configurations
             builder.Property(u => u.Address).HasMaxLength(500);
 
 
-            builder.HasMany(u => u.Posts)
+            builder.HasMany(u => u.Adverts)
                 .WithOne(a => a.User)
                 .HasForeignKey(a => a.UserId)
                 .IsRequired()

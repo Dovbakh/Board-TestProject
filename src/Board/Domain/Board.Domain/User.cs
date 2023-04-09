@@ -39,7 +39,7 @@ namespace Board.Domain
         /// <summary>
         /// Коллекция обьявлений пользователя.
         /// </summary>
-        public ICollection<Advert> Posts { get; set; }
+        public ICollection<Advert> Adverts { get; set; }
 
         /// <summary>
         /// Коллекция отзывов, написанных пользователем.

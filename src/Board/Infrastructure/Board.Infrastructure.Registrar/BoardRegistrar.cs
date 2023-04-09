@@ -23,6 +23,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Board.Application.AppData.Contexts.Users.Services;
+using Board.Infrastructure.DataAccess.Contexts.Users.Repositories;
 
 namespace Board.Infrastructure.Registrar
 {
@@ -47,7 +49,7 @@ namespace Board.Infrastructure.Registrar
             //services.AddScoped(typeof(ICachedRepository<>), typeof(CachedRepository<>));
             services.AddScoped<IAdvertRepository, AdvertRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
-            //services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
             //services.AddScoped<IFileRepository, FileRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IAdvertImageRepository, AdvertImageRepository>();
@@ -56,7 +58,7 @@ namespace Board.Infrastructure.Registrar
             //// Регистрация application-сервисов
             services.AddScoped<IAdvertService, AdvertService>();
             services.AddScoped<ICategoryService, CategoryService>();
-            //services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUserService, UserService>();
             //services.AddScoped<IFileService, FileService>();
             services.AddScoped<ICommentService, CommentService>();
             //services.AddScoped<INotifierService, EmailService>();
@@ -78,11 +80,11 @@ namespace Board.Infrastructure.Registrar
             //services.AddTransient<IValidator<CommentUpdateRequestDto>, CommentUpdateValidator>();
 
 
-            services.AddSingleton<IMapper>(new Mapper(new MapperConfiguration
-                (a =>
-                {
-                    a.AddMaps(Assembly.GetExecutingAssembly());
-                })));
+            //services.AddSingleton<IMapper>(new Mapper(new MapperConfiguration
+            //    (a =>
+            //    {
+            //        a.AddMaps(Assembly.GetExecutingAssembly());
+            //    })));
 
             services.AddSingleton<IMapper>(new Mapper(GetMapperConfiguration()));
 

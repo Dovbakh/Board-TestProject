@@ -8,5 +8,19 @@ namespace Board.Contracts.Contexts.Users
 {
     public class UserRegisterRequest
     {
+        /// <summary>
+        /// Почта пользователя.
+        /// </summary>
+        public string Email { get; set; }
+
+        /// <summary>
+        /// Пароль пользователя.
+        /// </summary>
+        public string Password { get; set; }
+
+        /// <summary>
+        /// Подтверждение пароля пользователя.
+        /// </summary>
+        public string? PasswordConfirm { get; set; }
     }
 }

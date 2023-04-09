@@ -49,7 +49,7 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-app.UseStaticFiles(); //delete? for UI?
+app.UseStaticFiles(); //delete?
 app.UseRouting();
 
 app.UseIdentityServer();

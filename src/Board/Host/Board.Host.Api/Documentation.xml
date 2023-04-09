@@ -210,6 +210,71 @@
             <param name="id">Идентификатор комментария.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
+        <member name="T:Board.Host.Api.Controllers.UserController">
+            <summary>
+            Работа с пользователями.
+            </summary>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.UserController.#ctor(Board.Application.AppData.Contexts.Users.Services.IUserService)">
+            <summary>
+            Работа с пользователями.
+            </summary>
+            <param name="userService">Сервис для работы с пользователями.</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.UserController.GetAll(System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Получить список всех пользователей с пагинацией.
+            </summary>
+            <param name="take">Количество получаемых пользователей.</param>
+            <param name="skip">Количество пропускаемых пользователей.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Users.UserSummary"/>.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.UserController.GetById(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Получить пользователя по идентификатору.
+            </summary>
+            <param name="id">Идентификатор пользователя.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Элемент <see cref="!:UserDto"/>.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.UserController.GetCurrent(System.Threading.CancellationToken)">
+            <summary>
+            Получить текущего пользователя.
+            </summary>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Элемент <see cref="!:UserDto"/>.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.UserController.Update(System.Guid,Board.Contracts.Contexts.Users.UserUpdateRequest,System.Threading.CancellationToken)">
+            <summary>
+            Изменить пользователя по идентификатору.
+            </summary>
+            <param name="id">Идентификатор пользователя.</param>
+            <param name="cancellation">Токен отмены.</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.UserController.Delete(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Удалить пользователя по идентификатору.
+            </summary>
+            <param name="id">Идентификатор пользователя.</param>
+            <param name="cancellation">Токен отмены.</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.UserController.Register(Board.Contracts.Contexts.Users.UserRegisterRequest,System.Threading.CancellationToken)">
+            <summary>
+            Зарегистрировать пользователя.
+            </summary>
+            <param name="userRegisterDto">Элемент <see cref="!:UserRegisterDto"/>.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Идентификатор нового пользователя.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.UserController.Login(Board.Contracts.Contexts.Users.UserLoginRequest,System.Threading.CancellationToken)">
+            <summary>
+            Залогинить пользователя.
+            </summary>
+            <param name="userLoginDto">Элемент <see cref="!:UserLoginDto"/>.</param>
+            <param name="cancellation"></param>
+            <returns>Токен аутентификации.</returns>
+        </member>
         <member name="T:Board.Host.Api.Modules.AuthenticationModule">
             <summary>
             Подключение и настройки аутентификации

@@ -8,5 +8,14 @@ namespace Board.Contracts.Contexts.Users
 {
     public class UserLoginRequest
     {
+        /// <summary>
+        /// Логин пользователя.
+        /// </summary>
+        public string Email { get; set; }
+
+        /// <summary>
+        /// Пароль пользователя.
+        /// </summary>
+        public string Password { get; set; }
     }
 }
