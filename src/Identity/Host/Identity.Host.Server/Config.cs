@@ -4,127 +4,75 @@ using IdentityServer4.Test;
 using IdentityServer4;
 using System.Security.Claims;
 using System.Text.Json;
+using Microsoft.VisualBasic;
 
 namespace Identity.Host.Server
 {
     public static class Config
+    {        public static IEnumerable<IdentityResource> IdentityResources =>
+    new IdentityResource[]
     {
-        public static List<TestUser> Users
-        {
-            get
-            {
-                var address = new
-                {
-                    street_address = "One Hacker Way",
-                    locality = "Heidelberg",
-                    postal_code = 69118,
-                    country = "Germany"
-                };
-
-                return new List<TestUser>
-        {
-          new TestUser
-          {
-            SubjectId = "818727",
-            Username = "alice",
-            Password = "alice",
-            Claims =
-            {
-              new Claim(JwtClaimTypes.Name, "Alice Smith"),
-              new Claim(JwtClaimTypes.GivenName, "Alice"),
-              new Claim(JwtClaimTypes.FamilyName, "Smith"),
-              new Claim(JwtClaimTypes.Email, "AliceSmith@email.com"),
-              new Claim(JwtClaimTypes.EmailVerified, "true", ClaimValueTypes.Boolean),
-              new Claim(JwtClaimTypes.Role, "admin"),
-              new Claim(JwtClaimTypes.WebSite, "http://alice.com"),
-              new Claim(JwtClaimTypes.Address, JsonSerializer.Serialize(address),
-                IdentityServerConstants.ClaimValueTypes.Json)
-            }
-          },
-          new TestUser
-          {
-            SubjectId = "88421113",
-            Username = "bob",
-            Password = "bob",
-            Claims =
-            {
-              new Claim(JwtClaimTypes.Name, "Bob Smith"),
-              new Claim(JwtClaimTypes.GivenName, "Bob"),
-              new Claim(JwtClaimTypes.FamilyName, "Smith"),
-              new Claim(JwtClaimTypes.Email, "BobSmith@email.com"),
-              new Claim(JwtClaimTypes.EmailVerified, "true", ClaimValueTypes.Boolean),
-              new Claim(JwtClaimTypes.Role, "user"),
-              new Claim(JwtClaimTypes.WebSite, "http://bob.com"),
-              new Claim(JwtClaimTypes.Address, JsonSerializer.Serialize(address),
-                IdentityServerConstants.ClaimValueTypes.Json)
-            }
-          }
-        };
-            }
-        }
-
-        public static IEnumerable<IdentityResource> IdentityResources =>
-          new[]
-          {
-        new IdentityResources.OpenId(),
-        new IdentityResources.Profile(),
-        new IdentityResource
-        {
-          Name = "role",
-          UserClaims = new List<string> {"role"}
-        }
-          };
-
-        public static IEnumerable<ApiScope> ApiScopes =>
-          new[]
-          {
-        new ApiScope("BoardApi.read"),
-        new ApiScope("BoardApi.write"),
-          };
-
-        public static IEnumerable<ApiResource> ApiResources => new[]
-        {
-      new ApiResource("BoardApi")
-      {
-        Scopes = new List<string> { "BoardApi.read", "BoardApi.write"},
-        ApiSecrets = new List<Secret> {new Secret("ScopeSecret".Sha256())},
-        UserClaims = new List<string> {"role"}
-      }
+                new IdentityResources.OpenId(),
+                new IdentityResources.Profile(),
+                new IdentityResource
+                    {
+                      Name = "role",
+                      UserClaims = new List<string> {"role"}
+                    }
     };
 
+        public static IEnumerable<ApiScope> ApiScopes =>
+            new ApiScope[]
+            {
+                new ApiScope("Board.Host.Api"),
+                new ApiScope("Board.Web"),
+            };
+
         public static IEnumerable<Client> Clients =>
-          new[]
-          {
-        // m2m client credentials flow client
-        new Client
-        {
-          ClientId = "m2m.client",
-          ClientName = "Client Credentials Client",
+            new Client[]
+            {
+                new Client
+                {
+                    ClientId = "test.client",
+                    ClientName = "Test client",
 
-          AllowedGrantTypes = GrantTypes.ClientCredentials,
-          ClientSecrets = {new Secret("SuperSecretPassword".Sha256())},
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+                    ClientSecrets = { new Secret("511536EF-F270-4058-80CA-1C89C192F69A".Sha256()) },
 
-          AllowedScopes = { "BoardApi.read", "BoardApi.write" }
-        },
+                    AllowedScopes =
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        "Board.Web",
+                        "Board.Host.Api"
+                    }
+                },
 
-        // interactive client using code flow + pkce
-        new Client
-        {
-          ClientId = "interactive",
-          ClientSecrets = {new Secret("SuperSecretPassword".Sha256())},
+                new Client
+                {
+                    ClientId = "external",
+                    ClientName = "External Client",
+                    AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+                    RequireClientSecret = false,
 
-          AllowedGrantTypes = GrantTypes.Code,
+                    AllowedScopes =
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        "Board.Web"
+                    }
+                }
+            };
 
-          RedirectUris = {"https://localhost:5444/signin-oidc"},
-          FrontChannelLogoutUri = "https://localhost:5444/signout-oidc",
-          PostLogoutRedirectUris = {"https://localhost:5444/signout-callback-oidc"},
 
-          AllowOfflineAccess = true,
-          AllowedScopes = {"openid", "profile", "BoardApi.read"},
-          RequirePkce = true,
-          RequireConsent = true,
-          AllowPlainTextPkce = false
-        },
-          };
+        //public static IEnumerable<ApiResource> ApiResources => new[]
+        //{
+        //      new ApiResource("BoardApi")
+        //      {
+        //        Scopes = new List<string> { "Board.Host.Api", "Board.Web"},
+        //        ApiSecrets = new List<Secret> {new Secret("ScopeSecret".Sha256())},
+        //        UserClaims = new List<string> {"role"}
+        //      }
+        //};
     }
 }

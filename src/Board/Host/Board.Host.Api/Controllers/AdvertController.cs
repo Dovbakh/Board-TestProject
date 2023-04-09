@@ -59,7 +59,8 @@ namespace Board.Host.Api.Controllers
         /// <param name="cancellation"></param>
         /// <returns>Элемент <see cref="AdvertSummary"/>.</returns>
         [HttpGet("filter")]
-        [AllowAnonymous]
+        //[AllowAnonymous]
+        [Authorize]
         public async Task<ActionResult<IReadOnlyCollection<AdvertSummary>>> GetAllFiltered([FromQuery] AdvertFilterRequest filter, int? offset, int? limit, CancellationToken cancellation)
         {
             var result = await _advertService.GetAllFilteredAsync(filter, offset, limit, cancellation);

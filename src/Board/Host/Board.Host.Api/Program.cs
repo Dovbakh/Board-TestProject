@@ -12,6 +12,13 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerModule();
 
+builder.Services.AddAuthentication("Bearer")
+    .AddIdentityServerAuthentication("Bearer", options =>
+    {
+        options.Authority = "https://localhost:7157";
+        options.ApiName = "BoardApi";
+    });
+
 builder.Services.AddServiceRegistrationModule();
 
 var app = builder.Build();
@@ -25,6 +32,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

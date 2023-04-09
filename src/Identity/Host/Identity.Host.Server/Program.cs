@@ -1,12 +1,26 @@
+using Identity.Host.Server;
 using Identity.Infrastructure.DataAccess;
+using IdentityServer4.AspNetIdentity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
+var seed = args.Contains("/seed");
+if (seed)
+{
+    args = args.Except(new[] { "/seed" }).ToArray();
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 var assembly = typeof(Program).Assembly.GetName().Name;
 var defaultConnString = builder.Configuration.GetConnectionString("PostgresBoardDb");
+
+
+if (seed)
+{
+    SeedData.EnsureSeedData(defaultConnString);
+}
 
 
 builder.Services.AddDbContext<AspNetIdentityDbContext>(options =>
@@ -26,12 +40,23 @@ builder.Services.AddIdentityServer()
         options.ConfigureDbContext = b =>
         b.UseNpgsql(defaultConnString, opt => opt.MigrationsAssembly(assembly));
     })
-    .AddDeveloperSigningCredential();
+    .AddDeveloperSigningCredential()
+    .AddProfileService<ProfileService<IdentityUser>>()
+    .AddResourceOwnerValidator<ResourceOwnerPasswordValidator<IdentityUser>>();
 
-
+builder.Services.AddAuthorization();
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+app.UseStaticFiles(); //delete? for UI?
+app.UseRouting();
+
 app.UseIdentityServer();
+app.UseAuthorization();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapDefaultControllerRoute();
+});
 
 app.Run();
