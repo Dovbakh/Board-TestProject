@@ -34,14 +34,14 @@ namespace IdentityServerHost.Quickstart.UI
         private readonly IClientStore _clientStore;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
         private readonly IEventService _events;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<IdentityUser<Guid>> _signInManager;
 
         public AccountController(
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events,
-            SignInManager<IdentityUser> signInManager)
+            SignInManager<IdentityUser<Guid>> signInManager)
         {
 
 
@@ -118,7 +118,7 @@ namespace IdentityServerHost.Quickstart.UI
 
                     if (userLogin == Microsoft.AspNetCore.Identity.SignInResult.Success)
                     {
-                        await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName, clientId: context?.Client.ClientId));
+                        await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id.ToString(), user.UserName, clientId: context?.Client.ClientId));
 
                         // only set explicit expiration here if user chooses "remember me". 
                         // otherwise we rely upon expiration configured in cookie middleware.
@@ -133,7 +133,7 @@ namespace IdentityServerHost.Quickstart.UI
                         };
 
                         // issue authentication cookie with subject ID and username
-                        var isuser = new IdentityServerUser(user.Id)
+                        var isuser = new IdentityServerUser(user.Id.ToString())
                         {
                             DisplayName = user.UserName
                         };

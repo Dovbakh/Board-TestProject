@@ -1,5 +1,6 @@
 ﻿using Board.Application.AppData.Contexts.Users.Services;
 using Board.Contracts.Contexts.Users;
+using Board.Contracts.Contexts.Users.Enums;
 using Board.Contracts.Conventions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -34,7 +35,7 @@ namespace Board.Host.Api.Controllers
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Коллекция элементов <see cref="UserSummary"/>.</returns>
         [HttpGet]
-        //[Authorize(Roles = "admin")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<IReadOnlyCollection<UserSummary>>> GetAll(int offset, int count, CancellationToken cancellation)
         {
             var users = await _userService.GetAll(offset, count, cancellation);

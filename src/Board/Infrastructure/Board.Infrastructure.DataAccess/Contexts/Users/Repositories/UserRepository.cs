@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using Board.Application.AppData.Contexts.Users.Repositories;
 using Board.Contracts.Contexts.Users;
+using Board.Contracts.Contexts.Users.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -15,90 +16,60 @@ namespace Board.Infrastructure.DataAccess.Contexts.Users.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly UserManager<Domain.User> _userManager;
+        private readonly RoleManager<Domain.Role> _roleManager;
         private readonly IMapper _mapper;
 
-        public UserRepository(UserManager<Domain.User> userManager, IMapper mapper)
+        public UserRepository(UserManager<Domain.User> userManager, IMapper mapper, RoleManager<Domain.Role> roleManager)
         {
             _userManager = userManager;
             _mapper = mapper;
+            _roleManager = roleManager;
         }
 
-        public async Task<IReadOnlyCollection<UserSummary>> GetAll(int offset, int count, CancellationToken cancellationToken)
+        public async Task<IReadOnlyCollection<UserSummary>> GetAll(int offset, int count, CancellationToken cancellation)
         {
             return await _userManager.Users
                 .ProjectTo<UserSummary>(_mapper.ConfigurationProvider)
-                .Skip(offset).Take(count).ToListAsync();
+                .Skip(offset).Take(count).ToListAsync(cancellation);
         }
 
-        public async Task<UserDetails> GetByEmail(string email, CancellationToken cancellationToken)
+        public async Task<UserDetails> GetByEmail(string email, CancellationToken cancellation)
         {
             return await _userManager.Users
                 .Where(u => u.Email == email)
                 .ProjectTo<UserDetails>(_mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellation);
         }
 
-        public async Task<UserDetails> GetById(Guid id, CancellationToken cancellationToken)
+        public async Task<UserDetails> GetById(Guid id, CancellationToken cancellation)
         {
             return await _userManager.Users
                 .Where(u => u.Id == id)
                 .ProjectTo<UserDetails>(_mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellation);
         }
 
-        public async Task<Guid> AddAsync(UserRegisterRequest registerRequest, CancellationToken cancellationToken)
+        public async Task<Guid> AddAsync(UserRegisterRequest registerRequest, CancellationToken cancellation)
         {
             var newEntity = _mapper.Map<UserRegisterRequest, Domain.User>(registerRequest);
+            var result = await _userManager.CreateAsync(newEntity, registerRequest.Password);
+            if(!result.Succeeded) 
+            { 
+                throw new ArgumentException(result.Errors.ToList().ToString());
+            }
 
-            await _userManager.CreateAsync(newEntity, registerRequest.Password);
+            await _userManager.AddToRoleAsync(newEntity, Role.User);
+
             return newEntity.Id;
         }
 
-        public Task ChangeEmailAsync(string currentEmail, string newEmail, string token, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
 
-        public Task<string> ChangeEmailRequestAsync(string currentEmail, string newEmail, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task ChangePasswordAsync(string email, string currentPassword, string newPassword, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> CheckPasswordAsync(string email, string password, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+        public async Task UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellation)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
 
-            await _userManager.DeleteAsync(user);
-        }
-
-
-
-        public Task ResetPasswordAsync(string email, string token, string newPassword, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> ResetPasswordRequestAsync(string email, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellationToken)
-        {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            
             //if (!updateRequest.Name.IsNullOrEmpty())
-            if(!string.IsNullOrEmpty(updateRequest.Name))
+            if (!string.IsNullOrEmpty(updateRequest.Name))
             {
                 user.Name = updateRequest.Name;
             }
@@ -113,5 +84,45 @@ namespace Board.Infrastructure.DataAccess.Contexts.Users.Repositories
 
             await _userManager.UpdateAsync(user);
         }
+
+        public async Task DeleteAsync(Guid id, CancellationToken cancellation)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+
+            await _userManager.DeleteAsync(user);
+        }
+
+        public Task ChangeEmailAsync(string currentEmail, string newEmail, string token, CancellationToken cancellation)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ChangeEmailRequestAsync(string currentEmail, string newEmail, CancellationToken cancellation)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ChangePasswordAsync(string email, string currentPassword, string newPassword, CancellationToken cancellation)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> CheckPasswordAsync(string email, string password, CancellationToken cancellation)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public Task ResetPasswordAsync(string email, string token, string newPassword, CancellationToken cancellation)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> ResetPasswordRequestAsync(string email, CancellationToken cancellation)
+        {
+            throw new NotImplementedException();
+        }
+
+
     }
 }

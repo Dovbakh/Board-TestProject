@@ -26,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\src\Board\Infrastructure\Board.Infrastructure.Registrar\Board.Infrastructure.Registrar.csproj" />
     <ProjectReference Include="..\..\Domain\Board.Domain\Board.Domain.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Board.Infrastructure.DataAccess\Board.Infrastructure.DataAccess.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Board.Infrastructure.Registrar\Board.Infrastructure.Registrar.csproj" />

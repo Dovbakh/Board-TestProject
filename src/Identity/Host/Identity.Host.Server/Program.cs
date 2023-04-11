@@ -26,7 +26,7 @@ if (seed)
 builder.Services.AddDbContext<AspNetIdentityDbContext>(options =>
     options.UseNpgsql(defaultConnString, b => b.MigrationsAssembly(assembly)));
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+builder.Services.AddIdentity<IdentityUser<Guid>, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<AspNetIdentityDbContext>();
 
 builder.Services.AddIdentityServer()
@@ -41,8 +41,8 @@ builder.Services.AddIdentityServer()
         b.UseNpgsql(defaultConnString, opt => opt.MigrationsAssembly(assembly));
     })
     .AddDeveloperSigningCredential()
-    .AddProfileService<ProfileService<IdentityUser>>()
-    .AddResourceOwnerValidator<ResourceOwnerPasswordValidator<IdentityUser>>();
+    .AddProfileService<ProfileService<IdentityUser<Guid>>>()
+    .AddResourceOwnerValidator<ResourceOwnerPasswordValidator<IdentityUser<Guid>>> ();
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllersWithViews();
