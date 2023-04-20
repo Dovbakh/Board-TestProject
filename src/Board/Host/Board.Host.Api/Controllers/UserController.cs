@@ -49,11 +49,16 @@ namespace Board.Host.Api.Controllers
         /// <param name="id">Идентификатор пользователя.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Элемент <see cref="UserDto"/>.</returns>
-        [HttpGet("{id}")]
+        [HttpGet("{id:Guid}")]
         [AllowAnonymous]
         public async Task<ActionResult<UserDetails>> GetById(Guid id, CancellationToken cancellation)
         {
             var user = await _userService.GetById(id, cancellation);
+
+            if(user == null)
+            {
+                throw new KeyNotFoundException();
+            }
 
             return Ok(user);
         }
@@ -64,7 +69,7 @@ namespace Board.Host.Api.Controllers
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Элемент <see cref="UserDto"/>.</returns>
         [HttpGet("current")]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<UserDetails>> GetCurrent(CancellationToken cancellation)
         {
             var user = await _userService.GetCurrent(cancellation);
@@ -77,8 +82,8 @@ namespace Board.Host.Api.Controllers
         /// </summary>
         /// <param name="id">Идентификатор пользователя.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        [HttpPut("{id}")]
-        //[Authorize]
+        [HttpPut("{id:Guid}")]
+        [Authorize]
         public async Task<ActionResult<UserDetails>> Update(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellation)
         {
             await _userService.UpdateAsync(id, updateRequest, cancellation);
@@ -194,10 +199,10 @@ namespace Board.Host.Api.Controllers
         /// </summary>
         /// <param name="id">Идентификатор пользователя.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        [HttpDelete]
+        [HttpDelete("{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellation)
         {
             await _userService.DeleteAsync(id, cancellation);

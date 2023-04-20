@@ -1,8 +1,17 @@
+using Identity.Clients.Users;
 using Identity.Host.Server;
 using Identity.Infrastructure.DataAccess;
+using IdentityServer4;
 using IdentityServer4.AspNetIdentity;
+using IdentityServer4.Validation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Identity.Infrastructure.Registrar;
+using Identity.Domain;
+using Identity.Infrastructure.DataAccess.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using IdentityServer4.EntityFramework.DbContexts;
+using IdentityServer4.EntityFramework.Options;
 
 var seed = args.Contains("/seed");
 if (seed)
@@ -11,40 +20,21 @@ if (seed)
 }
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-var assembly = typeof(Program).Assembly.GetName().Name;
-var defaultConnString = builder.Configuration.GetConnectionString("PostgresBoardDb");
+var config = builder.Configuration;
+var connectionString = builder.Configuration.GetConnectionString("PostgresBoardDb");
 
 
 if (seed)
 {
-    SeedData.EnsureSeedData(defaultConnString);
+    SeedData.EnsureSeedData(connectionString);
 }
 
+builder.Services.AddServiceRegistrationModule();
+builder.Services.AddAspNetIdentityServices();
+builder.Services.AddIdentityServerServices(config);
+builder.Services.AddAuthenticationServices();
 
-builder.Services.AddDbContext<AspNetIdentityDbContext>(options =>
-    options.UseNpgsql(defaultConnString, b => b.MigrationsAssembly(assembly)));
-
-builder.Services.AddIdentity<IdentityUser<Guid>, IdentityRole<Guid>>()
-    .AddEntityFrameworkStores<AspNetIdentityDbContext>();
-
-builder.Services.AddIdentityServer()
-    .AddConfigurationStore(options =>
-    {
-        options.ConfigureDbContext = b =>
-        b.UseNpgsql(defaultConnString, opt => opt.MigrationsAssembly(assembly));
-    })
-    .AddOperationalStore(options =>
-    {
-        options.ConfigureDbContext = b =>
-        b.UseNpgsql(defaultConnString, opt => opt.MigrationsAssembly(assembly));
-    })
-    .AddDeveloperSigningCredential()
-    .AddProfileService<ProfileService<IdentityUser<Guid>>>()
-    .AddResourceOwnerValidator<ResourceOwnerPasswordValidator<IdentityUser<Guid>>> ();
-
-builder.Services.AddAuthorization();
+//builder.Services.AddAuthorization();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -53,10 +43,13 @@ app.UseStaticFiles(); //delete?
 app.UseRouting();
 
 app.UseIdentityServer();
+//app.UseAuthentication();
 app.UseAuthorization();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapDefaultControllerRoute();
 });
 
+
 app.Run();
+

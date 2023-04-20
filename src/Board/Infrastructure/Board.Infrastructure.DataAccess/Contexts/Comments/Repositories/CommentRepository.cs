@@ -58,14 +58,14 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
                 query = query.Where(p => p.Text.ToLower().Contains(filterRequest.Text.ToLower()));
             }
 
-            if (filterRequest.SortBy.HasValue)
+            if (!string.IsNullOrWhiteSpace(filterRequest.SortBy))
             {
                 switch (filterRequest.SortBy)
                 {
-                    case 1:
+                    case "date":
                         query = filterRequest.OrderDesc == 1 ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt);
                         break;
-                    case 2:
+                    case "rating":
                         query = filterRequest.OrderDesc == 1 ? query.OrderByDescending(p => p.Rating) : query.OrderBy(p => p.Rating);
                         break;
                     default:

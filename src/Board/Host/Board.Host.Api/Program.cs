@@ -1,43 +1,33 @@
-using Board.Host.Api.Modules;
+using Board.Host.Api.Middlewares;
 using Board.Infrastructure.Registrar;
+using Identity.Clients.Users;
 using IdentityServer4.AccessTokenValidation;
 
 var builder = WebApplication.CreateBuilder(args);
+var config = builder.Configuration;
 
-// Add services to the container.
+
 
 builder.Services.AddServiceRegistrationModule();
+builder.Services.AddHttpClients(config);
 
+//builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddSwaggerServices();
+builder.Services.AddAspNetIdentityServices();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.AddSwaggerModule();
-builder.Services.AddIdentityModule();
-
-builder.Services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-    .AddIdentityServerAuthentication(options =>
-    {
-        options.Authority = "https://localhost:7157";
-        //options.ApiName = "Board.Web";
-        options.RequireHttpsMetadata = false;
-    });
-
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("ApiScope", policy =>
-    {
-        policy.RequireAuthenticatedUser();
-        policy.RequireClaim("scope", "Board.Web");
-    });
-});
+builder.Services.AddAuthenticationServices();
+builder.Services.AddAuthorizationServices();
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
+
+
+
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -48,6 +38,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<ErrorHandlerMiddleware>();
 
 app.MapControllers().RequireAuthorization("ApiScope");
 

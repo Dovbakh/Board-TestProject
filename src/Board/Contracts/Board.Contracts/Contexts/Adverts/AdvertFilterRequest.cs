@@ -41,14 +41,15 @@ namespace Board.Contracts.Contexts.Adverts
 
         /// <summary>
         /// Порядок сортировки.
+        /// 1 - по убыванию
         /// </summary>
         public int? OrderDesc { get; set; }
 
         /// <summary>
         /// Вид сортировки
-        /// 1 - сортировка по дате добавления.
-        /// 2 - сортировка по цене.
+        /// date - сортировка по дате добавления.
+        /// price - сортировка по цене.
         /// </summary>
-        public int? SortBy { get; set; }
+        public string? SortBy { get; set; }
     }
 }

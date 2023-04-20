@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using Board.Application.AppData.Contexts.Users.Repositories;
 using Board.Contracts.Contexts.Users;
 using Board.Contracts.Contexts.Users.Enums;
+using Board.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -58,13 +59,13 @@ namespace Board.Infrastructure.DataAccess.Contexts.Users.Repositories
                 throw new ArgumentException(result.Errors.ToList().ToString());
             }
 
-            await _userManager.AddToRoleAsync(newEntity, Role.User);
+            await _userManager.AddToRoleAsync(newEntity, Contracts.Contexts.Users.Enums.Role.User);
 
             return newEntity.Id;
         }
 
 
-        public async Task UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellation)
+        public async Task<UserDetails> UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellation)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
 
@@ -83,6 +84,8 @@ namespace Board.Infrastructure.DataAccess.Contexts.Users.Repositories
             }
 
             await _userManager.UpdateAsync(user);
+
+            return _mapper.Map<User, UserDetails>(user);
         }
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellation)

@@ -36,14 +36,15 @@ namespace Board.Contracts.Contexts.Comments
 
         /// <summary>
         /// Порядок сортировки.
+        /// 1 - по убыванию
         /// </summary>
         public int? OrderDesc { get; set; }
 
         /// <summary>
         /// Вид сортировки
-        /// 1 - сортировка по дате добавления.
-        /// 2 - сортировка по оценке комментария.
+        /// date - сортировка по дате добавления.
+        /// rating - сортировка по оценке комментария.
         /// </summary>
-        public int? SortBy { get; set; }
+        public string? SortBy { get; set; }
     }
 }

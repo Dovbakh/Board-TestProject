@@ -35,7 +35,7 @@ namespace Board.Application.AppData.Contexts.Users.Services
         /// <param name="skip">Количество пропускаемых пользователей.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Коллекция элементов <see cref="UserSummary"/>.</returns>
-        Task<IReadOnlyCollection<UserSummary>> GetAll(int offset, int count, CancellationToken cancellationToken);
+        Task<IReadOnlyCollection<UserSummary>> GetAll(int? offset, int? count, CancellationToken cancellationToken);
 
         /// <summary>
         /// Получить пользователя по идентификатору.
@@ -57,7 +57,7 @@ namespace Board.Application.AppData.Contexts.Users.Services
         /// </summary>
         /// <param name="updateRequest">Элемент <see cref="UserUpdateRequest"/>.</param>
         /// <param name="cancellationToken"></param>
-        Task UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellationToken);
+        Task<UserDetails> UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellationToken);
 
         /// <summary>
         /// Удалить пользователя по идентификатору.

@@ -275,10 +275,5 @@
             <param name="cancellation"></param>
             <returns>Токен аутентификации.</returns>
         </member>
-        <member name="T:Board.Host.Api.Modules.AuthenticationModule">
-            <summary>
-            Подключение и настройки аутентификации
-            </summary>
-        </member>
     </members>
 </doc>

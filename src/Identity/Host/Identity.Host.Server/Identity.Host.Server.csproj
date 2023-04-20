@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -12,7 +12,8 @@
     <PackageReference Include="IdentityServer4" Version="4.1.2" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.15" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.16" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.16" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.15" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.3">
       <PrivateAssets>all</PrivateAssets>
@@ -22,7 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Application\Identity.Application.AppData\Identity.Application.AppData.csproj" />
+    <ProjectReference Include="..\..\Clients\Identity.Clients\Identity.Clients.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Identity.Infrastructure.DataAccess\Identity.Infrastructure.DataAccess.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Identity.Infrastructure.Migrations\Identity.Infrastructure.Migrations.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Identity.Infrastructure.Registrar\Identity.Infrastructure.Registrar.csproj" />
   </ItemGroup>
 
 </Project>

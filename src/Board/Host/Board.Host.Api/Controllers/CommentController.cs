@@ -35,7 +35,7 @@ namespace Board.Host.Api.Controllers
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Коллекция элементов <see cref="CommentDto"/>.</returns>
         [HttpGet]
-        [AllowAnonymous]
+        [Authorize]
         public async Task<ActionResult<IReadOnlyCollection<CommentDetails>>> GetAll(int? offset, int? count, CancellationToken cancellation)
         {
             var result = await _commentService.GetAllAsync(offset, count, cancellation);
@@ -65,7 +65,7 @@ namespace Board.Host.Api.Controllers
         /// <param name="id">Идентификатор комментария.</param>
         /// <param name="cancellation">Токен отмены</param>
         /// <returns>Элемент <see cref="CommentDetails"/>.</returns>
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:Guid}")]
         [AllowAnonymous]
         public async Task<ActionResult<CommentDetails>> GetById(Guid id, CancellationToken cancellation)
         {
@@ -96,7 +96,7 @@ namespace Board.Host.Api.Controllers
         /// <param name="id">Идентификатор комментария.</param>
         /// <param name="updateRequest">Элемент <see cref="CommentUpdateRequest"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        [HttpPut]
+        [HttpPut("{id:Guid}")]
         [Authorize]
         public async Task<ActionResult<CommentDetails>> Update(Guid id, [FromBody] CommentUpdateRequest updateRequest, CancellationToken cancellation)
         {
@@ -112,7 +112,7 @@ namespace Board.Host.Api.Controllers
         /// <param name="id">Идентификатор комментария.</param>
         /// <param name="updateRequest">Элемент <see cref="CommentUpdateRequest"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        [HttpPatch]
+        [HttpPatch("{id:Guid}")]
         [Authorize]
         public async Task<ActionResult<CommentDetails>> Patch(Guid id, [FromBody] JsonPatchDocument<CommentUpdateRequest> updateRequest, CancellationToken cancellation)
         {
@@ -126,7 +126,7 @@ namespace Board.Host.Api.Controllers
         /// </summary>
         /// <param name="id">Идентификатор комментария.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        [HttpDelete]
+        [HttpDelete("{id:Guid}")]
         [Authorize]
         public async Task<IActionResult> DeleteById(Guid id, CancellationToken cancellation)
         {

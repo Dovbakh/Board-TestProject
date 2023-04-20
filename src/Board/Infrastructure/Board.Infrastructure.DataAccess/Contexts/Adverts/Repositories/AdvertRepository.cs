@@ -71,14 +71,14 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
                 query = query.Where(p => (p.User.CommentsFor.Sum(u => u.Rating) / p.User.CommentsFor.Count) >= 4);
             }
 
-            if (filterRequest.SortBy.HasValue)
+            if (!string.IsNullOrWhiteSpace(filterRequest.SortBy))
             {
                 switch (filterRequest.SortBy)
                 {
-                    case 1:
+                    case "date":
                         query = filterRequest.OrderDesc == 1 ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt);
                         break;
-                    case 2:
+                    case "price":
                         query = filterRequest.OrderDesc == 1 ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price);
                         break;
                     default:
@@ -149,6 +149,16 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
             await _repository.DeleteAsync(existingEntity, cancellation);
         }
 
+        public async Task SoftDeleteAsync(Guid advertId, CancellationToken cancellation)
+        {
+            var existingEntity = await _repository.GetByIdAsync(advertId, cancellation);
+            if (existingEntity == null)
+            {
+                throw new KeyNotFoundException();
+            }
 
+            existingEntity.isActive = false;
+            await _repository.UpdateAsync(existingEntity, cancellation);
+        }
     }
 }

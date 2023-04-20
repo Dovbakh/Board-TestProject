@@ -1,4 +1,5 @@
-﻿using Identity.Infrastructure.DataAccess;
+﻿using Identity.Domain;
+using Identity.Infrastructure.DataAccess;
 using IdentityModel;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Mappers;
@@ -20,7 +21,7 @@ namespace Identity.Host.Server
                 options => options.UseNpgsql(connectionString));
 
             services
-                .AddIdentity<IdentityUser, IdentityRole>()
+                .AddIdentity<User, Role>()
                 .AddEntityFrameworkStores<AspNetIdentityDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -58,19 +59,21 @@ namespace Identity.Host.Server
 
         private static void EnsureUsers(IServiceScope scope)
         {
-            var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 
-            var angella = userMgr.FindByEmailAsync("angella").Result;
+            var angella = userMgr.FindByEmailAsync("admin@email.com").Result;
             if (angella == null)
             {
-                angella = new IdentityUser
+                angella = new User
                 {
-                    UserName = "angella",
-                    Email = "angella.freeman@email.com",
-                    EmailConfirmed = true
+                    UserName = "admin",
+                    Email = "admin@email.com",
+                    EmailConfirmed = true,
+                    RoleId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6")
+                    
                 };
 
-                var result = userMgr.CreateAsync(angella, "Pass123$").Result;
+                var result = userMgr.CreateAsync(angella, "Pass_123").Result;
                 if (!result.Succeeded)
                 {
                     throw new Exception(result.Errors.First().Description);

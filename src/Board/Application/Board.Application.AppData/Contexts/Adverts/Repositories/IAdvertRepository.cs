@@ -57,6 +57,13 @@ namespace Board.Application.AppData.Contexts.Adverts.Repositories
         Task<AdvertDetails> UpdateAsync(Guid id, AdvertUpdateRequest updateRequest, CancellationToken cancellation);
 
         /// <summary>
+        /// Сделать обьявление неактивным.
+        /// </summary>
+        /// <param name="id">Идентификатор обьявления.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        Task SoftDeleteAsync(Guid id, CancellationToken cancellation);
+
+        /// <summary>
         /// Удалить обьявление.
         /// </summary>
         /// <param name="id">Идентификатор обьявления.</param>

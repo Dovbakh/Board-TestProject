@@ -1,5 +1,9 @@
-﻿using Board.Application.AppData.Contexts.Users.Repositories;
+﻿using AutoMapper;
+using Board.Application.AppData.Contexts.Users.Repositories;
 using Board.Contracts.Contexts.Users;
+using Identity.Clients.Users;
+using Identity.Contracts.Clients.Users;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -16,39 +20,57 @@ namespace Board.Application.AppData.Contexts.Users.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IConfiguration configuration)
+        private readonly IUserClient _userClient;
+
+        public UserService(IUserRepository userRepository, IConfiguration configuration, IHttpContextAccessor contextAccessor, IUserClient boardClient, IMapper mapper)
         {
             _userRepository = userRepository;
             _configuration = configuration;
+            _contextAccessor = contextAccessor;
+            _userClient = boardClient;
+            _mapper = mapper;
         }
 
-        public Task<IReadOnlyCollection<UserSummary>> GetAll(int offset, int count, CancellationToken cancellationToken)
-        {
-            return _userRepository.GetAll(offset, count, cancellationToken);
+        public async Task<IReadOnlyCollection<UserSummary>> GetAll(int? offset, int? count, CancellationToken cancellationToken)
+        {           
+            var t = await _userClient.GetAll(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellationToken);
+
+            // TODO: ass
+
+            //return t;
+            return await _userRepository.GetAll(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellationToken);
         }
 
-        public Task<UserDetails> GetById(Guid id, CancellationToken cancellationToken)
+        public async Task<UserDetails> GetById(Guid id, CancellationToken cancellationToken)
         {
-            return _userRepository.GetById(id, cancellationToken);
+            var t = await _userClient.GetById(id, cancellationToken);
+
+            return await _userRepository.GetById(id, cancellationToken);
         }
 
         public async Task<UserDetails> GetCurrent(CancellationToken cancellationToken)
         {
+            var t = await _userClient.GetCurrent(cancellationToken);
+
             throw new NotImplementedException();
             //_logger.LogInformation("Получение данных о текущем пользователе и их обновление.");
 
-            //var claims = await _claimsAccessor.GetClaims(cancellationToken);
-            //var claimId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var claims = _contextAccessor.HttpContext.User.Claims;
+            var claimId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            //if (string.IsNullOrWhiteSpace(claimId))
-            //{
-            //    return null;
-            //}
-            //var id = claimId;
-            //var user = await _userRepository.GetById(id, cancellationToken);
+            if (string.IsNullOrWhiteSpace(claimId))
+            {
+                return null;
+            }
+            var id = Guid.Parse(claimId);
 
-            //return user;
+            var user = await _userRepository.GetById(id, cancellationToken);
+
+            return user;
+
         }
 
         public async Task<string> Login(UserLoginRequest loginRequest, CancellationToken cancellationToken)
@@ -58,6 +80,11 @@ namespace Board.Application.AppData.Contexts.Users.Services
             //{
             //    throw new Exception(validationResult.ToString("~"));
             //}
+            //await _boardClient.Login();
+            var loginClientRequest = _mapper.Map<UserLoginRequest, UserLoginClientRequest>(loginRequest);
+            var t = await _userClient.Login(loginClientRequest, cancellationToken);
+
+
 
 
             var existingUser = await _userRepository.GetByEmail(loginRequest.Email, cancellationToken);
@@ -86,6 +113,12 @@ namespace Board.Application.AppData.Contexts.Users.Services
             //    throw new Exception(validationResult.ToString("~"));
             //}
 
+            var registerClientRequest = _mapper.Map<UserRegisterRequest, UserRegisterClientRequest>(registerRequest);
+            var t = await _userClient.Register(registerClientRequest, cancellationToken);
+
+
+
+
             var existingUser = await _userRepository.GetByEmail(registerRequest.Email, cancellationToken);
             if (existingUser != null)
             {
@@ -97,15 +130,18 @@ namespace Board.Application.AppData.Contexts.Users.Services
             return await _userRepository.AddAsync(registerRequest, cancellationToken);
         }
 
-        public Task UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellationToken)
+        public async Task<UserDetails> UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellationToken)
         {
+            var updateClientRequest = _mapper.Map<UserUpdateRequest, UserUpdateClientRequest>(updateRequest);
+            var t = await _userClient.Update(id, updateClientRequest, cancellationToken);
+
             //var validationResult = _validatorUpdate.Validate(request);
             //if (!validationResult.IsValid)
             //{
             //    throw new Exception(validationResult.ToString("~"));
             //}
 
-            return _userRepository.UpdateAsync(id, updateRequest, cancellationToken);
+            return await _userRepository.UpdateAsync(id, updateRequest, cancellationToken);
         }
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
@@ -116,6 +152,8 @@ namespace Board.Application.AppData.Contexts.Users.Services
             //{
             //    throw new AccessViolationException("Нет прав.");
             //}
+
+            await _userClient.Delete(id, cancellationToken);
 
             await _userRepository.DeleteAsync(id, cancellationToken);
         }

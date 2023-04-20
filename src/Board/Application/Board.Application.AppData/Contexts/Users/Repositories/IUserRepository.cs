@@ -48,7 +48,7 @@ namespace Board.Application.AppData.Contexts.Users.Repositories
         /// </summary>
         /// <param name="request">Элемент <see cref="UserUpdateRequestDto"/>.</param>
         /// <param name="cancellationToken">Токен отмены.</param>
-        Task UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellationToken);
+        Task<UserDetails> UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellationToken);
 
 
         /// <summary>

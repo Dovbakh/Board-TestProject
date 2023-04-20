@@ -4,6 +4,7 @@ using Board.Application.AppData.Contexts.Adverts.Services;
 using Board.Contracts.Contexts.Adverts;
 using Board.Domain;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         {
             if (count == null)
             {
-                count = 10;
+                count = 10; // TODO: в конфиг
             }
 
             return _advertRepository.GetAllAsync(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
@@ -50,7 +51,18 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
 
         public async Task<Guid> CreateAsync(AdvertAddRequest addRequest, CancellationToken cancellation)
         {
+            // TODO: валидация
+
+            // TODO: логирование
+
+            // TODO: добавить все картинки обьявления, а если потом обьявление не добавится, то удалить их
+
+            //addRequest.UserId = CurrentUser()
             var newAdvertId = await _advertRepository.AddAsync(addRequest, cancellation);
+
+            // TODO: если обьявление не добавилось, то удалить картинки
+
+            // TODO: обновить информацию о пользователе
 
             return newAdvertId;
         }
@@ -62,9 +74,22 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
 
         public async Task<AdvertDetails> UpdateAsync(Guid id, AdvertUpdateRequest updateRequest, CancellationToken cancellation)
         {
+            // TODO: валидация
+
+            // TODO: логирование
+
+            // TODO: добавить все картинки обьявления, а если потом обьявление не добавится, то удалить их
+
+            // TODO: удалить все старые картинки
+
             var updatedDto = await _advertRepository.UpdateAsync(id, updateRequest, cancellation);
 
             return updatedDto;
+        }
+
+        public async Task SoftDeleteAsync(Guid id, CancellationToken cancellation)
+        {
+            await _advertRepository.SoftDeleteAsync(id, cancellation);
         }
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellation)

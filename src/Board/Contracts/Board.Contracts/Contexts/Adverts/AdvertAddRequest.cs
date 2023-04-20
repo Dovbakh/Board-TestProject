@@ -47,8 +47,8 @@ namespace Board.Contracts.Contexts.Adverts
         public Guid UserId { get; set; }
 
         /// <summary>
-        /// Коллекция изображений обьявления.
+        /// Коллекция идентификаторов изображений обьявления.
         /// </summary>
-        //public ICollection<IFormFile> AdvertImages { get; set; }
+        public ICollection<string> AdvertImagesId { get; set; }
     }
 }
