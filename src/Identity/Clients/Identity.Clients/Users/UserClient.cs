@@ -45,15 +45,15 @@ namespace Identity.Clients.Users
             using var response = await _httpClient.GetAsync(uri, cancellation);           
             response.EnsureSuccessStatusCode();
 
-            //var users = await response.Content.ReadFromJsonAsync<IReadOnlyCollection<UserSummary>>();
+            var users = await response.Content.ReadFromJsonAsync<IReadOnlyCollection<UserSummary>>();
 
-            var t1 = await response.Content.ReadFromJsonAsync<UserSummary[]>();
-            var t2 = _mapper.Map<UserSummary, UserSummaryClientResponse>(t1[0]);
-            ICollection<UserSummaryClientResponse> icollectionDest = _mapper.Map<UserSummary[], ICollection<UserSummaryClientResponse>>(t1);
+            //var t1 = await response.Content.ReadFromJsonAsync<UserSummary[]>();
+           // var t2 = _mapper.Map<UserSummary, UserSummaryClientResponse>(t1[0]);
+           // ICollection<UserSummaryClientResponse> icollectionDest = _mapper.Map<UserSummary[], ICollection<UserSummaryClientResponse>>(t1);
 
-            //var clientResponse = _mapper.Map<IReadOnlyCollection<UserSummary>, IReadOnlyCollection<UserSummaryClientResponse>>(users);
+            var clientResponse = _mapper.Map<IReadOnlyCollection<UserSummary>, IReadOnlyCollection<UserSummaryClientResponse>>(users);
 
-            return null;// clientResponse;
+            return clientResponse;
 
             //var request = new TestRequest { grant_type = "password", username = "admin@email.com", password = "Pass_123", scope = "Board.Web", client_id = "external" };
 
