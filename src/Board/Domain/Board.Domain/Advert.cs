@@ -34,11 +34,6 @@ namespace Board.Domain
         public string Address { get; set; }
 
         /// <summary>
-        /// Номер телефона, указанный в обьявлении.
-        /// </summary>
-        public string Phone { get; set; }
-
-        /// <summary>
         /// Дата создания обьявления.
         /// </summary>
         public DateTime CreatedAt { get; set; }

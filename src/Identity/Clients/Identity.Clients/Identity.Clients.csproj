@@ -19,8 +19,4 @@
     <ProjectReference Include="..\..\Contracts\Identity.Contracts\Identity.Contracts.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Users\Models\" />
-  </ItemGroup>
-
 </Project>

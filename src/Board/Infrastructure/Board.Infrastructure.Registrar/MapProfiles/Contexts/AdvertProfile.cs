@@ -15,7 +15,9 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
         public AdvertProfile()
         {
             CreateMap<Advert, AdvertSummary>();
-            CreateMap<Advert, AdvertDetails>();
+            CreateMap<Advert, AdvertDetails>()
+                .ForMember(a => a.User, map => map.Ignore())
+                .ForMember(a => a.AdvertImagesId, map => map.MapFrom(s => s.AdvertImages.Select(a => a.FileId)));
             CreateMap<AdvertAddRequest, Advert>()
                 .ForMember(a => a.Id, map => map.Ignore())
                 .ForMember(a => a.CreatedAt, map => map.MapFrom(d => DateTime.UtcNow))

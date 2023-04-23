@@ -52,6 +52,8 @@ namespace Board.Application.AppData.Contexts.Users.Services
         /// <returns>Элемент <see cref="UserDetails"/></returns>
         Task<UserDetails> GetCurrent(CancellationToken cancellationToken);
 
+        Task<Guid> GetCurrentId(CancellationToken cancellationToken);
+
         /// <summary>
         /// Изменить пользователя.
         /// </summary>

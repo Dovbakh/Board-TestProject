@@ -19,6 +19,11 @@ namespace Board.Domain
         public Guid AdvertId { get; set; }
 
         /// <summary>
+        /// Идентификатор обьявления.
+        /// </summary>
+        public Guid FileId { get; set; }
+
+        /// <summary>
         /// Дата загрузки изображения.
         /// </summary>
         public DateTime CreatedAt { get; set; }

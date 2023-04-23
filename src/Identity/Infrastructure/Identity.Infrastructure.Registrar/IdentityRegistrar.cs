@@ -21,6 +21,11 @@ using Identity.Infrastructure.DataAccess;
 using Identity.Infrastructure.DataAccess.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Identity.Application.AppData;
+using FluentValidation;
+using Identity.Application.AppData.Helpers;
 
 namespace Identity.Infrastructure.Registrar
 {
@@ -43,7 +48,9 @@ namespace Identity.Infrastructure.Registrar
 
             services.AddSingleton<IMapper>(new Mapper(GetMapperConfiguration()));
 
-            
+            services.AddHttpContextAccessor();
+
+            services.AddValidatorsFromAssembly(typeof(UserLoginValidator).Assembly);
 
             return services;
         }
@@ -80,7 +87,9 @@ namespace Identity.Infrastructure.Registrar
 
         public static IServiceCollection AddAuthenticationServices(this IServiceCollection services)
         {
-            services.AddAuthentication()
+            
+                services.AddAuthentication()
+                
                     .AddGoogle(options =>
                     {
                         options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;

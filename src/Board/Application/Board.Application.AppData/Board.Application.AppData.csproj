@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,14 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.5.2" />
     <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="7.0.4" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\FileStorage\Clients\FileStorage.Clients\FileStorage.Clients.csproj" />
     <ProjectReference Include="..\..\..\Identity\Clients\Identity.Clients\Identity.Clients.csproj" />
     <ProjectReference Include="..\..\Contracts\Board.Contracts\Board.Contracts.csproj" />
     <ProjectReference Include="..\..\Domain\Board.Domain\Board.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Contexts\Categories\Helpers\" />
+    <Folder Include="Contexts\Comments\Helpers\" />
   </ItemGroup>
 
 </Project>

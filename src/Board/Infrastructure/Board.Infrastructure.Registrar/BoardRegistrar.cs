@@ -37,6 +37,12 @@ using Board.Infrastructure.Registrar.Options;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Identity.Infrastructure.Registrar;
+using Board.Application.AppData.Contexts.Users;
+using FluentValidation;
+using Board.Application.AppData.Contexts.Users.Helpers;
+using Board.Application.AppData.Contexts.Files.Services;
+using FileStorage.Clients.Contexts.Files;
+using FileStorage.Infrastructure.Registrar;
 
 namespace Board.Infrastructure.Registrar
 {
@@ -92,7 +98,7 @@ namespace Board.Infrastructure.Registrar
             //services.AddTransient<IValidator<CommentUpdateRequestDto>, CommentUpdateValidator>();
 
 
-            
+            services.AddScoped<IFileService, FileService>();
 
             //services.AddSingleton<IMapper>(new Mapper(new MapperConfiguration
             //    (a =>
@@ -100,11 +106,12 @@ namespace Board.Infrastructure.Registrar
             //        a.AddMaps(Assembly.GetExecutingAssembly());
             //    })));
 
+
             services.AddHttpContextAccessor();
 
             services.AddSingleton<IMapper>(new Mapper(GetMapperConfiguration()));
 
-
+            services.AddValidatorsFromAssembly(typeof(UserLoginValidator).Assembly);
 
             return services;
         }
@@ -117,6 +124,7 @@ namespace Board.Infrastructure.Registrar
                     options.Authority = "https://localhost:7157";
                     //options.ApiName = "Board.Web";
                     options.RequireHttpsMetadata = false;
+                    
                 });
 
 
@@ -246,16 +254,25 @@ namespace Board.Infrastructure.Registrar
         public static IServiceCollection AddHttpClients(this IServiceCollection services, ConfigurationManager configuration)
         {
             services.Configure<UserClientOptions>(configuration.GetSection("UserApiClientOptions"));
+            services.Configure<FileClientOptions>(configuration.GetSection("FileApiClientOptions"));
 
-            services.AddHttpClient<IUserClient, UserClient>(ConfigureHttpClient);
+            services.AddHttpClient<IUserClient, UserClient>(ConfigureUserHttpClient);
+            services.AddHttpClient<IFileClient, FileClient>(ConfigureFileHttpClient);
 
             return services;
         }
 
 
-        static void ConfigureHttpClient(IServiceProvider serviceProvider, HttpClient client)
+        static void ConfigureUserHttpClient(IServiceProvider serviceProvider, HttpClient client)
         {
             var options = serviceProvider.GetRequiredService<IOptions<UserClientOptions>>().Value;
+
+            client.BaseAddress = new Uri(options.BasePath);
+        }
+
+        static void ConfigureFileHttpClient(IServiceProvider serviceProvider, HttpClient client)
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<FileClientOptions>>().Value;
 
             client.BaseAddress = new Uri(options.BasePath);
         }
@@ -264,19 +281,9 @@ namespace Board.Infrastructure.Registrar
         {
             var configuration = new MapperConfiguration(cfg =>
             {
-                // TODO: доделать кфг маппера
-                //cfg.AddMaps(Assembly.GetExecutingAssembly());
-                cfg.AddMaps(typeof(BoardRegistrar), typeof(IdentityRegistrar));
-                //var profiles = Assembly.GetExecutingAssembly().GetTypes().Where(t => typeof(Profile).IsAssignableFrom(t));
-
-                //cfg.AddProfiles(profiles);
-                //var result3 = result2.
-                //cfg.AddProfile<AdvertProfile>();
-                //cfg.AddProfile<AdvertImageProfile>();
-                //cfg.AddProfile<CategoryProfile>();
-                //cfg.AddProfile<CommentProfile>();
+                cfg.AddMaps(typeof(BoardRegistrar), typeof(IdentityRegistrar), typeof(FileStorageRegistrar));
             });
-            //configuration.AssertConfigurationIsValid();
+            configuration.AssertConfigurationIsValid();
 
             return configuration;
         }

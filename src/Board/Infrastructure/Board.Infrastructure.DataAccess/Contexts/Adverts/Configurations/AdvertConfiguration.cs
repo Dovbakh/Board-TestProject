@@ -27,8 +27,6 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Configurations
 
             builder.Property(a => a.Address).HasMaxLength(2000);
 
-            builder.Property(a => a.Phone).HasMaxLength(50);
-
             builder.HasMany(a => a.AdvertImages)
                 .WithOne(ai => ai.Advert)
                 .HasForeignKey(ai => ai.AdvertId)

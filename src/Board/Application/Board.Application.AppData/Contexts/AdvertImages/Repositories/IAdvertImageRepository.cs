@@ -18,7 +18,7 @@ namespace Board.Application.AppData.Contexts.AdvertImages.Repositories
         /// <param name="postId">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Коллекция элементов <see cref="AdvertImageDto"/>.</returns>
-        Task<IReadOnlyCollection<AdvertImageDto>> GetAllByPostIdAsync(int postId, CancellationToken cancellation);
+        Task<IReadOnlyCollection<AdvertImageDto>> GetAllByAdvertIdAsync(Guid advertId, CancellationToken cancellation);
 
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Board.Application.AppData.Contexts.AdvertImages.Repositories
         /// <param name="id">Идентификатор.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Элемент <see cref="AdvertImageDto"/>.</returns>
-        Task<AdvertImageDto> GetByIdAsync(int id, CancellationToken cancellation);
+        Task<AdvertImageDto> GetByIdAsync(Guid id, CancellationToken cancellation);
 
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace Board.Application.AppData.Contexts.AdvertImages.Repositories
         /// <param name="addRequest">Элемент <see cref="AdvertImageAddRequest"/></param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns></returns>
-        Task<int> AddAsync(AdvertImageAddRequest addRequest, CancellationToken cancellation);
+        Task<Guid> AddAsync(AdvertImageAddRequest addRequest, CancellationToken cancellation);
 
 
         /// <summary>
@@ -44,8 +44,8 @@ namespace Board.Application.AppData.Contexts.AdvertImages.Repositories
         /// </summary>
         /// <param name="id">Идентификатор изображения.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        Task DeleteAsync(int id, CancellationToken cancellation);
+        Task DeleteAsync(Guid id, CancellationToken cancellation);
 
-
+        Task DeleteByFileIdAsync(Guid fileId, CancellationToken cancellation);
     }
 }

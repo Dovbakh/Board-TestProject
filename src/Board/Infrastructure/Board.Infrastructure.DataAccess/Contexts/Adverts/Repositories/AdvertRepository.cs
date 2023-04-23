@@ -101,7 +101,6 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
         {
             var existingDto = await _repository.GetAll()
                 .Where(a => a.Id == advertId)
-                .Include(a => a.User)
                 .Include(a => a.Category)
                 .Include(a => a.AdvertImages)
                 .ProjectTo<AdvertDetails>(_mapper.ConfigurationProvider)
@@ -125,7 +124,12 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
 
         public async Task<AdvertDetails> UpdateAsync(Guid advertId, AdvertUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            var existingEntity = await _repository.GetByIdAsync(advertId, cancellation);
+            var existingEntity = await _repository.GetAll()
+                .Where(a => a.Id == advertId)
+                .Include(a => a.Category)
+                .Include(a => a.AdvertImages)
+                .FirstOrDefaultAsync(cancellation);
+
             if (existingEntity == null)
             {
                 throw new KeyNotFoundException();

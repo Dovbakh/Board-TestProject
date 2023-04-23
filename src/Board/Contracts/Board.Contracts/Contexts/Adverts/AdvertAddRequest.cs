@@ -30,11 +30,6 @@ namespace Board.Contracts.Contexts.Adverts
         /// </summary>
         public string Address { get; set; }
 
-        /// <summary>
-        /// Номер телефона, указанный в обьявлении.
-        /// </summary>
-        public string Phone { get; set; }
-
 
         /// <summary>
         /// Идентификатор категории обьявления.
@@ -49,6 +44,6 @@ namespace Board.Contracts.Contexts.Adverts
         /// <summary>
         /// Коллекция идентификаторов изображений обьявления.
         /// </summary>
-        public ICollection<string> AdvertImagesId { get; set; }
+        public ICollection<Guid> AdvertImagesId { get; set; }
     }
 }

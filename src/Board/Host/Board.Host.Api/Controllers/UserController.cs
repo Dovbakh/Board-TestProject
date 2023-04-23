@@ -86,9 +86,9 @@ namespace Board.Host.Api.Controllers
         [Authorize]
         public async Task<ActionResult<UserDetails>> Update(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            await _userService.UpdateAsync(id, updateRequest, cancellation);
+            var updatedUser = await _userService.UpdateAsync(id, updateRequest, cancellation);
 
-            return Ok();
+            return Ok(updatedUser);
         }
 
         ///// <summary>

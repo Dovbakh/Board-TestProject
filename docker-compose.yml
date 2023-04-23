@@ -1,31 +1,52 @@
 version: '3.4'
 
 services:
-  board.host.api:
-    #image: ${DOCKER_REGISTRY-}boardhostapi
-    build:
-      context: .
-      dockerfile: src/Board/Host/Board.Host.Api/Dockerfile
-    ports:
-    - 5000:80
-    environment:
-    - ConnectionStrings__PostgresBoardDb=Host=localhost;Database=Board;Username=postgres;Password=postgres
-    depends_on:
-    - postgres
- 
+    board.host.api:
+        image: ${DOCKER_REGISTRY-}boardhostapi
+        build:
+            context: .
+            dockerfile: src/Board/Host/Board.Host.Api/Dockerfile
+        ports:
+            - 5000:80
+            - 5001:443
+        environment:
+            - ConnectionStrings__PostgresBoardDb=Host=localhost;Database=Board;Username=postgres;Password=postgres
+        depends_on:
+            - postgres
 
-  postgres:
-    image: "postgres"
-    restart: always
-    environment:
-        - POSTGRES_USER=postgres
-        - POSTGRES_DB=Board
-        - POSTGRES_PASSWORD=postgres
-    ports: 
-        - "5432:5432"
-    volumes:
-        - pg_data:/var/lib/postgresql/data 
+    filestorage.host.server:
+        image: ${DOCKER_REGISTRY-}filestoragehostserver
+        build:
+            context: .
+            dockerfile: src/FileStorage/Host/FileStorage.Host.Server/Dockerfile
+        ports:
+            - 5002:80
+            - 5003:443
+
+    postgres:
+        image: "postgres"
+        restart: always
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_DB=Board
+            - POSTGRES_PASSWORD=postgres
+        ports:
+            - "5432:5432"
+        volumes:
+            - pg_data:/var/lib/postgresql/data
+
+
+    minio:
+        image: minio/minio:RELEASE.2022-11-26T22-43-32Z
+        command: server --console-address ":9001" /data/
+        ports:
+            - "9000:9000"
+            - "9001:9001"
+            - "9090:9090"
+        environment:
+            MINIO_ROOT_USER: solarvito
+            MINIO_ROOT_PASSWORD: solarvito123
 
 volumes:
-   pg_data:
+    pg_data:
     

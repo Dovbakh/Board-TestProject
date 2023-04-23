@@ -28,6 +28,9 @@ namespace Board.Host.Api.Middlewares
                     case KeyNotFoundException e:
                         response.StatusCode = (int)HttpStatusCode.NotFound;
                         break;
+                    case ArgumentException e:
+                        response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                        break;
                     default:
                         response.StatusCode = (int)HttpStatusCode.InternalServerError;
                         break;

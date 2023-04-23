@@ -1,5 +1,6 @@
 ﻿using Identity.Application.AppData.Services;
 using Identity.Contracts.Contexts.Users;
+using Identity.Contracts.Conventions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +13,7 @@ namespace Identity.Host.Server.Controllers
     [Route("v1/[controller]")]
     [Produces("application/json")]
     [AllowAnonymous] // TODO: удалить
-    //[ApiConventionType(typeof(AppConventions))]
+    [ApiConventionType(typeof(AppConventions))]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -236,6 +237,7 @@ namespace Identity.Host.Server.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<string>> Login(UserLoginRequest loginRequest, CancellationToken cancellation)
         {
+            
             var token = await _userService.Login(loginRequest, cancellation);
 
             return Ok(token);

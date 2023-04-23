@@ -46,10 +46,6 @@ namespace Board.Host.DbMigrator.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<string>("Phone")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
@@ -57,9 +53,7 @@ namespace Board.Host.DbMigrator.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<bool>("isActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -82,10 +76,11 @@ namespace Board.Host.DbMigrator.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("FileId")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("isActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -111,9 +106,7 @@ namespace Board.Host.DbMigrator.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<bool>("isActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -151,9 +144,7 @@ namespace Board.Host.DbMigrator.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<bool>("isActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -261,9 +252,7 @@ namespace Board.Host.DbMigrator.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.Property<bool>("isActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -391,7 +380,7 @@ namespace Board.Host.DbMigrator.Migrations
                         .IsRequired();
 
                     b.HasOne("Board.Domain.User", "User")
-                        .WithMany("Posts")
+                        .WithMany("Adverts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -528,11 +517,11 @@ namespace Board.Host.DbMigrator.Migrations
 
             modelBuilder.Entity("Board.Domain.User", b =>
                 {
+                    b.Navigation("Adverts");
+
                     b.Navigation("CommentsBy");
 
                     b.Navigation("CommentsFor");
-
-                    b.Navigation("Posts");
                 });
 #pragma warning restore 612, 618
         }

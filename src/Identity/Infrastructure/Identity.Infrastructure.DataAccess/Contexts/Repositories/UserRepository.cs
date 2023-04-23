@@ -35,18 +35,27 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
 
         public async Task<UserDetails> GetByEmail(string email, CancellationToken cancellation)
         {
-            return await _userManager.Users
+            var user = await _userManager.Users
                 .Where(u => u.Email == email)
                 .ProjectTo<UserDetails>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellation);
+
+            return user;
         }
 
         public async Task<UserDetails> GetById(Guid id, CancellationToken cancellation)
         {
-            return await _userManager.Users
+            var user = await _userManager.Users
                 .Where(u => u.Id == id)
                 .ProjectTo<UserDetails>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellation);
+
+            if (user == null) 
+            {
+                throw new KeyNotFoundException();
+            }
+
+            return user;
         }
 
         public async Task<Guid> AddAsync(UserRegisterRequest registerRequest, CancellationToken cancellation)
@@ -58,7 +67,7 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
                 throw new ArgumentException(result.Errors.ToList().ToString());
             }
 
-            await _userManager.AddToRoleAsync(newEntity, "admin"/*Role.User*/);
+            await _userManager.AddToRoleAsync(newEntity, "user");
 
             return newEntity.Id;
         }
@@ -66,9 +75,16 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
 
         public async Task<UserDetails> UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            var user = await _userManager.Users
+                .Where(u => u.Id == id)
+                .FirstOrDefaultAsync(cancellation);
 
-            //if (!updateRequest.Name.IsNullOrEmpty())
+            if (user == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+
             if (!string.IsNullOrEmpty(updateRequest.Name))
             {
                 user.Name = updateRequest.Name;

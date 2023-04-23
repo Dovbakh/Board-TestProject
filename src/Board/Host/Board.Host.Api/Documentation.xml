@@ -210,6 +210,54 @@
             <param name="id">Идентификатор комментария.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
+        <member name="T:Board.Host.Api.Controllers.FileController">
+            <summary>
+            Работа с пользователями.
+            </summary>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.FileController.#ctor(Board.Application.AppData.Contexts.Files.Services.IFileService,Microsoft.Extensions.Logging.ILogger{Board.Host.Api.Controllers.FileController})">
+            <summary>
+            Работа с обьявлениями.
+            </summary>
+            <param name="advertisementService">Сервис для работы с обьявлениями.</param>
+            <param name="logger">Логгер.</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.FileController.GetInfo(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+            </summary>
+            <param name="page">Номер страницы.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Adverts.AdvertSummary"/>.</returns>
+            <response code="200">Запрос выполнен успешно.</response>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.FileController.Upload(Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+            <summary>
+            Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+            </summary>
+            <param name="page">Номер страницы.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Adverts.AdvertSummary"/>.</returns>
+            <response code="200">Запрос выполнен успешно.</response>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.FileController.Download(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+            </summary>
+            <param name="page">Номер страницы.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Adverts.AdvertSummary"/>.</returns>
+            <response code="200">Запрос выполнен успешно.</response>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.FileController.Delete(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+            </summary>
+            <param name="page">Номер страницы.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Adverts.AdvertSummary"/>.</returns>
+            <response code="200">Запрос выполнен успешно.</response>
+        </member>
         <member name="T:Board.Host.Api.Controllers.UserController">
             <summary>
             Работа с пользователями.

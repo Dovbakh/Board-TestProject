@@ -8,5 +8,14 @@ namespace Board.Contracts.Contexts.AdvertImages
 {
     public class AdvertImageAddRequest
     {
+        /// <summary>
+        /// Идентификатор обьявления.
+        /// </summary>
+        public Guid AdvertId { get; set; }
+
+        /// <summary>
+        /// Идентификатор обьявления.
+        /// </summary>
+        public Guid FileId { get; set; }
     }
 }

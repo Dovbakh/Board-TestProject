@@ -1,4 +1,5 @@
-﻿using Board.Domain;
+﻿using Board.Contracts.Contexts.Users;
+using Board.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,17 +35,11 @@ namespace Board.Contracts.Contexts.Adverts
         /// </summary>
         public string Address { get; set; }
 
-        /// <summary>
-        /// Номер телефона, указанный в обьявлении.
-        /// </summary>
-        public string Phone { get; set; }
 
         /// <summary>
         /// Дата создания обьявления.
         /// </summary>
         public DateTime CreatedAt { get; set; }
-
-
 
         /// <summary>
         /// Идентификатор категории обьявления.
@@ -56,19 +51,11 @@ namespace Board.Contracts.Contexts.Adverts
         /// </summary>
         public Guid UserId { get; set; }
 
-        /// <summary>
-        /// Категория обьявления.
-        /// </summary>
-        public Category Category { get; set; }
-
-        /// <summary>
-        /// Пользователь-автор обьявления.
-        /// </summary>
-        public User User { get; set; }
+        public UserDetails User { get; set; }
 
         /// <summary>
         /// Коллекция изображений обьявления.
         /// </summary>
-        //public ICollection<AdvertImage> AdvertImages { get; set; }
+        public ICollection<Guid> AdvertImagesId { get; set; }
     }
 }
