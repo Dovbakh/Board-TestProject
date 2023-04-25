@@ -17,12 +17,12 @@ namespace Identity.Infrastructure.Registrar.MapProfiles.Contexts
             CreateMap<User, UserSummary>();
             CreateMap<User, UserDetails>();
             CreateMap<UserRegisterRequest, User>()
-                .ForMember(a => a.RoleId, map => map.MapFrom(s => Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6")))
+                //.ForMember(a => a.RoleId, map => map.Ignore())
                 .ForMember(a => a.UserName, map => map.MapFrom(s => s.Email))
                 .ForMember(a => a.CreatedAt, map => map.MapFrom(d => DateTime.UtcNow))
                 .ForMember(a => a.Name, map => map.Ignore())
                 .ForMember(a => a.Address, map => map.Ignore())
-                .ForMember(a => a.Role, map => map.Ignore())
+                //.ForMember(a => a.Role, map => map.Ignore())
                 .ForMember(a => a.isActive, map => map.Ignore())
                 .ForMember(a => a.Id, map => map.Ignore())
                 .ForMember(a => a.NormalizedUserName, map => map.Ignore())

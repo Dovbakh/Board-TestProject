@@ -21,12 +21,10 @@ if (seed)
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
-var connectionString = builder.Configuration.GetConnectionString("PostgresBoardDb");
-
 
 if (seed)
 {
-    SeedData.EnsureSeedData(connectionString);
+    SeedData.EnsureSeedData(config);
 }
 
 builder.Services.AddServiceRegistrationModule();

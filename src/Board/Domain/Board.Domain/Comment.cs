@@ -44,19 +44,9 @@ namespace Board.Domain
         public Guid AdvertisementId { get; set; }
 
         /// <summary>
-        /// Пользователь-автор.
-        /// </summary>
-        public User Author { get; set; }
-
-        /// <summary>
-        /// Пользователь, к которому оставлен отзыв.
-        /// </summary>
-        public User User { get; set; }
-
-        /// <summary>
         /// Обьявление, к которому оставлен отзыв.
         /// </summary>
-        public Advert Post { get; set; }
+        public Advert Advert { get; set; }
 
         public bool isActive { get; set; }
     }

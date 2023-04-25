@@ -18,17 +18,17 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
 
             CreateMap<CommentAddRequest, Comment>()
                 .ForMember(s => s.Id, map => map.Ignore())
-                .ForMember(s => s.User, map => map.Ignore())
-                .ForMember(s => s.Author, map => map.Ignore())
-                .ForMember(s => s.Post, map => map.Ignore())
+                //.ForMember(s => s.User, map => map.Ignore())
+                //.ForMember(s => s.Author, map => map.Ignore())
+                .ForMember(s => s.Advert, map => map.Ignore())
                 .ForMember(a => a.CreatedAt, map => map.MapFrom(d => DateTime.UtcNow))
                 .ForMember(s => s.isActive, map => map.MapFrom(a => true));
 
             CreateMap<CommentUpdateRequest, Comment>()
                 .ForMember(s => s.Id, map => map.Ignore())
-                .ForMember(s => s.User, map => map.Ignore())
-                .ForMember(s => s.Author, map => map.Ignore())
-                .ForMember(s => s.Post, map => map.Ignore())
+                //.ForMember(s => s.User, map => map.Ignore())
+                //.ForMember(s => s.Author, map => map.Ignore())
+                .ForMember(s => s.Advert, map => map.Ignore())
                 .ForMember(s => s.CreatedAt, map => map.Ignore())
                 .ForMember(s => s.isActive, map => map.Ignore())
                 .ForMember(s => s.AuthorId, map => map.Ignore())

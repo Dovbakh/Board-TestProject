@@ -26,18 +26,16 @@ namespace Identity.Infrastructure.Migrations.Factories
             IConfigurationRoot config = builder.Build();
 
             // получаем строку подключения из файла appsettings.json
-            var connectionString = config.GetConnectionString("PostgresBoardDb");
+            var connectionString = config.GetConnectionString("PostgresIdentityConfigurationDb");
             optionsBuilder.UseNpgsql(connectionString, opts => opts
             .CommandTimeout((int)TimeSpan.FromMinutes(10).TotalSeconds)
             );
 
-            var assembly = Assembly.GetExecutingAssembly();
-            var defaultConnString = config.GetConnectionString("PostgresBoardDb");
 
-            var sd = new OperationalStoreOptions();
-            sd.ConfigureDbContext = b => b.UseNpgsql(defaultConnString, opt => opt.MigrationsAssembly("Identity.Infrastructure.Migrations"));
+            var operationalStoreOptions = new OperationalStoreOptions();
+            operationalStoreOptions.ConfigureDbContext = b => b.UseNpgsql(connectionString, opt => opt.MigrationsAssembly("Identity.Infrastructure.Migrations"));
 
-            return new MigrationPersistedGrantDbContext(optionsBuilder.Options, sd);
+            return new MigrationPersistedGrantDbContext(optionsBuilder.Options, operationalStoreOptions);
         }
     }
 }

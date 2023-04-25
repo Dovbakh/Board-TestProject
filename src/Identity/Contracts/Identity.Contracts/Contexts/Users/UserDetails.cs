@@ -29,9 +29,5 @@ namespace Identity.Contracts.Contexts.Users
         /// </summary>
         public DateTime CreatedAt { get; set; }
 
-        /// <summary>
-        /// Идентификатор роли пользователя.
-        /// </summary>
-        public Guid RoleId { get; set; }
     }
 }

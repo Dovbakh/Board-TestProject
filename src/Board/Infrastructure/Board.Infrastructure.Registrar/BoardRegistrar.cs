@@ -24,7 +24,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Board.Application.AppData.Contexts.Users.Services;
-using Board.Infrastructure.DataAccess.Contexts.Users.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -43,12 +42,13 @@ using Board.Application.AppData.Contexts.Users.Helpers;
 using Board.Application.AppData.Contexts.Files.Services;
 using FileStorage.Clients.Contexts.Files;
 using FileStorage.Infrastructure.Registrar;
+using SixLabors.ImageSharp;
 
 namespace Board.Infrastructure.Registrar
 {
     public static class BoardRegistrar
     {
-        public static IServiceCollection AddServiceRegistrationModule(this IServiceCollection services)
+        public static IServiceCollection AddServiceRegistrationModule(this IServiceCollection services, IConfiguration configuration)
         {
             // Регистрация сервисов работы с БД
             services.AddSingleton<IDbContextOptionsConfigurator<BoardDbContext>, BoardDbContextConfiguration>();
@@ -67,7 +67,6 @@ namespace Board.Infrastructure.Registrar
             //services.AddScoped(typeof(ICachedRepository<>), typeof(CachedRepository<>));
             services.AddScoped<IAdvertRepository, AdvertRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
             //services.AddScoped<IFileRepository, FileRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IAdvertImageRepository, AdvertImageRepository>();
@@ -112,6 +111,15 @@ namespace Board.Infrastructure.Registrar
             services.AddSingleton<IMapper>(new Mapper(GetMapperConfiguration()));
 
             services.AddValidatorsFromAssembly(typeof(UserLoginValidator).Assembly);
+
+
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration.GetSection("RedisCache").GetRequiredSection("Host").Value;
+                options.InstanceName = configuration.GetSection("RedisCache").GetRequiredSection("InstanceName").Value;
+            });
+
+            services.AddScoped<ICacheRepository, CacheRepository>();
 
             return services;
         }
@@ -164,38 +172,38 @@ namespace Board.Infrastructure.Registrar
         }
 
 
-            public static IServiceCollection AddAspNetIdentityServices(this IServiceCollection services)
-        {
-            services.AddIdentityCore<User>()
-                .AddRoles<Role>()
-                .AddUserManager<UserManager<User>>()
-                .AddRoleManager<RoleManager<Role>>()
-                .AddEntityFrameworkStores<BoardDbContext>()
-                .AddDefaultTokenProviders();
+        //    public static IServiceCollection AddAspNetIdentityServices(this IServiceCollection services)
+        //{
+        //    services.AddIdentityCore<User>()
+        //        .AddRoles<Role>()
+        //        .AddUserManager<UserManager<User>>()
+        //        .AddRoleManager<RoleManager<Role>>()
+        //        .AddEntityFrameworkStores<BoardDbContext>()
+        //        .AddDefaultTokenProviders();
 
-            services.Configure<IdentityOptions>(options =>
-            {
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = true;
-                options.Password.RequiredLength = 8;
-                options.Password.RequiredUniqueChars = 1;
+        //    services.Configure<IdentityOptions>(options =>
+        //    {
+        //        options.Password.RequireDigit = true;
+        //        options.Password.RequireLowercase = true;
+        //        options.Password.RequireNonAlphanumeric = false;
+        //        options.Password.RequireUppercase = true;
+        //        options.Password.RequiredLength = 8;
+        //        options.Password.RequiredUniqueChars = 1;
 
-                options.User.AllowedUserNameCharacters =
-                        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ ";
-                options.User.RequireUniqueEmail = true;
+        //        options.User.AllowedUserNameCharacters =
+        //                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ ";
+        //        options.User.RequireUniqueEmail = true;
 
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.AllowedForNewUsers = true;
+        //        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
+        //        options.Lockout.MaxFailedAccessAttempts = 5;
+        //        options.Lockout.AllowedForNewUsers = true;
 
-                options.SignIn.RequireConfirmedEmail = false;
-                options.SignIn.RequireConfirmedPhoneNumber = false;
-            });
+        //        options.SignIn.RequireConfirmedEmail = false;
+        //        options.SignIn.RequireConfirmedPhoneNumber = false;
+        //    });
 
-            return services;
-        }
+        //    return services;
+        //}
 
 
         public static IServiceCollection AddRedisServices(this IServiceCollection services, IConfiguration configuration)

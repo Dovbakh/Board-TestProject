@@ -1,4 +1,5 @@
 ﻿using Identity.Contracts.Contexts.Users;
+using Identity.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -113,6 +114,8 @@ namespace Identity.Application.AppData.Repositories
         /// <param name="cancellationToken">Токен отмены.</param>
         /// <returns></returns>
         Task ResetPasswordAsync(string email, string token, string newPassword, CancellationToken cancellationToken);
+
+        Task<bool> IsInRoleRole(Guid userId, string role, CancellationToken cancellationToken);
 
     }
 

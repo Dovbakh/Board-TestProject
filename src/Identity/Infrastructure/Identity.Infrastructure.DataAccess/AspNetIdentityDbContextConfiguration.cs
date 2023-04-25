@@ -11,7 +11,7 @@ namespace Identity.Infrastructure.DataAccess
 {
     public class AspNetIdentityDbContextConfiguration : IDbContextOptionsConfigurator<AspNetIdentityDbContext>
     {
-        private const string PostgesConnectionStringName = "PostgresBoardDb";
+        private const string PostgesConnectionStringName = "PostgresIdentityUsersDb";
         private readonly IConfiguration _configuration;
         //private readonly ILoggerFactory _loggerFactory;
 

@@ -27,15 +27,10 @@ namespace Identity.Infrastructure.Migrations.Factories
             IConfigurationRoot config = builder.Build();
 
             // получаем строку подключения из файла appsettings.json
-            var connectionString = config.GetConnectionString("PostgresBoardDb");
+            var connectionString = config.GetConnectionString("PostgresIdentityUsersDb");
             optionsBuilder.UseNpgsql(connectionString, opts => opts
             .CommandTimeout((int)TimeSpan.FromMinutes(10).TotalSeconds)
             );
-
-            var assembly = Assembly.GetExecutingAssembly();
-            var defaultConnString = config.GetConnectionString("PostgresBoardDb");
-
-
 
             return new MigrationAspNetIdentityDbContext(optionsBuilder.Options);
         }

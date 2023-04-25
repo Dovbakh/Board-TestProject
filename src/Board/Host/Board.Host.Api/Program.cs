@@ -8,13 +8,13 @@ var config = builder.Configuration;
 
 
 
-builder.Services.AddServiceRegistrationModule();
+builder.Services.AddServiceRegistrationModule(config);
 builder.Services.AddHttpClients(config);
 
 //builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerServices();
-builder.Services.AddAspNetIdentityServices();
+//builder.Services.AddAspNetIdentityServices();
 
 builder.Services.AddAuthenticationServices();
 builder.Services.AddAuthorizationServices();

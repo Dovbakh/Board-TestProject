@@ -13,15 +13,18 @@ namespace Identity.Host.Server
 {
     public class SeedData
     {
-        public static void EnsureSeedData(string connectionString)
+        public static void EnsureSeedData(ConfigurationManager configuration)
         {
+            var usersDbConnectionString = configuration.GetConnectionString("PostgresIdentityUsersDb");
+            var configurationDbConnectionString = configuration.GetConnectionString("PostgresIdentityConfigurationDb");
+
             var services = new ServiceCollection();
             services.AddLogging();
             services.AddDbContext<AspNetIdentityDbContext>(
-                options => options.UseNpgsql(connectionString));
+                options => options.UseNpgsql(usersDbConnectionString));
 
             services
-                .AddIdentity<User, Role>()
+                .AddIdentity<User, IdentityRole<Guid>>()
                 .AddEntityFrameworkStores<AspNetIdentityDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -29,14 +32,14 @@ namespace Identity.Host.Server
                 options =>
                 {
                     options.ConfigureDbContext = db =>
-                    db.UseNpgsql(connectionString, sql => sql.MigrationsAssembly(typeof(SeedData).Assembly.FullName));
+                    db.UseNpgsql(configurationDbConnectionString, sql => sql.MigrationsAssembly(typeof(SeedData).Assembly.FullName));
                 });
 
             services.AddConfigurationDbContext(
                 options =>
                 {
                     options.ConfigureDbContext = db =>
-                    db.UseNpgsql(connectionString, sql => sql.MigrationsAssembly(typeof(SeedData).Assembly.FullName));
+                    db.UseNpgsql(configurationDbConnectionString, sql => sql.MigrationsAssembly(typeof(SeedData).Assembly.FullName));
                 });
 
             var servicesProvider = services.BuildServiceProvider();
@@ -61,32 +64,30 @@ namespace Identity.Host.Server
         {
             var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 
-            var angella = userMgr.FindByEmailAsync("admin@email.com").Result;
-            if (angella == null)
+            var admin = userMgr.FindByEmailAsync("admin@email.com").Result;
+            if (admin == null)
             {
-                angella = new User
+                admin = new User
                 {
                     UserName = "admin",
                     Email = "admin@email.com",
-                    EmailConfirmed = true,
-                    RoleId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6")
-                    
+                    EmailConfirmed = true,                    
                 };
 
-                var result = userMgr.CreateAsync(angella, "Pass_123").Result;
+                var result = userMgr.CreateAsync(admin, "Pass_123").Result;
                 if (!result.Succeeded)
                 {
                     throw new Exception(result.Errors.First().Description);
                 }
 
                 result = userMgr.AddClaimsAsync(
-                    angella,
+                    admin,
                     new Claim[]
                     {
-                        new Claim(JwtClaimTypes.Name, "Angella Freeman"),
-                        new Claim(JwtClaimTypes.GivenName, "Angella"),
-                        new Claim(JwtClaimTypes.FamilyName, "Freeman"),
-                        new Claim(JwtClaimTypes.WebSite, "http://angella.com"),
+                        new Claim(JwtClaimTypes.Name, "Admin"),
+                        new Claim(JwtClaimTypes.GivenName, "Adminovich"),
+                        new Claim(JwtClaimTypes.FamilyName, "Adminov"),
+                        new Claim(JwtClaimTypes.WebSite, "http://admin.com"),
                         new Claim("location", "somewhere")
 
                     }).Result;
@@ -95,7 +96,14 @@ namespace Identity.Host.Server
                 {
                     throw new Exception(result.Errors.First().Description);
                 }
+
+                var roleMgr = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+                var adminRole = new IdentityRole<Guid>("admin");
+                result = roleMgr.CreateAsync(adminRole).Result;
+
+                result = userMgr.AddToRoleAsync(admin, "admin").Result;
             }
+
         }
 
         //public static void EnsureSeedData(IServiceProvider serviceProvider)

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Identity.Infrastructure.DataAccess
 {
-    public class AspNetIdentityDbContext : IdentityDbContext<User, Role, Guid>
+    public class AspNetIdentityDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
     {
         public AspNetIdentityDbContext(DbContextOptions<AspNetIdentityDbContext> options) 
             : base(options) 

@@ -26,17 +26,6 @@ namespace Identity.Domain
         /// </summary>
         public DateTime CreatedAt { get; set; }
 
-        /// <summary>
-        /// Идентификатор роли пользователя.
-        /// </summary>
-        public Guid RoleId { get; set; }
-
-        /// <summary>
-        /// Роль пользователя.
-        /// </summary>
-        public Role Role { get; set; }
-
-
         public bool isActive { get; set; }
     }
 }

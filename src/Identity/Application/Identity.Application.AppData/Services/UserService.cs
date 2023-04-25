@@ -143,5 +143,10 @@ namespace Identity.Application.AppData.Services
 
             await _userRepository.DeleteAsync(id, cancellationToken);
         }
+
+        public Task<bool> IsInRoleRole(Guid userId, string role, CancellationToken cancellationToken)
+        {
+            return _userRepository.IsInRoleRole(userId, role, cancellationToken);
+        }
     }
 }

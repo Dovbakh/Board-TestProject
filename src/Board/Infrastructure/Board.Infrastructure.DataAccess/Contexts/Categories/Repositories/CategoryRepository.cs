@@ -17,6 +17,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
     public class CategoryRepository : ICategoryRepository
     {
         private readonly IRepository<Category> _repository;
+        private readonly ICacheRepository _cacheRepository;
         private readonly IMapper _mapper;
 
         public CategoryRepository(Repository.IRepository<Category> repository, IMapper mapper)
@@ -27,6 +28,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
 
         public async Task<IReadOnlyCollection<CategorySummary>> GetAllAsync(CancellationToken cancellation)
         {
+            //var a = 
             var existingDtoList = await _repository.GetAll()
                 .ProjectTo<CategorySummary>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellation);

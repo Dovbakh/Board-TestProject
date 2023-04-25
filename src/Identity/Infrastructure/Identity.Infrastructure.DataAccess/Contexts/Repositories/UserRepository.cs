@@ -16,10 +16,10 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly UserManager<User> _userManager;
-        private readonly RoleManager<Role> _roleManager;
+        private readonly RoleManager<IdentityRole<Guid>> _roleManager;
         private readonly IMapper _mapper;
 
-        public UserRepository(UserManager<Domain.User> userManager, IMapper mapper, RoleManager<Domain.Role> roleManager)
+        public UserRepository(UserManager<Domain.User> userManager, IMapper mapper, RoleManager<IdentityRole<Guid>> roleManager)
         {
             _userManager = userManager;
             _mapper = mapper;
@@ -66,8 +66,6 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
             { 
                 throw new ArgumentException(result.Errors.ToList().ToString());
             }
-
-            await _userManager.AddToRoleAsync(newEntity, "user");
 
             return newEntity.Id;
         }
@@ -141,6 +139,20 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
             throw new NotImplementedException();
         }
 
+        public async Task<bool> IsInRoleRole(Guid userId, string role, CancellationToken cancellationToken)
+        {
+            var user = await _userManager.Users
+                .Where(u => u.Id == userId)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (user == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            var hasRole = await _userManager.IsInRoleAsync(user, role);
+
+            return hasRole;
+        }
 
     }
 }

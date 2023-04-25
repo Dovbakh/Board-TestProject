@@ -19,7 +19,6 @@ namespace Board.Application.AppData.Contexts.Users.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IMapper _mapper;
@@ -28,10 +27,9 @@ namespace Board.Application.AppData.Contexts.Users.Services
         private readonly IValidator<UserRegisterRequest> _userRegisterValidator;
         private readonly IValidator<UserUpdateRequest> _userUpdateValidator;
 
-        public UserService(IUserRepository userRepository, IConfiguration configuration, IUserClient boardClient, IMapper mapper, IHttpContextAccessor contextAccessor, 
+        public UserService(IConfiguration configuration, IUserClient boardClient, IMapper mapper, IHttpContextAccessor contextAccessor, 
             IValidator<UserLoginRequest> userLoginValidator, IValidator<UserRegisterRequest> userRegisterValidator, IValidator<UserUpdateRequest> userUpdateValidator)
         {
-            _userRepository = userRepository;
             _configuration = configuration;
             _userClient = boardClient;
             _mapper = mapper;

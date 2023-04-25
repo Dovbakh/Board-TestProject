@@ -57,9 +57,9 @@ namespace Identity.Infrastructure.Registrar
 
         public static IServiceCollection AddAspNetIdentityServices(this IServiceCollection services)
         {
-            services.AddIdentity<User, Role>()
+            services.AddIdentity<User, IdentityRole<Guid>>()
                 .AddUserManager<UserManager<User>>()
-                .AddRoleManager<RoleManager<Role>>()
+                .AddRoleManager<RoleManager<IdentityRole<Guid>>>()
                 .AddEntityFrameworkStores<AspNetIdentityDbContext>();
 
             return services;
@@ -67,7 +67,7 @@ namespace Identity.Infrastructure.Registrar
 
         public static IServiceCollection AddIdentityServerServices(this IServiceCollection services, ConfigurationManager configuration)
         {
-            var connectionString = configuration.GetConnectionString("PostgresBoardDb");
+            var connectionString = configuration.GetConnectionString("PostgresIdentityConfigurationDb");
 
             services.AddIdentityServer()
                     .AddConfigurationStore(options =>

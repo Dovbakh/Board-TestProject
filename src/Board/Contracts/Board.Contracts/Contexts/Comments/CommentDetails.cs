@@ -47,6 +47,6 @@ namespace Board.Contracts.Contexts.Comments
         /// <summary>
         /// Пользователь-автор.
         /// </summary>
-        public User Author { get; set; }
+       // public User Author { get; set; }
     }
 }

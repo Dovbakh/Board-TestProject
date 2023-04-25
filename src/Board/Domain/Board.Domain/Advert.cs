@@ -53,10 +53,10 @@ namespace Board.Domain
         /// </summary>
         public Category Category { get; set; }
 
-        /// <summary>
-        /// Пользователь-автор обьявления.
-        /// </summary>
-        public User User { get; set; }
+        ///// <summary>
+        ///// Пользователь-автор обьявления.
+        ///// </summary>
+        //public User User { get; set; }
 
         /// <summary>
         /// Коллекция изображений обьявления.

@@ -63,6 +63,8 @@ namespace Identity.Application.AppData.Services
         /// <param name="cancellationToken">Токен отмены.</param>
         Task DeleteAsync(Guid id, CancellationToken cancellationToken);
 
+        Task<bool> IsInRoleRole(Guid userId, string role, CancellationToken cancellationToken);
+
         ///// <summary>
         ///// Изменить пароль у пользователя.
         ///// </summary>

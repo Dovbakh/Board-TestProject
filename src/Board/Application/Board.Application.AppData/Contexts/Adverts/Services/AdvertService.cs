@@ -128,7 +128,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
             // TODO: логирование
             var currentAdvert = await _advertRepository.GetByIdAsync(id, cancellation);
             var currentUser = await _userService.GetCurrent(cancellation);
-            if (currentUser.Id != currentAdvert.UserId && currentUser.RoleId.ToString() != "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+            if (currentUser.Id != currentAdvert.UserId)
             {
                 throw new UnauthorizedAccessException();
             }
@@ -164,7 +164,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         {
             var currentAdvert = await _advertRepository.GetByIdAsync(id, cancellation);
             var currentUser = await _userService.GetCurrent(cancellation);
-            if (currentUser.Id != currentAdvert.UserId && currentUser.RoleId.ToString() != "3fa85f64-5717-4562-b3fc-2c963f66afa6")
+            if (currentUser.Id != currentAdvert.UserId)
             {
                 throw new UnauthorizedAccessException();
             }

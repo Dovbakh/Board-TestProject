@@ -66,10 +66,10 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
             {
                 query = query.Where(p => p.Price <= filterRequest.maxPrice);
             }
-            if (filterRequest.highRating.HasValue)
-            {
-                query = query.Where(p => (p.User.CommentsFor.Sum(u => u.Rating) / p.User.CommentsFor.Count) >= 4);
-            }
+            //if (filterRequest.highRating.HasValue)
+            //{
+            //    query = query.Where(p => (p.User.CommentsFor.Sum(u => u.Rating) / p.User.CommentsFor.Count) >= 4);
+            //}
 
             if (!string.IsNullOrWhiteSpace(filterRequest.SortBy))
             {
