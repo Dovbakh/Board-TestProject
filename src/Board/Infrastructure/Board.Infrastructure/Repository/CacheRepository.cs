@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,13 +27,21 @@ namespace Board.Infrastructure.Repository
                 var cachedEntity = JsonConvert.DeserializeObject<TEntity>(cache);
                 return cachedEntity;
             }
-
             return null;
         }
 
-        public async Task SetWithId(string key, TEntity entity)
+        public async Task SetWithSlidingTime(string key, TEntity entity, TimeSpan slidingTime)
         {
-            var options = new DistributedCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(7));
+            var options = new DistributedCacheEntryOptions()
+                .SetSlidingExpiration(slidingTime);
+
+            await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity), options);
+        }
+
+        public async Task SetWithAbsoluteTime(string key, TEntity entity, TimeSpan absoluteTime)
+        {
+            var options = new DistributedCacheEntryOptions()
+                .SetAbsoluteExpiration(absoluteTime);
 
             await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity), options);
         }
@@ -50,22 +59,53 @@ namespace Board.Infrastructure.Repository
 
         public async Task<object> GetById(string key, Type type)
         {
-            var cache = await _distributedCache.GetStringAsync(key);
-
-            if (!string.IsNullOrEmpty(cache))
+            try
             {
+                var cache = await _distributedCache.GetStringAsync(key);
+
+                if (string.IsNullOrEmpty(cache))
+                {
+                    return null;
+                }
+               
                 var cachedEntity = JsonConvert.DeserializeObject(cache, type);
                 return cachedEntity;
+
             }
-
-            return null;
+            catch(RedisConnectionException ex)
+            {
+                return null;
+            }
         }
 
-        public async Task SetWithId(string key, Type type, object entity)
+        public async Task SetWithSlidingTime(string key, Type type, object entity, TimeSpan slidingTime)
         {
-            var options = new DistributedCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromDays(7));
+            var options = new DistributedCacheEntryOptions()
+                .SetSlidingExpiration(slidingTime);
 
-            await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity, type, null), options);
+            try
+            {
+                await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity, type, null), options);
+            }
+            catch (RedisConnectionException ex)
+            {
+
+            }
         }
+
+        public async Task SetWithAbsoluteTime(string key, Type type, object entity, TimeSpan absoluteTime)
+        {
+            var options = new DistributedCacheEntryOptions()
+                .SetAbsoluteExpiration(absoluteTime);
+
+            try
+            {
+                await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity, type, null), options);
+            }
+            catch (RedisConnectionException ex)
+            {
+
+            }
+}
     }
 }

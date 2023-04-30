@@ -18,6 +18,11 @@ namespace Identity.Infrastructure.Registrar.MapProfiles.Clients
             CreateMap<UserUpdateClientRequest, UserUpdateRequest>();
             CreateMap<UserSummary, UserSummaryClientResponse>();
             CreateMap<UserDetails, UserDetailsClientResponse>();
+            CreateMap<UserGenerateEmailTokenClientRequest, UserGenerateEmailTokenRequest>();
+            CreateMap<UserChangeEmailClientRequest, UserChangeEmailRequest>();
+            CreateMap<UserEmailConfirmClientRequest, UserEmailConfirmRequest>();
+            CreateMap<UserGenerateEmailConfirmationTokenClientRequest, UserGenerateEmailConfirmationTokenRequest>();
+            
         }
 
     }

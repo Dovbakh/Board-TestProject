@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Notifier.Contracts.Contexts.Messages
 {
-    public class MessageDetails
+    public class NotificationDetails
     {
         public string Receiver { get; set; }
         public string Subject { get; set; }

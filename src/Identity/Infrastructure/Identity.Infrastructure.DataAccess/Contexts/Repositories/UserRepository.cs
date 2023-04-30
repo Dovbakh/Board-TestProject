@@ -50,11 +50,6 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
                 .ProjectTo<UserDetails>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellation);
 
-            if (user == null) 
-            {
-                throw new KeyNotFoundException();
-            }
-
             return user;
         }
 
@@ -108,35 +103,94 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
             await _userManager.DeleteAsync(user);
         }
 
-        public Task ChangeEmailAsync(string currentEmail, string newEmail, string token, CancellationToken cancellation)
+        public async Task ChangeEmailAsync(string currentEmail, string newEmail, string token, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            var user = await _userManager.FindByEmailAsync(currentEmail);
+
+            var result = await _userManager.ChangeEmailAsync(user, newEmail, token);
+
+            if (!result.Succeeded)
+            {
+                throw new ArgumentException(string.Join("~", result.Errors));
+            }
+
+            await _userManager.SetUserNameAsync(user, newEmail);
         }
 
-        public Task<string> ChangeEmailRequestAsync(string currentEmail, string newEmail, CancellationToken cancellation)
+        public async Task ConfirmEmailAsync(string email, string token, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            var user = await _userManager.FindByEmailAsync(email);
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+
+            if (!result.Succeeded)
+            {
+                throw new ArgumentException(string.Join("~", result.Errors));
+            }
+
         }
 
-        public Task ChangePasswordAsync(string email, string currentPassword, string newPassword, CancellationToken cancellation)
+        public async Task<EmailChangeToken> GenerateEmailTokenAsync(string currentEmail, string newEmail, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            var user = await _userManager.FindByEmailAsync(currentEmail);
+
+            var tokenValue = await _userManager.GenerateChangeEmailTokenAsync(user, newEmail);
+            return new EmailChangeToken { Value = tokenValue };
         }
 
-        public Task<bool> CheckPasswordAsync(string email, string password, CancellationToken cancellation)
+        public async Task<EmailConfirmationToken> GenerateEmailConfirmationTokenAsync(string email, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            var user = await _userManager.FindByEmailAsync(email);
+
+            var tokenValue = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            return new EmailConfirmationToken { Value = tokenValue };
+        }
+
+        public async Task ChangePasswordAsync(string email, string currentPassword, string newPassword, CancellationToken cancellation)
+        {
+            var user = await _userManager.Users
+                .Where(u => u.Email == email)
+                .FirstOrDefaultAsync();
+
+            var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+
+            if (!result.Succeeded)
+            {
+                throw new Exception(string.Join("~", result.Errors));
+            }
+        }
+
+        public async Task<bool> CheckPasswordAsync(string email, string password, CancellationToken cancellation)
+        {
+            var user = await _userManager.Users
+                .Where(u => u.Email == email)
+                .FirstOrDefaultAsync();
+
+            return await _userManager.CheckPasswordAsync(user, password);
+
         }
 
 
-        public Task ResetPasswordAsync(string email, string token, string newPassword, CancellationToken cancellation)
+        public async Task ResetPasswordAsync(string email, string token, string newPassword, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            var user = await _userManager.FindByEmailAsync(email);
+
+            token = token.Replace(" ", "+");
+            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+
+            if (!result.Succeeded)
+            {
+                throw new Exception(string.Join("~", result.Errors));
+            }
         }
 
-        public Task<string> ResetPasswordRequestAsync(string email, CancellationToken cancellation)
+        public async Task<string> GeneratePasswordResetTokenAsync(string email, CancellationToken cancellation)
         {
-            throw new NotImplementedException();
+            var user = await _userManager.FindByEmailAsync(email);
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            return token;
         }
 
         public async Task<bool> IsInRoleRole(Guid userId, string role, CancellationToken cancellationToken)

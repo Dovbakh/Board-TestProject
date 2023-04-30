@@ -300,6 +300,36 @@
             <param name="id">Идентификатор пользователя.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
+        <member name="M:Board.Host.Api.Controllers.UserController.ChangeEmail(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Изменить пользователя по идентификатору.
+            </summary>
+            <param name="newEmail">Новая электронная почта пользователя.</param>
+            <param name="token">Сгенерированный токен для изменения почты пользователя.</param>
+            <param name="cancellation">Токен отмены.</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.UserController.SendEmailTokenAsync(Board.Contracts.Contexts.Users.UserGenerateEmailTokenRequest,System.Threading.CancellationToken)">
+            <summary>
+            Изменить пользователя по идентификатору.
+            </summary>
+            <param name="request">Элемент <see cref="!:UserChangeEmailDto"/>.</param>
+            <param name="cancellation">Токен отмены.</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.UserController.SendEmailConfirmationTokenAsync(Board.Contracts.Contexts.Users.UserGenerateEmailConfirmationTokenRequest,System.Threading.CancellationToken)">
+            <summary>
+            Изменить пользователя по идентификатору.
+            </summary>
+            <param name="request">Элемент <see cref="!:UserChangeEmailDto"/>.</param>
+            <param name="cancellation">Токен отмены.</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.UserController.ConfirmEmail(System.String,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Изменить пользователя по идентификатору.
+            </summary>
+            <param name="newEmail">Новая электронная почта пользователя.</param>
+            <param name="token">Сгенерированный токен для изменения почты пользователя.</param>
+            <param name="cancellation">Токен отмены.</param>
+        </member>
         <member name="M:Board.Host.Api.Controllers.UserController.Delete(System.Guid,System.Threading.CancellationToken)">
             <summary>
             Удалить пользователя по идентификатору.

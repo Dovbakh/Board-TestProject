@@ -19,7 +19,7 @@ namespace Notifier.Application.AppData.Contexts.Messages.Services
             _configuration = configuration;
         }
 
-        public async Task SendAsync(MessageDetails message, CancellationToken cancellation)
+        public async Task SendAsync(NotificationDetails message, CancellationToken cancellation)
         {
             var senderEmail = _configuration.GetSection("EmailService").GetSection("EmailUsername").Value;
             var senderPassword = _configuration.GetSection("EmailService").GetSection("EmailPassword").Value;
@@ -27,6 +27,7 @@ namespace Notifier.Application.AppData.Contexts.Messages.Services
             var smtpPort = int.Parse(_configuration.GetSection("EmailService").GetSection("SmtpPort").Value);
             
             var email = new MailMessage(senderEmail, message.Receiver, message.Subject, message.Body);
+            email.IsBodyHtml = true;
             var client = new SmtpClient(smtpHost, smtpPort);
             client.EnableSsl = true;
             client.Credentials = new NetworkCredential(senderEmail, senderPassword);

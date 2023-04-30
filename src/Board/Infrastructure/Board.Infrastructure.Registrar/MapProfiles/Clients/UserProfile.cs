@@ -18,6 +18,9 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Clients
             CreateMap<UserUpdateRequest, UserUpdateClientRequest>();
             CreateMap<UserSummaryClientResponse, UserSummary>();
             CreateMap<UserDetailsClientResponse, UserDetails>();
+            CreateMap<UserGenerateEmailTokenRequest, UserGenerateEmailTokenClientRequest>();
+            CreateMap<UserGenerateEmailConfirmationTokenRequest, UserGenerateEmailConfirmationTokenClientRequest>();
+            
         }
     }
 }

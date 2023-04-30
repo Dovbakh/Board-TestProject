@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Board.Contracts.Contexts.Users
+namespace Board.Application.AppData.Services
 {
-    public class UserChangePasswordRequest
+    public interface IMessageBroker
     {
     }
 }

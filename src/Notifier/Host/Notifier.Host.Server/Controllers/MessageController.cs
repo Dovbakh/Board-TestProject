@@ -32,7 +32,7 @@ namespace Notifier.Host.Server.Controllers
         /// <response code="200">Запрос выполнен успешно.</response>
         [HttpPost]
         //[AllowAnonymous]
-        public async Task<IActionResult> Send(MessageDetails message, CancellationToken cancellation)
+        public async Task<IActionResult> Send(NotificationDetails message, CancellationToken cancellation)
         {
             await _messageService.SendAsync(message, cancellation);
 

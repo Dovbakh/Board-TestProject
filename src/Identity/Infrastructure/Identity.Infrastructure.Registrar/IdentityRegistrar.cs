@@ -60,7 +60,8 @@ namespace Identity.Infrastructure.Registrar
             services.AddIdentity<User, IdentityRole<Guid>>()
                 .AddUserManager<UserManager<User>>()
                 .AddRoleManager<RoleManager<IdentityRole<Guid>>>()
-                .AddEntityFrameworkStores<AspNetIdentityDbContext>();
+                .AddEntityFrameworkStores<AspNetIdentityDbContext>()
+                .AddDefaultTokenProviders();
 
             return services;
         }

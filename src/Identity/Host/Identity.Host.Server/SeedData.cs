@@ -69,7 +69,7 @@ namespace Identity.Host.Server
             {
                 admin = new User
                 {
-                    UserName = "admin",
+                    UserName = "admin@email.com",
                     Email = "admin@email.com",
                     EmailConfirmed = true,                    
                 };

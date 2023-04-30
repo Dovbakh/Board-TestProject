@@ -9,6 +9,6 @@ namespace Notifier.Application.AppData.Contexts.Messages.Services
 {
     public interface IMessageService
     {
-        Task SendAsync(MessageDetails message, CancellationToken cancellation);
+        Task SendAsync(NotificationDetails message, CancellationToken cancellation);
     }
 }

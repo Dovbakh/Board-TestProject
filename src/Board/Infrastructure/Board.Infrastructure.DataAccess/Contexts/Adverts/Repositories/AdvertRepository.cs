@@ -106,11 +106,6 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
                 .ProjectTo<AdvertDetails>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellation);
 
-            if (existingDto == null)
-            {
-                throw new KeyNotFoundException();
-            }
-
             return existingDto;
         }
 

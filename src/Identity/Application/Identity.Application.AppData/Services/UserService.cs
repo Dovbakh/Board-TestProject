@@ -24,9 +24,12 @@ namespace Identity.Application.AppData.Services
         private readonly IValidator<UserLoginRequest> _userLoginValidator;
         private readonly IValidator<UserRegisterRequest> _userRegisterValidator;
         private readonly IValidator<UserUpdateRequest> _userUpdateValidator;
+        private readonly IValidator<UserGenerateEmailTokenRequest> _userGenerateEmailTokenValidator;
+        private readonly IValidator<UserGenerateEmailConfirmationTokenRequest> _userGenerateEmailConfirmationTokenValidator;
 
-        public UserService(IUserRepository userRepository, IConfiguration configuration, IHttpContextAccessor contextAccessor, IdentityServerTools identityServerTools, 
-            IValidator<UserLoginRequest> userLoginValidator, IValidator<UserRegisterRequest> userRegisterValidator, IValidator<UserUpdateRequest> userUpdateValidator)
+        public UserService(IUserRepository userRepository, IConfiguration configuration, IHttpContextAccessor contextAccessor, IdentityServerTools identityServerTools,
+            IValidator<UserLoginRequest> userLoginValidator, IValidator<UserRegisterRequest> userRegisterValidator, IValidator<UserUpdateRequest> userUpdateValidator,
+            IValidator<UserGenerateEmailTokenRequest> userGenerateEmailTokenValidator, IValidator<UserGenerateEmailConfirmationTokenRequest> userGenerateEmailConfirmationTokenValidator)
         {
             _userRepository = userRepository;
             _configuration = configuration;
@@ -35,6 +38,8 @@ namespace Identity.Application.AppData.Services
             _userLoginValidator = userLoginValidator;
             _userRegisterValidator = userRegisterValidator;
             _userUpdateValidator = userUpdateValidator;
+            _userGenerateEmailTokenValidator = userGenerateEmailTokenValidator;
+            _userGenerateEmailConfirmationTokenValidator = userGenerateEmailConfirmationTokenValidator;
         }
 
         public Task<IReadOnlyCollection<UserSummary>> GetAll(int? offset, int? count, CancellationToken cancellationToken)
@@ -147,6 +152,63 @@ namespace Identity.Application.AppData.Services
         public Task<bool> IsInRoleRole(Guid userId, string role, CancellationToken cancellationToken)
         {
             return _userRepository.IsInRoleRole(userId, role, cancellationToken);
+        }
+
+        public async Task<EmailChangeToken> GenerateEmailTokenAsync(UserGenerateEmailTokenRequest request, CancellationToken cancellationToken)
+        {
+            var validationResult = _userGenerateEmailTokenValidator.Validate(request);
+            if (!validationResult.IsValid)
+            {
+                throw new Exception(validationResult.ToString("~"));
+            }
+
+            var isPasswordVerified = await _userRepository.CheckPasswordAsync(request.CurrentEmail, request.Password, cancellationToken);
+            if (!isPasswordVerified)
+            {
+                throw new ArgumentException("Введен неверный пароль.");
+            }
+
+            var token = await _userRepository.GenerateEmailTokenAsync(request.CurrentEmail, request.NewEmail, cancellationToken);
+
+            return token;
+        }
+
+        public async Task<EmailConfirmationToken> GenerateEmailConfirmationTokenAsync(UserGenerateEmailConfirmationTokenRequest request, CancellationToken cancellationToken)
+        {
+            var validationResult = _userGenerateEmailConfirmationTokenValidator.Validate(request);
+            if (!validationResult.IsValid)
+            {
+                throw new Exception(validationResult.ToString("~"));
+            }
+
+            var token = await _userRepository.GenerateEmailConfirmationTokenAsync(request.Email, cancellationToken);
+
+            return token;
+        }
+       
+
+        public async Task ChangeEmailAsync(UserChangeEmailRequest request, CancellationToken cancellationToken)
+        {
+            //var validationResult = _validatorEmail.Validate(newEmail);
+            //if (!validationResult.IsValid)
+            //{
+            //    throw new Exception(validationResult.ToString("~"));
+            //}
+            request.Token = request.Token.Replace(" ", "+");
+            await _userRepository.ChangeEmailAsync(request.CurrentEmail, request.NewEmail, request.Token, cancellationToken);
+
+        }
+
+        public async Task ConfirmEmailAsync(UserEmailConfirmRequest request, CancellationToken cancellationToken)
+        {
+            //var validationResult = _validatorEmail.Validate(newEmail);
+            //if (!validationResult.IsValid)
+            //{
+            //    throw new Exception(validationResult.ToString("~"));
+            //}
+            request.Token = request.Token.Replace(" ", "+");
+            await _userRepository.ConfirmEmailAsync(request.Email, request.Token, cancellationToken);
+
         }
     }
 }

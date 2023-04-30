@@ -87,7 +87,7 @@ namespace Board.Host.Api.Controllers
         {
             var commentId = await _commentService.CreateAsync(addRequest, cancellation);
 
-            return CreatedAtAction(nameof(GetById), new { id = commentId, cancellation = cancellation });
+            return CreatedAtAction(nameof(GetById), new { id = commentId });
         }
 
         /// <summary>

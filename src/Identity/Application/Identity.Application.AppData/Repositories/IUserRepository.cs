@@ -88,6 +88,8 @@ namespace Identity.Application.AppData.Repositories
         /// <returns></returns>
         Task ChangeEmailAsync(string currentEmail, string newEmail, string token, CancellationToken cancellationToken);
 
+        Task ConfirmEmailAsync(string email, string token, CancellationToken cancellation);
+
         /// <summary>
         /// Получение токена для изменения почты пользователя.
         /// </summary>
@@ -95,7 +97,9 @@ namespace Identity.Application.AppData.Repositories
         /// <param name="newEmail">Новая почта пользователя.</param>
         /// <param name="cancellationToken">Токен отмены.</param>
         /// <returns>Токен для изменения почты пользователя.</returns>
-        Task<string> ChangeEmailRequestAsync(string currentEmail, string newEmail, CancellationToken cancellationToken);
+        Task<EmailChangeToken> GenerateEmailTokenAsync(string currentEmail, string newEmail, CancellationToken cancellationToken);
+
+        Task<EmailConfirmationToken> GenerateEmailConfirmationTokenAsync(string email, CancellationToken cancellation);
 
         /// <summary>
         /// Получение токена для сброса пароля пользователя.
@@ -103,7 +107,7 @@ namespace Identity.Application.AppData.Repositories
         /// <param name="email">Почта пользователя.</param>
         /// <param name="cancellationToken">Токен отмены.</param>
         /// <returns>Токен для сброса пароля пользователя.</returns>
-        Task<string> ResetPasswordRequestAsync(string email, CancellationToken cancellationToken);
+        Task<string> GeneratePasswordResetTokenAsync(string email, CancellationToken cancellationToken);
 
         /// <summary>
         /// Сброс пароля пользователя.

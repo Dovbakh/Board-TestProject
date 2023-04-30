@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Board.Application.AppData.Contexts.Notifications.Services;
 using Board.Application.AppData.Contexts.Users.Repositories;
 using Board.Contracts.Contexts.Users;
 using FluentValidation;
@@ -7,6 +8,7 @@ using Identity.Contracts.Clients.Users;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -14,6 +16,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Board.Application.AppData.Contexts.Users.Services
 {
@@ -26,9 +29,11 @@ namespace Board.Application.AppData.Contexts.Users.Services
         private readonly IValidator<UserLoginRequest> _userLoginValidator;
         private readonly IValidator<UserRegisterRequest> _userRegisterValidator;
         private readonly IValidator<UserUpdateRequest> _userUpdateValidator;
+        private readonly INotificationService _notificationService;
 
-        public UserService(IConfiguration configuration, IUserClient boardClient, IMapper mapper, IHttpContextAccessor contextAccessor, 
-            IValidator<UserLoginRequest> userLoginValidator, IValidator<UserRegisterRequest> userRegisterValidator, IValidator<UserUpdateRequest> userUpdateValidator)
+        public UserService(IConfiguration configuration, IUserClient boardClient, IMapper mapper, IHttpContextAccessor contextAccessor,
+            IValidator<UserLoginRequest> userLoginValidator, IValidator<UserRegisterRequest> userRegisterValidator, IValidator<UserUpdateRequest> userUpdateValidator, 
+            INotificationService notificationService)
         {
             _configuration = configuration;
             _userClient = boardClient;
@@ -37,13 +42,14 @@ namespace Board.Application.AppData.Contexts.Users.Services
             _userLoginValidator = userLoginValidator;
             _userRegisterValidator = userRegisterValidator;
             _userUpdateValidator = userUpdateValidator;
+            _notificationService = notificationService;
         }
 
         public async Task<IReadOnlyCollection<UserSummary>> GetAll(int? offset, int? count, CancellationToken cancellationToken)
         {           
             var clientResponse = await _userClient.GetAll(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellationToken);
             var users = _mapper.Map<IReadOnlyCollection<UserSummaryClientResponse>, IReadOnlyCollection<UserSummary>>(clientResponse);
-
+            
             return users;
         }
 
@@ -128,5 +134,69 @@ namespace Board.Application.AppData.Contexts.Users.Services
         {
             await _userClient.Delete(id, cancellationToken);
         }
+
+        public async Task SendEmailTokenAsync(UserGenerateEmailTokenRequest request, string changeLink, CancellationToken cancellationToken)
+        {
+            var clientRequest = _mapper.Map<UserGenerateEmailTokenRequest, UserGenerateEmailTokenClientRequest>(request);
+            var token = await _userClient.GenerateEmailTokenAsync(clientRequest, cancellationToken);          
+            
+
+            string messageWarning = $"Поступил запрос на изменение электронной почты на <b>{request.NewEmail}</b>. " +
+                                    $"Если это были вы, то ничего делать не нужно. В противном случае напишите в поддержку.";
+            string subjectWarning = "Изменение электронной почты";
+            await _notificationService.SendMessage(request.CurrentEmail, subjectWarning, messageWarning);
+
+            changeLink = changeLink.Replace("tokenValue", token);
+            string messageConfirm = $"Для изменения почты перейдите по <a href='{changeLink}'>ссылке</a>";
+            string subjectConfirm = "Изменение электронной почты";
+            await _notificationService.SendMessage(request.NewEmail, subjectConfirm, messageConfirm);
+        }
+
+        public async Task SendEmailConfirmationTokenAsync(UserGenerateEmailConfirmationTokenRequest request, string confirmLink, CancellationToken cancellationToken)
+        {
+            var clientRequest = _mapper.Map<UserGenerateEmailConfirmationTokenRequest, UserGenerateEmailConfirmationTokenClientRequest>(request);
+            var token = await _userClient.GenerateEmailConfirmationTokenAsync(clientRequest, cancellationToken);
+
+
+            confirmLink = confirmLink.Replace("tokenValue", token);
+            string messageConfirm = $"Для подтверждения почты перейдите по <a href='{confirmLink}'>ссылке</a>";
+            string subjectConfirm = "Подтверждение электронной почты";
+            await _notificationService.SendMessage(request.Email, subjectConfirm, messageConfirm);
+        }
+
+        /// <inheritdoc/>
+        public async Task ChangeEmailAsync(string newEmail, string token, CancellationToken cancellationToken)
+        {
+            //var validationResult = _validatorEmail.Validate(newEmail);
+            //if (!validationResult.IsValid)
+            //{
+            //    throw new Exception(validationResult.ToString("~"));
+            //}
+
+
+            var currentUser = await GetCurrent(cancellationToken);
+
+            var clientRequest = new UserChangeEmailClientRequest { CurrentEmail = currentUser.Email, NewEmail = newEmail, Token = token };
+
+            await _userClient.ChangeEmailAsync(clientRequest, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task ConfirmEmailAsync(string email, string token, CancellationToken cancellationToken)
+        {
+            //var validationResult = _validatorEmail.Validate(newEmail);
+            //if (!validationResult.IsValid)
+            //{
+            //    throw new Exception(validationResult.ToString("~"));
+            //}
+
+
+            var currentUser = await GetCurrent(cancellationToken);
+
+            var clientRequest = new UserEmailConfirmClientRequest { Email = currentUser.Email, Token = token };
+
+            await _userClient.ConfirmEmailAsync(clientRequest, cancellationToken);
+        }
+
     }
 }

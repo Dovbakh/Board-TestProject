@@ -56,7 +56,13 @@ namespace Identity.Clients.Users
             using var response = await _httpClient.GetAsync(uri, cancellation);
             response.EnsureSuccessStatusCode();
 
+            if(response.StatusCode == System.Net.HttpStatusCode.NoContent)
+            {
+                return null;
+            }
+ 
             var user = await response.Content.ReadFromJsonAsync<UserDetails>();
+
             var clientResponse = _mapper.Map<UserDetails, UserDetailsClientResponse>(user);
 
             return clientResponse;
@@ -131,6 +137,50 @@ namespace Identity.Clients.Users
         {
             var uri = $"v1/user/{id.ToString()}";
             using var response = await _httpClient.DeleteAsync(uri,cancellation);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task<string> GenerateEmailTokenAsync(UserGenerateEmailTokenClientRequest clientRequest, CancellationToken cancellation)
+        {
+            var request = _mapper.Map<UserGenerateEmailTokenClientRequest, UserGenerateEmailTokenRequest>(clientRequest);
+
+            var uri = $"v1/user/generate-email-token";
+            using var response = await _httpClient.PostAsJsonAsync(uri, request, cancellation);
+            response.EnsureSuccessStatusCode();
+
+            var token = await response.Content.ReadFromJsonAsync<EmailChangeToken>();
+
+            return token.Value;
+        }
+
+        public async Task<string> GenerateEmailConfirmationTokenAsync(UserGenerateEmailConfirmationTokenClientRequest clientRequest, CancellationToken cancellation)
+        {
+            var request = _mapper.Map<UserGenerateEmailConfirmationTokenClientRequest, UserGenerateEmailConfirmationTokenRequest>(clientRequest);
+
+            var uri = $"v1/user/generate-email-confirmation-token";
+            using var response = await _httpClient.PostAsJsonAsync(uri, request, cancellation);
+            response.EnsureSuccessStatusCode();
+
+            var token = await response.Content.ReadFromJsonAsync<EmailConfirmationToken>();
+
+            return token.Value;
+        }
+
+        public async Task ChangeEmailAsync(UserChangeEmailClientRequest clientRequest, CancellationToken cancellation)
+        {
+            var request = _mapper.Map<UserChangeEmailClientRequest, UserChangeEmailRequest>(clientRequest);
+
+            var uri = $"v1/user/change-email";
+            using var response = await _httpClient.PostAsJsonAsync(uri, request, cancellation);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task ConfirmEmailAsync(UserEmailConfirmClientRequest clientRequest, CancellationToken cancellation)
+        {
+            var request = _mapper.Map<UserEmailConfirmClientRequest, UserEmailConfirmRequest>(clientRequest);
+
+            var uri = $"v1/user/confirm-email";
+            using var response = await _httpClient.PostAsJsonAsync(uri, request, cancellation);
             response.EnsureSuccessStatusCode();
         }
     }

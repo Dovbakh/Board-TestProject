@@ -43,6 +43,8 @@ using Board.Application.AppData.Contexts.Files.Services;
 using FileStorage.Clients.Contexts.Files;
 using FileStorage.Infrastructure.Registrar;
 using SixLabors.ImageSharp;
+using Board.Application.AppData.Contexts.Notifications.Services;
+using MassTransit;
 
 namespace Board.Infrastructure.Registrar
 {
@@ -78,6 +80,7 @@ namespace Board.Infrastructure.Registrar
             services.AddScoped<IUserService, UserService>();
             //services.AddScoped<IFileService, FileService>();
             services.AddScoped<ICommentService, CommentService>();
+            services.AddScoped<INotificationService, NotificationService>();
             //services.AddScoped<INotifierService, EmailService>();
 
             //// Регистрация вспомогательных сервисов
@@ -117,9 +120,19 @@ namespace Board.Infrastructure.Registrar
             {
                 options.Configuration = configuration.GetSection("RedisCache").GetRequiredSection("Host").Value;
                 options.InstanceName = configuration.GetSection("RedisCache").GetRequiredSection("InstanceName").Value;
+                
             });
 
             services.AddScoped<ICacheRepository, CacheRepository>();
+
+            services.AddMassTransit(mt => mt.AddMassTransit(x => {
+                x.UsingRabbitMq((cntxt, cfg) => {
+                    cfg.Host("localhost", "/", c => {
+                        c.Username("guest");
+                        c.Password("guest");
+                    });
+                });
+            }));
 
             return services;
         }

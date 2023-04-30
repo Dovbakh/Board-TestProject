@@ -3,6 +3,7 @@ using Identity.Contracts.Contexts.Users;
 using Identity.Contracts.Conventions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 
 namespace Identity.Host.Server.Controllers
 {
@@ -55,11 +56,6 @@ namespace Identity.Host.Server.Controllers
         {
             var user = await _userService.GetById(id, cancellation);
 
-            if (user == null)
-            {
-                throw new KeyNotFoundException();
-            }
-
             return Ok(user);
         }
 
@@ -91,40 +87,71 @@ namespace Identity.Host.Server.Controllers
             return Ok(updatedUser);
         }
 
-        ///// <summary>
-        ///// Изменить пользователя по идентификатору.
-        ///// </summary>
-        ///// <param name="newEmail">Новая электронная почта пользователя.</param>
-        ///// <param name="token">Сгенерированный токен для изменения почты пользователя.</param>
-        ///// <param name="cancellation">Токен отмены.</param>
-        //[HttpGet("change-email")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[Authorize]
-        //public async Task<IActionResult> ChangeEmail([FromQuery] UserEmailDto newEmail, string token, CancellationToken cancellation)
-        //{
-        //    await _userService.ChangeEmailAsync(newEmail, token, cancellation);
+        /// <summary>
+        /// Изменить пользователя по идентификатору.
+        /// </summary>
+        /// <param name="newEmail">Новая электронная почта пользователя.</param>
+        /// <param name="token">Сгенерированный токен для изменения почты пользователя.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        [HttpPost("change-email")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize]
+        public async Task<IActionResult> ChangeEmail([FromBody]UserChangeEmailRequest request, CancellationToken cancellation)
+        {
+            await _userService.ChangeEmailAsync(request, cancellation);
 
-        //    return Ok();
-        //}
+            return Ok();
+        }
 
-        ///// <summary>
-        ///// Изменить пользователя по идентификатору.
-        ///// </summary>
-        ///// <param name="request">Элемент <see cref="UserChangeEmailDto"/>.</param>
-        ///// <param name="cancellation">Токен отмены.</param>
-        //[HttpPost("change-email-request")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[Authorize]
-        //public async Task<IActionResult> ChangeEmailRequest([FromBody] UserChangeEmailDto request, CancellationToken cancellation)
-        //{
-        //    var changeLink = Url.Action(nameof(ChangeEmail), "User", new { newEmail = request.newEmail, token = "tokenValue" }, Request.Scheme);
+        /// <summary>
+        /// Изменить пользователя по идентификатору.
+        /// </summary>
+        /// <param name="newEmail">Новая электронная почта пользователя.</param>
+        /// <param name="token">Сгенерированный токен для изменения почты пользователя.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        [HttpPost("confirm-email")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize]
+        public async Task<IActionResult> ConfirmEmail([FromBody] UserEmailConfirmRequest request, CancellationToken cancellation)
+        {
+            await _userService.ConfirmEmailAsync(request, cancellation);
 
-        //    await _userService.ChangeEmailRequestAsync(request, changeLink, cancellation);
+            return Ok();
+        }
 
-        //    return Ok();
-        //}
+        /// <summary>
+        /// Изменить пользователя по идентификатору.
+        /// </summary>
+        /// <param name="request">Элемент <see cref="UserChangeEmailDto"/>.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        [HttpPost("generate-email-token")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize]
+        public async Task<ActionResult<EmailChangeToken>> GenerateEmailTokenAsync([FromBody] UserGenerateEmailTokenRequest request, CancellationToken cancellation)
+        {
+            var token = await _userService.GenerateEmailTokenAsync(request, cancellation);
+
+            return Ok(token);
+        }
+
+        /// <summary>
+        /// Изменить пользователя по идентификатору.
+        /// </summary>
+        /// <param name="request">Элемент <see cref="UserChangeEmailDto"/>.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        [HttpPost("generate-email-confirmation-token")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize]
+        public async Task<ActionResult<EmailConfirmationToken>> GenerateEmailConfirmationTokenAsync([FromBody] UserGenerateEmailConfirmationTokenRequest request, CancellationToken cancellation)
+        {
+            var token = await _userService.GenerateEmailConfirmationTokenAsync(request, cancellation);
+
+            return Ok(token);
+        }
 
         ///// <summary>
         ///// Изменить пользователя по идентификатору.

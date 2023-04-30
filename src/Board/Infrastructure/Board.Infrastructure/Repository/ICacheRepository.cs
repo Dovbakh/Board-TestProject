@@ -10,13 +10,16 @@ namespace Board.Infrastructure.Repository
     {
         Task<object> GetById(string key, Type type);
 
-        Task SetWithId(string key, Type type, object entity);
+        Task SetWithSlidingTime(string key, Type type, object entity, TimeSpan slidingTime);
+        Task SetWithAbsoluteTime(string key, Type type, object entity, TimeSpan absoluteTime);
     }
 
     public interface ICacheRepository<TEntity> where TEntity : class
     {
         Task<TEntity> GetById(string key);
 
-        Task SetWithId(string key, TEntity entity);
+        Task SetWithSlidingTime(string key, TEntity entity, TimeSpan slidingTime);
+
+        Task SetWithAbsoluteTime(string key, TEntity entity, TimeSpan absoluteTime);
     }
 }

@@ -20,5 +20,11 @@ namespace Identity.Clients.Users
 
         public Task<UserDetailsClientResponse> Update(Guid id, UserUpdateClientRequest updateClientRequest, CancellationToken cancellation);
         public Task Delete(Guid id, CancellationToken cancellation);
+        public Task<string> GenerateEmailTokenAsync(UserGenerateEmailTokenClientRequest request, CancellationToken cancellation);
+        public Task<string> GenerateEmailConfirmationTokenAsync(UserGenerateEmailConfirmationTokenClientRequest clientRequest, CancellationToken cancellation);
+        public Task ChangeEmailAsync(UserChangeEmailClientRequest request, CancellationToken cancellationToken);
+
+        public Task ConfirmEmailAsync(UserEmailConfirmClientRequest clientRequest, CancellationToken cancellation);
+
     }
 }

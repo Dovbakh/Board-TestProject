@@ -10,9 +10,12 @@ using Board.Domain;
 using FluentValidation;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using RedLockNet.SERedis.Configuration;
+using RedLockNet.SERedis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -42,7 +45,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
 
         public Task<IReadOnlyCollection<AdvertSummary>> GetAllAsync(int? offset, int? count, CancellationToken cancellation)
         {
-            if (count == null)
+            if (count == 0)
             {
                 count = 10; // TODO: в конфиг
             }
@@ -52,7 +55,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
 
         public Task<IReadOnlyCollection<AdvertSummary>> GetAllFilteredAsync(AdvertFilterRequest request, int? offset, int? count, CancellationToken cancellation)
         {
-            if (count == null)
+            if (count == 0)
             {
                 count = 10;
             }
@@ -63,13 +66,37 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         public async Task<AdvertDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
             var advert = await _advertRepository.GetByIdAsync(id, cancellation);
+            if (advert == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
             var user = await _userService.GetById(advert.UserId, cancellation);
             advert.User = user;
 
             return advert;
+
+            // TODO: счетчик просмотров
+            var resource = "the-thing-we-are-locking-on";
+            var expiry = TimeSpan.FromSeconds(30);
+            var wait = TimeSpan.FromSeconds(10);
+            var retry = TimeSpan.FromSeconds(1);
+
+            var redlockFactory = RedLockFactory.Create(new List<RedLockEndPoint> { new DnsEndPoint("localhost", 6379) });
+            // blocks until acquired or 'wait' timeout
+            await using (var redLock = await redlockFactory.CreateLockAsync(resource, expiry, wait, retry, cancellation)) // there are also non async Create() methods
+            {
+                // make sure we got the lock
+                if (redLock.IsAcquired)
+                {
+                    // do stuff
+                    var a = 10;
+                }
+            }
         }
 
-        public async Task<Guid> CreateAsync(AdvertAddRequest addRequest, CancellationToken cancellation)
+
+            public async Task<Guid> CreateAsync(AdvertAddRequest addRequest, CancellationToken cancellation)
         {
             // TODO: валидация
             var validationResult = _advertAddValidator.Validate(addRequest);

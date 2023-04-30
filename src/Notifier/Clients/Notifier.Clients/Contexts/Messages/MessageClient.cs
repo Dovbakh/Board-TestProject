@@ -26,7 +26,7 @@ namespace Notifier.Clients.Contexts.Messages
 
         public async Task Send(MessageDetailsClientRequest sendClientRequest, CancellationToken cancellation)
         {
-            var sendRequest = new MessageDetails { Receiver = sendClientRequest.Receiver, Subject = sendClientRequest.Subject, Body = sendClientRequest.Body };
+            var sendRequest = new NotificationDetails { Receiver = sendClientRequest.Receiver, Subject = sendClientRequest.Subject, Body = sendClientRequest.Body };
 
             var uri = $"v1/message";
             using var response = await _httpClient.PostAsJsonAsync(uri, sendClientRequest, cancellation);
