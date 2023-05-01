@@ -18,9 +18,9 @@ namespace Board.Infrastructure.Repository
             _distributedCache = distributedCache;
         }
 
-        public async Task<TEntity> GetById(string key)
+        public async Task<TEntity> GetById(string key, CancellationToken cancellation)
         {
-            var cache = await _distributedCache.GetStringAsync(key);
+            var cache = await _distributedCache.GetStringAsync(key, cancellation);
 
             if (!string.IsNullOrEmpty(cache))
             {
@@ -30,20 +30,32 @@ namespace Board.Infrastructure.Repository
             return null;
         }
 
-        public async Task SetWithSlidingTime(string key, TEntity entity, TimeSpan slidingTime)
+        public async Task SetWithSlidingTime(string key, TEntity entity, TimeSpan slidingTime, CancellationToken cancellation)
         {
             var options = new DistributedCacheEntryOptions()
                 .SetSlidingExpiration(slidingTime);
 
-            await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity), options);
+            await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity), options, cancellation);
         }
 
-        public async Task SetWithAbsoluteTime(string key, TEntity entity, TimeSpan absoluteTime)
+        public async Task SetWithAbsoluteTime(string key, TEntity entity, TimeSpan absoluteTime, CancellationToken cancellation)
         {
             var options = new DistributedCacheEntryOptions()
                 .SetAbsoluteExpiration(absoluteTime);
 
-            await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity), options);
+            await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity), options, cancellation);
+        }
+
+        public async Task DeleteAsync(string key, CancellationToken cancellation)
+        {
+            try
+            {
+                await _distributedCache.RemoveAsync(key, cancellation);
+            }
+            catch (RedisConnectionException ex)
+            {
+
+            }
         }
     }
 
@@ -57,35 +69,35 @@ namespace Board.Infrastructure.Repository
             _distributedCache = distributedCache;
         }
 
-        public async Task<object> GetById(string key, Type type)
+        public async Task<object> GetById(string key, Type type, CancellationToken cancellation)
         {
             try
             {
-                var cache = await _distributedCache.GetStringAsync(key);
+                var cache = await _distributedCache.GetStringAsync(key, cancellation);
 
                 if (string.IsNullOrEmpty(cache))
                 {
                     return null;
                 }
-               
+
                 var cachedEntity = JsonConvert.DeserializeObject(cache, type);
                 return cachedEntity;
 
             }
-            catch(RedisConnectionException ex)
+            catch (RedisConnectionException ex)
             {
                 return null;
             }
         }
 
-        public async Task SetWithSlidingTime(string key, Type type, object entity, TimeSpan slidingTime)
+        public async Task SetWithSlidingTime(string key, Type type, object entity, TimeSpan slidingTime, CancellationToken cancellation)
         {
             var options = new DistributedCacheEntryOptions()
                 .SetSlidingExpiration(slidingTime);
 
             try
             {
-                await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity, type, null), options);
+                await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity, type, null), options, cancellation);
             }
             catch (RedisConnectionException ex)
             {
@@ -93,19 +105,30 @@ namespace Board.Infrastructure.Repository
             }
         }
 
-        public async Task SetWithAbsoluteTime(string key, Type type, object entity, TimeSpan absoluteTime)
+        public async Task SetWithAbsoluteTime(string key, Type type, object entity, TimeSpan absoluteTime, CancellationToken cancellation)
         {
             var options = new DistributedCacheEntryOptions()
                 .SetAbsoluteExpiration(absoluteTime);
 
             try
             {
-                await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity, type, null), options);
+                await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity, type, null), options, cancellation);
             }
             catch (RedisConnectionException ex)
             {
 
             }
-}
+        }
+        public async Task DeleteAsync(string key, CancellationToken cancellation)
+        {
+            try
+            {
+                await _distributedCache.RemoveAsync(key, cancellation);
+            }
+            catch (RedisConnectionException ex)
+            {
+
+            }
+        }
     }
 }

@@ -15,6 +15,8 @@ namespace Board.Contracts.Contexts.Users
 
         public string? UserName { get; set; }
 
+        public float Rating { get; set; }
+
         // <summary>
         /// Имя пользователя.
         /// </summary>

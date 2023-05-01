@@ -45,6 +45,10 @@ using FileStorage.Infrastructure.Registrar;
 using SixLabors.ImageSharp;
 using Board.Application.AppData.Contexts.Notifications.Services;
 using MassTransit;
+using RedLockNet.SERedis;
+using RedLockNet;
+using RedLockNet.SERedis.Configuration;
+using StackExchange.Redis;
 
 namespace Board.Infrastructure.Registrar
 {
@@ -122,6 +126,13 @@ namespace Board.Infrastructure.Registrar
                 options.InstanceName = configuration.GetSection("RedisCache").GetRequiredSection("InstanceName").Value;
                 
             });
+
+            services.AddSingleton<IDistributedLockFactory, RedLockFactory>(x =>
+                RedLockFactory.Create(new List<RedLockMultiplexer>
+                {
+                    ConnectionMultiplexer.Connect("localhost:6379")
+                }));
+            
 
             services.AddScoped<ICacheRepository, CacheRepository>();
 

@@ -23,6 +23,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
         private readonly IRepository<Category> _repository;
         private readonly ICacheRepository _cacheRepository;
         private readonly IMapper _mapper;
+        private const string CategoryListKey = "CategoryListKey_";
 
         public CategoryRepository(Repository.IRepository<Category> repository, IMapper mapper, ICacheRepository cacheRepository)
         {
@@ -33,39 +34,16 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
 
         public async Task<IReadOnlyCollection<CategorySummary>> GetAllAsync(CancellationToken cancellation)
         {
-            var existingDtoList = (IReadOnlyCollection<CategorySummary>)await _cacheRepository.GetById("CategoryListKey_", typeof(IReadOnlyCollection<CategorySummary>));
+            var existingDtoList = (IReadOnlyCollection<CategorySummary>)await _cacheRepository.GetById(CategoryListKey, typeof(IReadOnlyCollection<CategorySummary>), cancellation);
             if (existingDtoList == null)
             {
                 existingDtoList = await _repository.GetAll()
                .ProjectTo<CategorySummary>(_mapper.ConfigurationProvider)
                .ToListAsync(cancellation);
 
-                await _cacheRepository.SetWithSlidingTime("CategoryListKey_", typeof(IReadOnlyCollection<CategorySummary>), existingDtoList, TimeSpan.FromSeconds(60));
+                await _cacheRepository.SetWithSlidingTime(CategoryListKey, typeof(IReadOnlyCollection<CategorySummary>), existingDtoList, TimeSpan.FromSeconds(60), cancellation);
             }
             return existingDtoList;
-
-            //try
-            //{
-            //    var existingDtoList = (IReadOnlyCollection<CategorySummary>)await _cacheRepository.GetById("CategoryListKey_", typeof(IReadOnlyCollection<CategorySummary>));
-            //    if(existingDtoList == null) 
-            //    {
-            //       existingDtoList = await _repository.GetAll()
-            //      .ProjectTo<CategorySummary>(_mapper.ConfigurationProvider)
-            //      .ToListAsync(cancellation);
-
-            //       await _cacheRepository.SetWithSlidingTime("CategoryListKey_", typeof(IReadOnlyCollection<CategorySummary>), existingDtoList, TimeSpan.FromSeconds(60));
-            //    }
-            //    return existingDtoList;
-            //}
-
-            //catch (RedisConnectionException ex)
-            //{
-            //    var existingDtoList = await _repository.GetAll()
-            //      .ProjectTo<CategorySummary>(_mapper.ConfigurationProvider)
-            //      .ToListAsync(cancellation);
-
-            //    return existingDtoList;
-            //}
         }
 
         public async Task<IReadOnlyCollection<CategorySummary>> GetAllFilteredAsync(CategoryFilterRequest filterRequest, CancellationToken cancellation)
@@ -97,6 +75,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
                 .ProjectTo<CategoryDetails>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellation);
 
+
             return existingDto;
         }
 
@@ -104,6 +83,8 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
         {
             var newEntity = _mapper.Map<CategoryAddRequest, Category>(createRequest);
             await _repository.AddAsync(newEntity, cancellation);
+
+            await _cacheRepository.DeleteAsync(CategoryListKey, cancellation);
             
             return newEntity.Id;
         }
@@ -118,6 +99,9 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
 
             var updatedEntity = _mapper.Map<CategoryUpdateRequest, Category>(updateRequest, existingEntity);
             await _repository.UpdateAsync(updatedEntity, cancellation);
+
+            await _cacheRepository.DeleteAsync(CategoryListKey, cancellation);
+
             var updatedDto = _mapper.Map<Category, CategoryDetails>(updatedEntity);
 
             return updatedDto;

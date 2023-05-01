@@ -104,8 +104,8 @@ namespace FileStorage.Infrastructure.ObjectStorage
         private MinioClient CreateStorage()
         {
             var endpoint = "127.0.0.1:9000"; // _configuration.GetSection(MinioAccessName).GetRequiredSection("Endpoint").Value;
-            var accessKey = "62HB3BTG0XUeRfk7"; // _configuration.GetSection(MinioAccessName).GetRequiredSection("AccessKey").Value;
-            var secretKey = "oKomRNUG01ahBQqliBFDgL2C9xsEhvQe"; // _configuration.GetSection(MinioAccessName).GetRequiredSection("SecretKey").Value;
+            var accessKey = "ykE4mQ5LGAnFpqU5"; // _configuration.GetSection(MinioAccessName).GetRequiredSection("AccessKey").Value;
+            var secretKey = "fFJTD2SX7LnoAldmFNvPwdU2fa9aWGNY"; // _configuration.GetSection(MinioAccessName).GetRequiredSection("SecretKey").Value;
 
             var minioCLient = new MinioClient();
             minioCLient.WithEndpoint(endpoint)

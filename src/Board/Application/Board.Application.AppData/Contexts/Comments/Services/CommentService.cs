@@ -6,6 +6,7 @@ using Board.Contracts.Contexts.Comments;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
+using RedLockNet;
 using RedLockNet.SERedis;
 using RedLockNet.SERedis.Configuration;
 using System;
@@ -13,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Board.Application.AppData.Contexts.Comments.Services
@@ -25,9 +27,12 @@ namespace Board.Application.AppData.Contexts.Comments.Services
         private readonly IAdvertRepository _advertRepository;
         private readonly IValidator<CommentAddRequest> _commentAddValidator;
         private readonly IValidator<CommentUpdateRequest> _commentUpdateValidator;
+        private readonly IDistributedLockFactory _distributedLockFactory;
 
-        public CommentService(ICommentRepository commentRepository, IUserService userService, IAdvertService advertService, IAdvertRepository advertRepository, 
-            IValidator<CommentAddRequest> commentAddValidator, IValidator<CommentUpdateRequest> commentUpdateValidator)
+        private const string CreateCommentKey = "CreateCommentKey_";
+
+        public CommentService(ICommentRepository commentRepository, IUserService userService, IAdvertService advertService, IAdvertRepository advertRepository,
+            IValidator<CommentAddRequest> commentAddValidator, IValidator<CommentUpdateRequest> commentUpdateValidator, IDistributedLockFactory distributedLockFactory)
         {
             _commentRepository = commentRepository;
             _userService = userService;
@@ -35,6 +40,7 @@ namespace Board.Application.AppData.Contexts.Comments.Services
             _advertRepository = advertRepository;
             _commentAddValidator = commentAddValidator;
             _commentUpdateValidator = commentUpdateValidator;
+            _distributedLockFactory = distributedLockFactory;
         }
 
         public async Task<Guid> CreateAsync(CommentAddRequest addRequest, CancellationToken cancellation)
@@ -52,26 +58,52 @@ namespace Board.Application.AppData.Contexts.Comments.Services
             var user = await _userService.GetById(addRequest.UserId, cancellation);
             if(user == null) 
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException($"Пользователя {addRequest.UserId} не существует");
             }
 
             var advert = await _advertRepository.GetByIdAsync(addRequest.AdvertisementId, cancellation);              
             if(advert == null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException($"Обьявления {addRequest.AdvertisementId} не существует");
             }
 
             if (advert.UserId != user.Id)
             {
-                throw new ArgumentException();
+                throw new ArgumentException($"Обьявление {advert.Id} не относится к пользователю {user.Id}");
             }
 
             if(advert.UserId == author.Id)
             {
-                throw new ArgumentException();
+                throw new ArgumentException("Нельзя оставить отзыв самому себе.");
             }
 
-            return await _commentRepository.AddAsync(addRequest, cancellation);
+            var commentId = Guid.Empty;
+
+            var resource = $"{CreateCommentKey}_{addRequest.AdvertisementId}_{addRequest.UserId}_{addRequest.AuthorId}";
+            var expiry = TimeSpan.FromSeconds(30);
+            var wait = TimeSpan.FromSeconds(10);
+            var retry = TimeSpan.FromSeconds(1);
+            await using (var redLock = await _distributedLockFactory.CreateLockAsync(resource, expiry, wait, retry, cancellation))
+            {
+                if (redLock.IsAcquired)
+                {
+                    var filterRequest = new CommentFilterRequest { AuthorId = author.Id, UserId = user.Id, AdvertisementId = advert.Id };
+                    var comment = await GetAllFilteredAsync(filterRequest, 0, 1, cancellation);
+                    if (comment.Count != 0)
+                    {
+                        throw new ArgumentException("Отзыв к этому обьявлению уже существует.");
+                    }
+
+                    commentId = await _commentRepository.AddAsync(addRequest, cancellation);
+                }
+            }
+
+            if(commentId == Guid.Empty) 
+            {
+                throw new ArgumentException();
+            }
+           
+            return commentId;
         }
 
         public Task DeleteAsync(Guid id, CancellationToken cancellation)

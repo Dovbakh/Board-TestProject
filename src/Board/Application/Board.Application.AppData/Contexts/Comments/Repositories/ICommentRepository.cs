@@ -36,6 +36,8 @@ namespace Board.Application.AppData.Contexts.Comments.Repositories
         /// <returns>Элемент <see cref="CommentDetails"/>.</returns>
         Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int offset, int limit, CancellationToken cancellation);
 
+        Task<float> GetAverageRating(Guid userId, CancellationToken cancellation);
+
         /// <summary>
         /// Добавить новую комментарий.
         /// </summary>

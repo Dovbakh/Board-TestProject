@@ -30,6 +30,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         private readonly IMapper _mapper;
         private readonly IValidator<AdvertAddRequest> _advertAddValidator;
         private readonly IValidator<AdvertUpdateRequest> _advertUpdateValidator;
+        private const string AdvertCountKey = "AdvertCountKey_";
 
         public AdvertService(IAdvertRepository advertRepository, IMapper mapper, IValidator<AdvertAddRequest> advertAddValidator,
             IValidator<AdvertUpdateRequest> advertUpdateValidator, IAdvertImageRepository advertImageRepository, IUserService userService, IFileService fileService)
@@ -45,7 +46,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
 
         public Task<IReadOnlyCollection<AdvertSummary>> GetAllAsync(int? offset, int? count, CancellationToken cancellation)
         {
-            if (count == 0)
+            if (count == null)
             {
                 count = 10; // TODO: в конфиг
             }
@@ -55,7 +56,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
 
         public Task<IReadOnlyCollection<AdvertSummary>> GetAllFilteredAsync(AdvertFilterRequest request, int? offset, int? count, CancellationToken cancellation)
         {
-            if (count == 0)
+            if (count == null)
             {
                 count = 10;
             }
@@ -77,7 +78,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
             return advert;
 
             // TODO: счетчик просмотров
-            var resource = "the-thing-we-are-locking-on";
+            var resource = $"{AdvertCountKey}{id}";
             var expiry = TimeSpan.FromSeconds(30);
             var wait = TimeSpan.FromSeconds(10);
             var retry = TimeSpan.FromSeconds(1);

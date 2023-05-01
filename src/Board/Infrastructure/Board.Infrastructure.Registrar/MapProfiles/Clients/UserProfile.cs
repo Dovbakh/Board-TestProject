@@ -17,7 +17,8 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Clients
             CreateMap<UserRegisterRequest, UserRegisterClientRequest>();
             CreateMap<UserUpdateRequest, UserUpdateClientRequest>();
             CreateMap<UserSummaryClientResponse, UserSummary>();
-            CreateMap<UserDetailsClientResponse, UserDetails>();
+            CreateMap<UserDetailsClientResponse, UserDetails>()
+                .ForMember(c => c.Rating, map => map.Ignore());
             CreateMap<UserGenerateEmailTokenRequest, UserGenerateEmailTokenClientRequest>();
             CreateMap<UserGenerateEmailConfirmationTokenRequest, UserGenerateEmailConfirmationTokenClientRequest>();
             

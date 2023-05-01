@@ -8,18 +8,21 @@ namespace Board.Infrastructure.Repository
 {
     public interface ICacheRepository
     {
-        Task<object> GetById(string key, Type type);
+        Task<object> GetById(string key, Type type, CancellationToken cancellation);
 
-        Task SetWithSlidingTime(string key, Type type, object entity, TimeSpan slidingTime);
-        Task SetWithAbsoluteTime(string key, Type type, object entity, TimeSpan absoluteTime);
+        Task SetWithSlidingTime(string key, Type type, object entity, TimeSpan slidingTime, CancellationToken cancellation);
+        Task SetWithAbsoluteTime(string key, Type type, object entity, TimeSpan absoluteTime, CancellationToken cancellation);
+        Task DeleteAsync(string key, CancellationToken cancellation);
     }
 
     public interface ICacheRepository<TEntity> where TEntity : class
     {
-        Task<TEntity> GetById(string key);
+        Task<TEntity> GetById(string key, CancellationToken cancellation);
 
-        Task SetWithSlidingTime(string key, TEntity entity, TimeSpan slidingTime);
+        Task SetWithSlidingTime(string key, TEntity entity, TimeSpan slidingTime, CancellationToken cancellation);
 
-        Task SetWithAbsoluteTime(string key, TEntity entity, TimeSpan absoluteTime);
+        Task SetWithAbsoluteTime(string key, TEntity entity, TimeSpan absoluteTime , CancellationToken cancellation);
+
+        Task DeleteAsync(string key, CancellationToken cancellation);
     }
 }

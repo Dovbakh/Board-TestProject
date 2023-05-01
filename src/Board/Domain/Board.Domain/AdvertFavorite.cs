@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Board.Application.AppData.Services
+namespace Board.Domain
 {
-    public interface IMessageBroker
+    public class AdvertFavorite
     {
     }
 }

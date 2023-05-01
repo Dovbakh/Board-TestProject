@@ -93,6 +93,19 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
             return existingDto;
         }
 
+        public async Task<float> GetAverageRating(Guid userId, CancellationToken cancellation)
+        {
+            var rating = await _repository.GetAll()
+                .Where(t => t.UserId == userId)
+                .GroupBy(t => 1)
+                .Select(c => new
+                {
+                     Rating = (float)c.Count() != 0 ? (float)c.Sum(c => c.Rating) / (float)c.Count() : 0
+                }).FirstOrDefaultAsync(cancellation);
+
+            return rating.Rating;                
+        }
+
         public async Task<Guid> AddAsync(CommentAddRequest addRequest, CancellationToken cancellation)
         {
             var newEntity = _mapper.Map<CommentAddRequest, Comment>(addRequest);

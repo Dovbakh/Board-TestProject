@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Board.Application.AppData.Contexts.Comments.Repositories;
 using Board.Application.AppData.Contexts.Notifications.Services;
 using Board.Application.AppData.Contexts.Users.Repositories;
+using Board.Contracts.Contexts.Comments;
 using Board.Contracts.Contexts.Users;
 using FluentValidation;
 using Identity.Clients.Users;
@@ -9,10 +11,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
+using RedLockNet;
+using RedLockNet.SERedis;
+using RedLockNet.SERedis.Configuration;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,10 +37,12 @@ namespace Board.Application.AppData.Contexts.Users.Services
         private readonly IValidator<UserRegisterRequest> _userRegisterValidator;
         private readonly IValidator<UserUpdateRequest> _userUpdateValidator;
         private readonly INotificationService _notificationService;
+        private readonly IDistributedLockFactory _distributedLockFactory;
+        private readonly ICommentRepository _commentRepository;
 
         public UserService(IConfiguration configuration, IUserClient boardClient, IMapper mapper, IHttpContextAccessor contextAccessor,
-            IValidator<UserLoginRequest> userLoginValidator, IValidator<UserRegisterRequest> userRegisterValidator, IValidator<UserUpdateRequest> userUpdateValidator, 
-            INotificationService notificationService)
+            IValidator<UserLoginRequest> userLoginValidator, IValidator<UserRegisterRequest> userRegisterValidator, IValidator<UserUpdateRequest> userUpdateValidator,
+            INotificationService notificationService, IDistributedLockFactory distributedLockFactory, ICommentRepository commentRepository)
         {
             _configuration = configuration;
             _userClient = boardClient;
@@ -43,6 +52,8 @@ namespace Board.Application.AppData.Contexts.Users.Services
             _userRegisterValidator = userRegisterValidator;
             _userUpdateValidator = userUpdateValidator;
             _notificationService = notificationService;
+            _distributedLockFactory = distributedLockFactory;
+            _commentRepository = commentRepository;
         }
 
         public async Task<IReadOnlyCollection<UserSummary>> GetAll(int? offset, int? count, CancellationToken cancellationToken)
@@ -57,6 +68,9 @@ namespace Board.Application.AppData.Contexts.Users.Services
         {          
             var clientResponse = await _userClient.GetById(id, cancellationToken);
             var user = _mapper.Map<UserDetailsClientResponse, UserDetails>(clientResponse);
+
+            var rating = await _commentRepository.GetAverageRating(id, cancellationToken);
+            user.Rating = rating;
 
             return user;
         }
@@ -110,8 +124,26 @@ namespace Board.Application.AppData.Contexts.Users.Services
             }
 
             var registerClientRequest = _mapper.Map<UserRegisterRequest, UserRegisterClientRequest>(registerRequest);
-            var userId = await _userClient.Register(registerClientRequest, cancellationToken);
+            var userId = Guid.Empty;
 
+
+            var resource = "RegisterEmailKey_" + registerRequest.Email;
+            var expiry = TimeSpan.FromSeconds(30);
+            var wait = TimeSpan.FromSeconds(10);
+            var retry = TimeSpan.FromSeconds(1);
+            await using (var redLock = await _distributedLockFactory.CreateLockAsync(resource, expiry, wait, retry, cancellationToken))
+            {
+                if (redLock.IsAcquired)
+                {
+                    userId = await _userClient.Register(registerClientRequest, cancellationToken);
+                }
+            }
+
+            if (userId == Guid.Empty) 
+            {
+                throw new ArgumentException();
+            }
+         
             return userId;
         }
 

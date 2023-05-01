@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Text.Json;
 
 namespace Board.Host.Api.Middlewares
@@ -26,7 +27,12 @@ namespace Board.Host.Api.Middlewares
                 switch (error)
                 {
                     case KeyNotFoundException e:
-                        response.StatusCode = (int)HttpStatusCode.NotFound;
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
+                        await context.Response.WriteAsync(JsonSerializer.Serialize(new
+                        {
+                            traceId = context.TraceIdentifier,
+                            message = e.Message
+                        }));
                         break;
                     case ArgumentException e:
                         response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
