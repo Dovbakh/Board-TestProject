@@ -13,7 +13,6 @@
   <ItemGroup>
     <Folder Include="Contexts\Notifications\" />
     <Folder Include="Contexts\Users\Enums\" />
-    <Folder Include="Exceptions\" />
   </ItemGroup>
 
   <ItemGroup>

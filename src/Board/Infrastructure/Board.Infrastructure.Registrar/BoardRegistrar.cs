@@ -49,6 +49,9 @@ using RedLockNet.SERedis;
 using RedLockNet;
 using RedLockNet.SERedis.Configuration;
 using StackExchange.Redis;
+using Microsoft.Extensions.Hosting;
+using Serilog;
+using Serilog.Templates;
 
 namespace Board.Infrastructure.Registrar
 {
@@ -307,6 +310,17 @@ namespace Board.Infrastructure.Registrar
             var options = serviceProvider.GetRequiredService<IOptions<FileClientOptions>>().Value;
 
             client.BaseAddress = new Uri(options.BasePath);
+        }
+
+        public static ConfigureHostBuilder AddCustomLogger(this ConfigureHostBuilder hostBuilder, ConfigurationManager configuration)
+        {
+            hostBuilder.UseSerilog((context, services, configuration) =>
+                configuration.ReadFrom.Configuration(context.Configuration)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.Seq("http://localhost:5345"));
+
+            return hostBuilder;
         }
 
         private static MapperConfiguration GetMapperConfiguration()

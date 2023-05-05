@@ -1,5 +1,4 @@
-﻿using Board.Contracts.Contexts.Categories;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using System;
@@ -80,6 +79,7 @@ namespace Board.Contracts.Conventions
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status500InternalServerError)]
         public static void Login([ApiConventionTypeMatch(ApiConventionTypeMatchBehavior.Any)] params object[] p)

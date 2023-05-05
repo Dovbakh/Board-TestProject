@@ -55,14 +55,6 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         Task<AdvertDetails> UpdateAsync(Guid id, AdvertUpdateRequest updateRequest, CancellationToken cancellation);
 
         /// <summary>
-        /// Изменить обьявление.
-        /// </summary>
-        /// <param name="id">Идентификатор обьявления.</param>
-        /// <param name="updateRequest">Элемент <see cref="AdvertUpdateRequest"/>.</param>
-        /// <param name="cancellation">Токен отмены.</param>
-        Task<AdvertDetails> PatchAsync(Guid id, JsonPatchDocument<AdvertUpdateRequest> updateRequest, CancellationToken cancellation);
-
-        /// <summary>
         /// Удалить обьявление.
         /// </summary>
         /// <param name="id">Идентификатор обьявления.</param>

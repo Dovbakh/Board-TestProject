@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using System;
@@ -63,14 +64,19 @@ namespace Board.Infrastructure.Repository
     public class CacheRepository : ICacheRepository
     {
         private readonly IDistributedCache _distributedCache;
+        private readonly ILogger<CacheRepository> _logger;
 
-        public CacheRepository(IDistributedCache distributedCache)
+        public CacheRepository(IDistributedCache distributedCache, ILogger<CacheRepository> logger)
         {
             _distributedCache = distributedCache;
+            _logger = logger;
         }
 
         public async Task<object> GetById(string key, Type type, CancellationToken cancellation)
         {
+            _logger.LogInformation("{0} -> Получение ресурса из кэша с ключом: {1}. Тип: {2}",
+                nameof(DeleteAsync), key, nameof(Type));
+
             try
             {
                 var cache = await _distributedCache.GetStringAsync(key, cancellation);
@@ -86,12 +92,16 @@ namespace Board.Infrastructure.Repository
             }
             catch (RedisConnectionException ex)
             {
+                _logger.LogWarning(ex, "{0} -> Не удалось подключение к серверу Redis.", nameof(GetById));
                 return null;
             }
         }
 
         public async Task SetWithSlidingTime(string key, Type type, object entity, TimeSpan slidingTime, CancellationToken cancellation)
         {
+            _logger.LogInformation("{0} -> Создание ресурса в кэше с ключом: {1}. Тип: {2}, данные: {3}, слайдовое время хранения: {4}",
+                nameof(DeleteAsync), key, nameof(Type), JsonConvert.SerializeObject(entity), slidingTime);
+
             var options = new DistributedCacheEntryOptions()
                 .SetSlidingExpiration(slidingTime);
 
@@ -101,12 +111,15 @@ namespace Board.Infrastructure.Repository
             }
             catch (RedisConnectionException ex)
             {
-
+                _logger.LogWarning(ex, "{0} -> Не удалось подключение к серверу Redis.", nameof(SetWithSlidingTime));
             }
         }
 
         public async Task SetWithAbsoluteTime(string key, Type type, object entity, TimeSpan absoluteTime, CancellationToken cancellation)
         {
+            _logger.LogInformation("{0} -> Создание ресурса в кэше с ключом: {1}. Тип: {2}, данные: {3}, абсолютное время хранения: {4}",
+                nameof(DeleteAsync), key, nameof(Type), JsonConvert.SerializeObject(entity), absoluteTime);
+
             var options = new DistributedCacheEntryOptions()
                 .SetAbsoluteExpiration(absoluteTime);
 
@@ -116,18 +129,21 @@ namespace Board.Infrastructure.Repository
             }
             catch (RedisConnectionException ex)
             {
-
+                _logger.LogWarning(ex, "{0} -> Не удалось подключение к серверу Redis.", nameof(SetWithAbsoluteTime));
             }
         }
         public async Task DeleteAsync(string key, CancellationToken cancellation)
         {
+            _logger.LogInformation("{0} -> Инвалидация ресурса из кэша с ключом: {1}",
+                nameof(DeleteAsync), key);
+
             try
             {
                 await _distributedCache.RemoveAsync(key, cancellation);
             }
             catch (RedisConnectionException ex)
             {
-
+                _logger.LogWarning(ex, "{0} -> Не удалось подключение к серверу Redis.", nameof(DeleteAsync));
             }
         }
     }

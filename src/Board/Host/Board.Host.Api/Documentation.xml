@@ -58,19 +58,12 @@
             <param name="updateRequest">Элемент <see cref="T:Board.Contracts.Contexts.Adverts.AdvertUpdateRequest"/>.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
-        <member name="M:Board.Host.Api.Controllers.AdvertController.Patch(System.Guid,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{Board.Contracts.Contexts.Adverts.AdvertUpdateRequest},System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.AdvertController.SoftDeleteById(System.Guid,System.Threading.CancellationToken)">
             <summary>
-            Частично обновить обьявление.
+            Удалить обьявление.
             </summary>
-            <param name="id">Идентификатор.</param>
-            <param name="updateRequest">Модель запроса обновления обьявления <see cref="T:Board.Contracts.Contexts.Adverts.AdvertUpdateRequest"/>.</param>
+            <param name="id">Идентификатор обьявления.</param>
             <param name="cancellation">Токен отмены.</param>
-            <response code="200">Запрос выполнен успешно.</response>
-            <response code="400">Модель данных запроса невалидна.</response>
-            <response code="403">Доступ запрещён.</response>
-            <response code="404">Обьявление с указанным идентификатором не найдено.</response>
-            <response code="422">Произошёл конфликт бизнес-логики.</response>
-            <returns>Модель обновленной категории <see cref="T:Board.Contracts.Contexts.Adverts.AdvertDetails"/>.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.AdvertController.DeleteById(System.Guid,System.Threading.CancellationToken)">
             <summary>

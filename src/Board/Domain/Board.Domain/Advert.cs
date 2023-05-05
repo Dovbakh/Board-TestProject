@@ -63,6 +63,10 @@ namespace Board.Domain
         /// </summary>
         public ICollection<AdvertImage> AdvertImages { get; set; }
 
+        public ICollection<AdvertFavorite> AdvertFavorites { get; set; }
+
+        public AdvertView AdvertView { get; set; }
+
         public bool isActive { get; set; }
 
     }

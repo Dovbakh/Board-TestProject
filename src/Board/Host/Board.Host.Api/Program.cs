@@ -1,4 +1,4 @@
-using Board.Host.Api.Middlewares;
+using Board.Contracts.Middlewares;
 using Board.Infrastructure.Registrar;
 using Identity.Clients.Users;
 using IdentityServer4.AccessTokenValidation;
@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
 
 
-
+builder.Host.AddCustomLogger(config);
 builder.Services.AddServiceRegistrationModule(config);
 builder.Services.AddHttpClients(config);
 

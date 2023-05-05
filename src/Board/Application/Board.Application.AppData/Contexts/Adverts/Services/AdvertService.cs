@@ -18,9 +18,15 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System.Diagnostics;
+using Board.Contracts.Exceptions;
 
 namespace Board.Application.AppData.Contexts.Adverts.Services
 {
+    /// <inheritdoc />
     public class AdvertService : IAdvertService
     {
         private readonly IAdvertRepository _advertRepository;
@@ -30,10 +36,14 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         private readonly IMapper _mapper;
         private readonly IValidator<AdvertAddRequest> _advertAddValidator;
         private readonly IValidator<AdvertUpdateRequest> _advertUpdateValidator;
-        private const string AdvertCountKey = "AdvertCountKey_";
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<AdvertService> _logger;    
+        private const int AdvertListCount = 10;
+
 
         public AdvertService(IAdvertRepository advertRepository, IMapper mapper, IValidator<AdvertAddRequest> advertAddValidator,
-            IValidator<AdvertUpdateRequest> advertUpdateValidator, IAdvertImageRepository advertImageRepository, IUserService userService, IFileService fileService)
+            IValidator<AdvertUpdateRequest> advertUpdateValidator, IAdvertImageRepository advertImageRepository, IUserService userService, IFileService fileService,
+            IConfiguration configuration, ILogger<AdvertService> logger)
         {
             _advertRepository = advertRepository;
             _mapper = mapper;
@@ -42,87 +52,111 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
             _advertImageRepository = advertImageRepository;
             _userService = userService;
             _fileService = fileService;
+            _configuration = configuration;
+            _logger = logger;
         }
 
+        /// <inheritdoc />
         public Task<IReadOnlyCollection<AdvertSummary>> GetAllAsync(int? offset, int? count, CancellationToken cancellation)
         {
-            if (count == null)
+            _logger.LogInformation("{0} -> Получение всех обьявлений с параметрами: {1} = {2}, {3} = {4}", 
+                nameof(GetAllAsync), nameof(offset), offset.GetValueOrDefault(), nameof(count), count.GetValueOrDefault());
+
+            if (count.HasValue)
             {
-                count = 10; // TODO: в конфиг
+                return _advertRepository.GetAllAsync(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
+            }
+
+            try
+            {
+                count = Int32.Parse(_configuration.GetSection("Adverts").GetRequiredSection("ListDefaultCount").Value);
+            }
+            catch
+            {
+                _logger.LogWarning("{0} -> В конфигурации указано невалидное значение количества получаемых записей по умолчанию Adverts->ListDefaultCount",
+                    nameof(GetAllAsync));
+                count = AdvertListCount;
             }
 
             return _advertRepository.GetAllAsync(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
         }
 
+        /// <inheritdoc />
         public Task<IReadOnlyCollection<AdvertSummary>> GetAllFilteredAsync(AdvertFilterRequest request, int? offset, int? count, CancellationToken cancellation)
         {
-            if (count == null)
+            _logger.LogInformation("{0} -> Получение всех обьявлений по фильтру с параметрами: {1} = {2}, {3} = {4}, {5} = {6}",
+                nameof(GetAllFilteredAsync), nameof(offset), offset.GetValueOrDefault(), nameof(count), count.GetValueOrDefault(), nameof(AdvertFilterRequest), 
+                JsonConvert.SerializeObject(request));
+
+            if (count.HasValue)
             {
-                count = 10;
+                return _advertRepository.GetAllFilteredAsync(request, offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
             }
+
+            try
+            {
+                count = Int32.Parse(_configuration.GetSection("Adverts").GetRequiredSection("ListDefaultCount").Value);
+            }
+            catch
+            {
+                _logger.LogWarning("{0} -> В конфигурации указано невалидное значение количества получаемых записей по умолчанию Adverts->ListDefaultCount",
+                    nameof(GetAllAsync));
+                count = AdvertListCount;
+            }
+
 
             return _advertRepository.GetAllFilteredAsync(request, offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
         }
 
+        /// <inheritdoc />
         public async Task<AdvertDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
+            _logger.LogInformation("{0} -> Получение обьявления по ID: {1} ",
+                nameof(GetByIdAsync), id);
+
             var advert = await _advertRepository.GetByIdAsync(id, cancellation);
             if (advert == null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException($"Не найдено обьявление с ID: {id}");
             }
 
             var user = await _userService.GetById(advert.UserId, cancellation);
+
+            if (user == null)
+            {
+                throw new KeyNotFoundException($"Не найден пользователь с ID: {advert.UserId}, указанный в обьявлении с ID: {id}"); ;
+            }
             advert.User = user;
 
-            return advert;
-
-            // TODO: счетчик просмотров
-            var resource = $"{AdvertCountKey}{id}";
-            var expiry = TimeSpan.FromSeconds(30);
-            var wait = TimeSpan.FromSeconds(10);
-            var retry = TimeSpan.FromSeconds(1);
-
-            var redlockFactory = RedLockFactory.Create(new List<RedLockEndPoint> { new DnsEndPoint("localhost", 6379) });
-            // blocks until acquired or 'wait' timeout
-            await using (var redLock = await redlockFactory.CreateLockAsync(resource, expiry, wait, retry, cancellation)) // there are also non async Create() methods
-            {
-                // make sure we got the lock
-                if (redLock.IsAcquired)
-                {
-                    // do stuff
-                    var a = 10;
-                }
-            }
+            return advert;           
         }
 
-
-            public async Task<Guid> CreateAsync(AdvertAddRequest addRequest, CancellationToken cancellation)
+        /// <inheritdoc />
+        public async Task<Guid> CreateAsync(AdvertAddRequest addRequest, CancellationToken cancellation)
         {
-            // TODO: валидация
+            _logger.LogInformation("{0} -> Создание обьявления из модели {1}: {2}",
+                nameof(CreateAsync), nameof(AdvertAddRequest), JsonConvert.SerializeObject(addRequest));
+
             var validationResult = _advertAddValidator.Validate(addRequest);
             if (!validationResult.IsValid)
             {
-                throw new ArgumentException(validationResult.ToString("~"));
+                throw new ArgumentException($"Модель создания обьявления не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
             }
-
-            // TODO: логирование
-
 
             var currentUser = await _userService.GetCurrent(cancellation);
             if(currentUser == null)
             {
-                throw new KeyNotFoundException();
+                throw new UnauthorizedAccessException($"При создании обьявления пользователь должен быть авторизован.");
             }
+
             addRequest.UserId = currentUser.Id.GetValueOrDefault();
 
-            // проверка наличия фото с указанными ID на сервере
             foreach (var imageId in addRequest.AdvertImagesId)
             {
                 var fileInfo = _fileService.GetInfoAsync(imageId, cancellation);
                 if(fileInfo == null)
                 {
-                    throw new KeyNotFoundException();
+                    throw new KeyNotFoundException($"На файловом сервисе не найдено изображение с ID: {imageId}, указанное в модели создания обьявления.");
                 }
             }
 
@@ -134,31 +168,29 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
                 await _advertImageRepository.AddAsync(imageAddRequest, cancellation);
             }
             
-            // TODO: если обьявление не добавилось, то удалить картинки
+            // TODO: если обьявление не добавилось, то удалить картинки?
 
             return newAdvertId;
         }
 
-        public Task<AdvertDetails> PatchAsync(Guid id, JsonPatchDocument<AdvertUpdateRequest> updateRequest, CancellationToken cancellation)
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <inheritdoc />
         public async Task<AdvertDetails> UpdateAsync(Guid id, AdvertUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            // TODO: валидация
+            _logger.LogInformation("{0} -> Обновление обьявления c ID: {1} из модели {2}: {3}",
+                nameof(UpdateAsync), id, nameof(AdvertUpdateRequest), JsonConvert.SerializeObject(updateRequest));
+
             var validationResult = _advertUpdateValidator.Validate(updateRequest);
             if (!validationResult.IsValid)
             {
-                throw new ArgumentException(validationResult.ToString("~"));
+                throw new ArgumentException($"Модель обновления обьявления не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
             }
 
-            // TODO: логирование
+
             var currentAdvert = await _advertRepository.GetByIdAsync(id, cancellation);
             var currentUser = await _userService.GetCurrent(cancellation);
             if (currentUser.Id != currentAdvert.UserId)
             {
-                throw new UnauthorizedAccessException();
+                throw new ForbiddenException($"Обновить обьявление может только его владелец. Текущий пользователь имеет ID: {currentUser.Id}");
             }
 
 
@@ -174,28 +206,32 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
             }
 
             var updatedDto = await _advertRepository.UpdateAsync(id, updateRequest, cancellation);
-
-
-
-            var user = await _userService.GetById(updatedDto.UserId, cancellation);
-            updatedDto.User = user;
+            updatedDto.User = currentUser;
 
             return updatedDto;
         }
 
+        /// <inheritdoc />
         public async Task SoftDeleteAsync(Guid id, CancellationToken cancellation)
         {
-            await _advertRepository.SoftDeleteAsync(id, cancellation);
-        }
+            _logger.LogInformation("{0} -> Мягкое удаление обьявления с ID: {1}",
+                nameof(SoftDeleteAsync), id);
 
-        public async Task DeleteAsync(Guid id, CancellationToken cancellation)
-        {
             var currentAdvert = await _advertRepository.GetByIdAsync(id, cancellation);
             var currentUser = await _userService.GetCurrent(cancellation);
             if (currentUser.Id != currentAdvert.UserId)
             {
-                throw new UnauthorizedAccessException();
+                throw new ForbiddenException($"Удалить обьявление может только владелец. Текущий пользователь имеет ID: {currentUser.Id}");
             }
+
+            await _advertRepository.SoftDeleteAsync(id, cancellation);
+        }
+
+        /// <inheritdoc />
+        public async Task DeleteAsync(Guid id, CancellationToken cancellation)
+        {
+            _logger.LogInformation("{0} -> Удаление обьявления с ID: {1}",
+                nameof(DeleteAsync), id);
 
             await _advertRepository.DeleteAsync(id, cancellation);
         }

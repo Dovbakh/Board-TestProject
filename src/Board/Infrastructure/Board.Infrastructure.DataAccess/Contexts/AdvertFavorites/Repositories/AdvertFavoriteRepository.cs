@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Board.Application.AppData.Contexts.PostImages.Services
+namespace Board.Infrastructure.DataAccess.Contexts.AdvertFavorites.Repositories
 {
-    public interface IAdvertImageService
+    public class AdvertFavoriteRepository
     {
     }
 }

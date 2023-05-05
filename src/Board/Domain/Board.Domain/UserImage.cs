@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace Board.Domain
 {
-    public class AdvertView
+    public class UserImage
     {
         public Guid Id { get; set; }
-        public Guid AdvertId { get; set; }
-        public int ViewCount { get; set; }
-
-        public Advert Advert { get; set; }
+        public Guid ImageId { get; set; }
+        public Guid UserId { get; set; }
     }
 }

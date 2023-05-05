@@ -113,26 +113,18 @@ namespace Board.Host.Api.Controllers
             return Ok(result);
         }
 
-
         /// <summary>
-        /// Частично обновить обьявление.
+        /// Удалить обьявление.
         /// </summary>
-        /// <param name="id">Идентификатор.</param>
-        /// <param name="updateRequest">Модель запроса обновления обьявления <see cref="AdvertUpdateRequest"/>.</param>
+        /// <param name="id">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <response code="200">Запрос выполнен успешно.</response>
-        /// <response code="400">Модель данных запроса невалидна.</response>
-        /// <response code="403">Доступ запрещён.</response>
-        /// <response code="404">Обьявление с указанным идентификатором не найдено.</response>
-        /// <response code="422">Произошёл конфликт бизнес-логики.</response>
-        /// <returns>Модель обновленной категории <see cref="AdvertDetails"/>.</returns>
-        [HttpPatch("{id:Guid}")]
+        [HttpDelete("soft/{id:Guid}")]
         [Authorize]
-        public async Task<ActionResult<AdvertDetails>> Patch(Guid id, [FromBody] JsonPatchDocument<AdvertUpdateRequest> updateRequest, CancellationToken cancellation)
+        public async Task<IActionResult> SoftDeleteById(Guid id, CancellationToken cancellation)
         {
-            var result = await _advertService.PatchAsync(id, updateRequest, cancellation);
+            await _advertService.DeleteAsync(id, cancellation);
 
-            return Ok(result);
+            return NoContent();
         }
 
         /// <summary>
@@ -141,7 +133,7 @@ namespace Board.Host.Api.Controllers
         /// <param name="id">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
         [HttpDelete("{id:Guid}")]
-        [Authorize]
+        [Authorize(Policy = "admin")]
         public async Task<IActionResult> DeleteById(Guid id, CancellationToken cancellation)
         {
             await _advertService.DeleteAsync(id, cancellation);
