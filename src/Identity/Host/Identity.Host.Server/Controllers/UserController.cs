@@ -39,7 +39,7 @@ namespace Identity.Host.Server.Controllers
         //[Authorize]
         public async Task<ActionResult<IReadOnlyCollection<UserSummary>>> GetAll(int offset, int count, CancellationToken cancellation)
         {
-            var users = await _userService.GetAll(offset, count, cancellation);
+            var users = await _userService.GetAllAsync(offset, count, cancellation);
 
             return Ok(users);
         }
@@ -54,21 +54,7 @@ namespace Identity.Host.Server.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<UserDetails>> GetById(Guid id, CancellationToken cancellation)
         {
-            var user = await _userService.GetById(id, cancellation);
-
-            return Ok(user);
-        }
-
-        /// <summary>
-        /// Получить текущего пользователя.
-        /// </summary>
-        /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Элемент <see cref="UserDto"/>.</returns>
-        [HttpGet("current")]
-        [Authorize]
-        public async Task<ActionResult<UserDetails>> GetCurrent(CancellationToken cancellation)
-        {
-            var user = await _userService.GetCurrent(cancellation);
+            var user = await _userService.GetByIdAsync(id, cancellation);
 
             return Ok(user);
         }
@@ -114,7 +100,7 @@ namespace Identity.Host.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize]
-        public async Task<IActionResult> ConfirmEmail([FromBody] UserEmailConfirmRequest request, CancellationToken cancellation)
+        public async Task<IActionResult> ConfirmEmail([FromBody] UserConfirmEmailRequest request, CancellationToken cancellation)
         {
             await _userService.ConfirmEmailAsync(request, cancellation);
 
@@ -249,7 +235,7 @@ namespace Identity.Host.Server.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<Guid>> Register(UserRegisterRequest registerRequest, CancellationToken cancellation)
         {
-            var userId = await _userService.Register(registerRequest, cancellation);
+            var userId = await _userService.RegisterAsync(registerRequest, cancellation);
 
             return Ok(userId);
         }
@@ -265,7 +251,7 @@ namespace Identity.Host.Server.Controllers
         public async Task<ActionResult<string>> Login(UserLoginRequest loginRequest, CancellationToken cancellation)
         {
             
-            var token = await _userService.Login(loginRequest, cancellation);
+            var token = await _userService.LoginAsync(loginRequest, cancellation);
 
             return Ok(token);
         }

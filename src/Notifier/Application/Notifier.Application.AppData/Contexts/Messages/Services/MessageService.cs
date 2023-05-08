@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Notifier.Contracts.Contexts.Messages;
 using System;
 using System.Collections.Generic;
@@ -10,17 +12,24 @@ using System.Threading.Tasks;
 
 namespace Notifier.Application.AppData.Contexts.Messages.Services
 {
+    /// <inheritdoc />
     public class MessageService : IMessageService
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<MessageService> _logger;
 
-        public MessageService(IConfiguration configuration)
+        public MessageService(IConfiguration configuration, ILogger<MessageService> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
 
+        /// <inheritdoc />
         public async Task SendAsync(NotificationDetails message, CancellationToken cancellation)
         {
+            _logger.LogInformation("{0} -> Отправление сообщения из указанной модели: {1}",
+                nameof(SendAsync), JsonConvert.SerializeObject(message));
+
             var senderEmail = _configuration.GetSection("EmailService").GetSection("EmailUsername").Value;
             var senderPassword = _configuration.GetSection("EmailService").GetSection("EmailPassword").Value;
             var smtpHost = _configuration.GetSection("EmailService").GetSection("SmtpHost").Value;
@@ -38,7 +47,7 @@ namespace Notifier.Application.AppData.Contexts.Messages.Services
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new Exception("При отправлении сообщения произошла ошибка.", ex);
             }
             
         }

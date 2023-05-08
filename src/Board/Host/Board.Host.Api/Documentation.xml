@@ -188,14 +188,6 @@
             <param name="updateRequest">Элемент <see cref="T:Board.Contracts.Contexts.Comments.CommentUpdateRequest"/>.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
-        <member name="M:Board.Host.Api.Controllers.CommentController.Patch(System.Guid,Microsoft.AspNetCore.JsonPatch.JsonPatchDocument{Board.Contracts.Contexts.Comments.CommentUpdateRequest},System.Threading.CancellationToken)">
-            <summary>
-            Частично изменить комментарий.
-            </summary>
-            <param name="id">Идентификатор комментария.</param>
-            <param name="updateRequest">Элемент <see cref="T:Board.Contracts.Contexts.Comments.CommentUpdateRequest"/>.</param>
-            <param name="cancellation">Токен отмены.</param>
-        </member>
         <member name="M:Board.Host.Api.Controllers.CommentController.DeleteById(System.Guid,System.Threading.CancellationToken)">
             <summary>
             Удалить комментарий.

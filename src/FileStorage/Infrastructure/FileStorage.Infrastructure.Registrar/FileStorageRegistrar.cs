@@ -4,6 +4,7 @@ using FileStorage.Application.AppData.Contexts.Files.Services;
 using FileStorage.Infrastructure.DataAccess.Contexts.Files.Repositories;
 using FileStorage.Infrastructure.ObjectStorage;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Builder;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,17 @@ namespace FileStorage.Infrastructure.Registrar
 
             return services;
         }
+
+        //public static ConfigureHostBuilder AddCustomLogger(this ConfigureHostBuilder hostBuilder, ConfigurationManager configuration)
+        //{
+        //    hostBuilder.UseSerilog((context, services, configuration) =>
+        //        configuration.ReadFrom.Configuration(context.Configuration)
+        //        .Enrich.FromLogContext()
+        //        .WriteTo.Console()
+        //        .WriteTo.Seq("http://localhost:5345"));
+
+        //    return hostBuilder;
+        //}
 
         private static MapperConfiguration GetMapperConfiguration()
         {

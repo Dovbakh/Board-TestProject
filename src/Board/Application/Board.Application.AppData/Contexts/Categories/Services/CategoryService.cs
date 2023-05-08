@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using AutoMapper.Configuration.Annotations;
+using Board.Application.AppData.Contexts.Adverts.Helpers;
 using Board.Application.AppData.Contexts.Categories.Repositories;
 using Board.Contracts.Contexts.Categories;
 using Board.Domain;
+using FluentValidation;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -21,12 +23,17 @@ namespace Board.Application.AppData.Contexts.Categories.Services
         private readonly ICategoryRepository _categoryRepository;
         private readonly IMapper _mapper; 
         private readonly ILogger<CategoryService> _logger;
+        private readonly IValidator<CategoryAddRequest> _categoryAddValidator;
+        private readonly IValidator<CategoryUpdateRequest> _categoryUpdateValidator;
 
-        public CategoryService(ICategoryRepository categoryRepository, IMapper mapper, ILogger<CategoryService> logger)
+        public CategoryService(ICategoryRepository categoryRepository, IMapper mapper, ILogger<CategoryService> logger, IValidator<CategoryAddRequest> categoryAddValidator, 
+            IValidator<CategoryUpdateRequest> categoryUpdateValidator)
         {
             _categoryRepository = categoryRepository;
             _mapper = mapper;
             _logger = logger;
+            _categoryAddValidator = categoryAddValidator;
+            _categoryUpdateValidator = categoryUpdateValidator;
         }
 
         /// <inheritdoc />
@@ -68,6 +75,12 @@ namespace Board.Application.AppData.Contexts.Categories.Services
             _logger.LogInformation("{0} -> Создание категории из модели {1}: {2}",
                 nameof(CreateAsync), nameof(CategoryAddRequest), JsonConvert.SerializeObject(createRequest));
 
+            var validationResult = _categoryAddValidator.Validate(createRequest);
+            if (!validationResult.IsValid)
+            {
+                throw new ArgumentException($"Модель создания категории не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
+            }
+
             var newCategoryId = _categoryRepository.AddAsync(createRequest, cancellation);
 
             return newCategoryId;
@@ -78,6 +91,12 @@ namespace Board.Application.AppData.Contexts.Categories.Services
         {
             _logger.LogInformation("{0} -> Обновление категории c ID: {1} из модели {2}: {3}",
                 nameof(UpdateAsync), categoryId, nameof(CategoryUpdateRequest), JsonConvert.SerializeObject(updateRequest));
+
+            var validationResult = _categoryUpdateValidator.Validate(updateRequest);
+            if (!validationResult.IsValid)
+            {
+                throw new ArgumentException($"Модель обновлеиня категории не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
+            }
 
             var updatedDto = await _categoryRepository.UpdateAsync(categoryId, updateRequest, cancellation);
 

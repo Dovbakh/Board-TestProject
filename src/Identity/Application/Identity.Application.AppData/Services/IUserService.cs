@@ -15,7 +15,7 @@ namespace Identity.Application.AppData.Services
         /// <param name="registerRequest">Элемент <see cref="UserRegisterRequest"/>.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Идентификатор нового пользователя.</returns>
-        Task<Guid> Register(UserRegisterRequest registerRequest, CancellationToken cancellationToken);
+        Task<Guid> RegisterAsync(UserRegisterRequest registerRequest, CancellationToken cancellationToken);
 
         /// <summary>
         /// Авторизация пользователя.
@@ -23,7 +23,7 @@ namespace Identity.Application.AppData.Services
         /// <param name="loginRequest">Элемент <see cref="UserLoginRequest"/>.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Токен.</returns>
-        Task<string> Login(UserLoginRequest loginRequest, CancellationToken cancellationToken);
+        Task<string> LoginAsync(UserLoginRequest loginRequest, CancellationToken cancellationToken);
 
         /// <summary>
         /// Получить всех пользователей с пагинацией.
@@ -32,7 +32,7 @@ namespace Identity.Application.AppData.Services
         /// <param name="skip">Количество пропускаемых пользователей.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Коллекция элементов <see cref="UserSummary"/>.</returns>
-        Task<IReadOnlyCollection<UserSummary>> GetAll(int? offset, int? count, CancellationToken cancellationToken);
+        Task<IReadOnlyCollection<UserSummary>> GetAllAsync(int? offset, int? count, CancellationToken cancellationToken);
 
         /// <summary>
         /// Получить пользователя по идентификатору.
@@ -40,14 +40,8 @@ namespace Identity.Application.AppData.Services
         /// <param name="id">Идентификатор.</param>
         /// <param name="cancellationToken">Токен отмены.</param>
         /// <returns>Элемент <see cref="UserDetails"/>.</returns>
-        Task<UserDetails> GetById(Guid id, CancellationToken cancellationToken);
+        Task<UserDetails> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
-        /// <summary>
-        /// Получить текущего пользователя.
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <returns>Элемент <see cref="UserDetails"/></returns>
-        Task<UserDetails> GetCurrent(CancellationToken cancellationToken);
 
         /// <summary>
         /// Изменить пользователя.
@@ -63,7 +57,7 @@ namespace Identity.Application.AppData.Services
         /// <param name="cancellationToken">Токен отмены.</param>
         Task DeleteAsync(Guid id, CancellationToken cancellationToken);
 
-        Task<bool> IsInRoleRole(Guid userId, string role, CancellationToken cancellationToken);
+        Task<bool> IsInRoleAsync(Guid userId, string role, CancellationToken cancellationToken);
 
         ///// <summary>
         ///// Изменить пароль у пользователя.
@@ -93,7 +87,7 @@ namespace Identity.Application.AppData.Services
         /// <returns></returns>
         Task ChangeEmailAsync(UserChangeEmailRequest request, CancellationToken cancellationToken);
 
-        Task ConfirmEmailAsync(UserEmailConfirmRequest request, CancellationToken cancellationToken);
+        Task ConfirmEmailAsync(UserConfirmEmailRequest request, CancellationToken cancellationToken);
 
         ///// <summary>
         ///// Получение токена для сброса пароля пользователя и его отправка на почту.

@@ -17,7 +17,7 @@ namespace Identity.Application.AppData.Repositories
         /// <param name="skip">Количество пропускаемых пользователей.</param>
         /// <param name="cancellationToken">Токен отмены.</param>
         /// <returns>Коллекция элементов <see cref="UserDto"/>.</returns>
-        Task<IReadOnlyCollection<UserSummary>> GetAll(int offset, int count, CancellationToken cancellationToken);
+        Task<IReadOnlyCollection<UserSummary>> GetAllAsync(int offset, int count, CancellationToken cancellationToken);
 
         /// <summary>
         /// Получить пользователя по идентификатору.
@@ -25,7 +25,7 @@ namespace Identity.Application.AppData.Repositories
         /// <param name="id"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>Элемент <see cref="UserDto"/>.</returns>
-        Task<UserDetails> GetById(Guid id, CancellationToken cancellationToken);
+        Task<UserDetails> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
         /// <summary>
         /// Получить пользователя по почте.
@@ -33,7 +33,7 @@ namespace Identity.Application.AppData.Repositories
         /// <param name="email"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>Элемент <see cref="UserDto"/>.</returns>
-        Task<UserDetails> GetByEmail(string email, CancellationToken cancellationToken);
+        Task<UserDetails> GetByEmailAsync(string email, CancellationToken cancellationToken);
 
         /// <summary>
         /// Добавить пользователя с хэшем пароля.
@@ -119,7 +119,7 @@ namespace Identity.Application.AppData.Repositories
         /// <returns></returns>
         Task ResetPasswordAsync(string email, string token, string newPassword, CancellationToken cancellationToken);
 
-        Task<bool> IsInRoleRole(Guid userId, string role, CancellationToken cancellationToken);
+        Task<bool> IsInRoleAsync(Guid userId, string role, CancellationToken cancellationToken);
 
     }
 

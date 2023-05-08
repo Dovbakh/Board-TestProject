@@ -6,7 +6,6 @@ using Board.Application.AppData.Contexts.Comments.Repositories;
 using Board.Application.AppData.Contexts.Comments.Services;
 using Board.Application.AppData.Contexts.AdvertImages.Repositories;
 using Board.Application.AppData.Contexts.Adverts.Repositories;
-using Board.Application.AppData.Contexts.Users.Repositories;
 using Board.Infrastructure.DataAccess;
 using Board.Infrastructure.DataAccess.Contexts.Categories.Repositories;
 using Board.Infrastructure.DataAccess.Contexts.Comments.Repositories;

@@ -11,15 +11,13 @@ namespace Identity.Clients.Users
 {
     public interface IUserClient
     {
-        public Task<IReadOnlyCollection<UserSummaryClientResponse>> GetAll(int offset, int count, CancellationToken cancellation);
-        public Task<UserDetailsClientResponse> GetById(Guid id, CancellationToken cancellation);
+        public Task<IReadOnlyCollection<UserSummaryClientResponse>> GetAllAsync(int offset, int count, CancellationToken cancellation);
+        public Task<UserDetailsClientResponse> GetByIdAsync(Guid id, CancellationToken cancellation);
+        public Task<Guid> RegisterAsync(UserRegisterClientRequest registerClientRequest, CancellationToken cancellation);
+        public Task<TokenResponse> LoginAsync(UserLoginClientRequest loginClientRequest, CancellationToken cancellation);
 
-        public Task<UserDetailsClientResponse> GetCurrent(CancellationToken cancellation);
-        public Task<Guid> Register(UserRegisterClientRequest registerClientRequest, CancellationToken cancellation);
-        public Task<TokenResponse> Login(UserLoginClientRequest loginClientRequest, CancellationToken cancellation);
-
-        public Task<UserDetailsClientResponse> Update(Guid id, UserUpdateClientRequest updateClientRequest, CancellationToken cancellation);
-        public Task Delete(Guid id, CancellationToken cancellation);
+        public Task<UserDetailsClientResponse> UpdateAsync(Guid id, UserUpdateClientRequest updateClientRequest, CancellationToken cancellation);
+        public Task DeleteAsync(Guid id, CancellationToken cancellation);
         public Task<string> GenerateEmailTokenAsync(UserGenerateEmailTokenClientRequest request, CancellationToken cancellation);
         public Task<string> GenerateEmailConfirmationTokenAsync(UserGenerateEmailConfirmationTokenClientRequest clientRequest, CancellationToken cancellation);
         public Task ChangeEmailAsync(UserChangeEmailClientRequest request, CancellationToken cancellationToken);

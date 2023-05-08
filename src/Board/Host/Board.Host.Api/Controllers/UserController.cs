@@ -38,7 +38,7 @@ namespace Board.Host.Api.Controllers
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<IReadOnlyCollection<UserSummary>>> GetAll(int offset, int count, CancellationToken cancellation)
         {
-            var users = await _userService.GetAll(offset, count, cancellation);
+            var users = await _userService.GetAllAsync(offset, count, cancellation);
 
             return Ok(users);
         }
@@ -53,7 +53,7 @@ namespace Board.Host.Api.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<UserDetails>> GetById(Guid id, CancellationToken cancellation)
         {
-            var user = await _userService.GetById(id, cancellation);
+            var user = await _userService.GetByIdAsync(id, cancellation);
 
             if(user == null)
             {
@@ -72,7 +72,7 @@ namespace Board.Host.Api.Controllers
         [Authorize]
         public async Task<ActionResult<UserDetails>> GetCurrent(CancellationToken cancellation)
         {
-            var user = await _userService.GetCurrent(cancellation);
+            var user = await _userService.GetCurrentAsync(cancellation);
 
             return Ok(user);
         }
@@ -257,7 +257,7 @@ namespace Board.Host.Api.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<Guid>> Register(UserRegisterRequest registerRequest, CancellationToken cancellation)
         {
-            var userId = await _userService.Register(registerRequest, cancellation);
+            var userId = await _userService.RegisterAsync(registerRequest, cancellation);
 
             return Ok(userId);
         }
@@ -272,7 +272,7 @@ namespace Board.Host.Api.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<string>> Login(UserLoginRequest loginRequest, CancellationToken cancellation)
         {
-            var token = await _userService.Login(loginRequest, cancellation);
+            var token = await _userService.LoginAsync(loginRequest, cancellation);
 
             return Ok(token);
         }

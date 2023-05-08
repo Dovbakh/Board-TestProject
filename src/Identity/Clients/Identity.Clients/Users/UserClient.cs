@@ -31,14 +31,7 @@ namespace Identity.Clients.Users
         }
 
 
-        //get all
-        //get by id
-        //get current
-        //register
-        //update
-        //delete
-
-        public async Task<IReadOnlyCollection<UserSummaryClientResponse>> GetAll(int offset, int count, CancellationToken cancellation)
+        public async Task<IReadOnlyCollection<UserSummaryClientResponse>> GetAllAsync(int offset, int count, CancellationToken cancellation)
         {            
             var uri = $"v1/user?{nameof(offset)}={offset.ToString()}&{nameof(count)}={count.ToString()}";  //"?" + nameof(offset) + "=" + offset.ToString() + 
             using var response = await _httpClient.GetAsync(uri, cancellation);           
@@ -50,7 +43,7 @@ namespace Identity.Clients.Users
             return clientResponse;
         }
 
-        public async Task<UserDetailsClientResponse> GetById(Guid id, CancellationToken cancellation)
+        public async Task<UserDetailsClientResponse> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
             var uri = $"v1/user/{id.ToString()}";
             using var response = await _httpClient.GetAsync(uri, cancellation);
@@ -67,20 +60,8 @@ namespace Identity.Clients.Users
 
             return clientResponse;
         }
-
-        public async Task<UserDetailsClientResponse> GetCurrent(CancellationToken cancellation)
-        {
-            var uri = $"v1/user/current";
-            using var response = await _httpClient.GetAsync(uri, cancellation);
-            response.EnsureSuccessStatusCode();
-
-            var user = await response.Content.ReadFromJsonAsync<UserDetails>();
-            var clientResponse = _mapper.Map<UserDetails, UserDetailsClientResponse>(user);
-
-            return clientResponse;
-        }
         
-        public async Task<Guid> Register(UserRegisterClientRequest registerClientRequest, CancellationToken cancellation)
+        public async Task<Guid> RegisterAsync(UserRegisterClientRequest registerClientRequest, CancellationToken cancellation)
         {
             var registerRequest = _mapper.Map<UserRegisterClientRequest, UserRegisterRequest>(registerClientRequest);
 
@@ -93,7 +74,7 @@ namespace Identity.Clients.Users
             return userId;
         }
 
-        public async Task<TokenResponse> Login(UserLoginClientRequest loginClientRequest, /*string IdentityClientId, string IdentityScopeName, */CancellationToken cancellation)
+        public async Task<TokenResponse> LoginAsync(UserLoginClientRequest loginClientRequest, /*string IdentityClientId, string IdentityScopeName, */CancellationToken cancellation)
         {
             //var loginRequest = _mapper.Map<UserLoginClientRequest, UserLoginRequest>(loginClientRequest);
 
@@ -119,7 +100,7 @@ namespace Identity.Clients.Users
             return response;
         }
 
-        public async Task<UserDetailsClientResponse> Update(Guid id, UserUpdateClientRequest updateClientRequest, CancellationToken cancellation)
+        public async Task<UserDetailsClientResponse> UpdateAsync(Guid id, UserUpdateClientRequest updateClientRequest, CancellationToken cancellation)
         {
             var updateRequest = _mapper.Map<UserUpdateClientRequest, UserUpdateRequest>(updateClientRequest);
 
@@ -133,7 +114,7 @@ namespace Identity.Clients.Users
             return clientResponse;
         }
 
-        public async Task Delete(Guid id, CancellationToken cancellation)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellation)
         {
             var uri = $"v1/user/{id.ToString()}";
             using var response = await _httpClient.DeleteAsync(uri,cancellation);
@@ -177,7 +158,7 @@ namespace Identity.Clients.Users
 
         public async Task ConfirmEmailAsync(UserEmailConfirmClientRequest clientRequest, CancellationToken cancellation)
         {
-            var request = _mapper.Map<UserEmailConfirmClientRequest, UserEmailConfirmRequest>(clientRequest);
+            var request = _mapper.Map<UserEmailConfirmClientRequest, UserConfirmEmailRequest>(clientRequest);
 
             var uri = $"v1/user/confirm-email";
             using var response = await _httpClient.PostAsJsonAsync(uri, request, cancellation);

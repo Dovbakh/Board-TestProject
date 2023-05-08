@@ -1,8 +1,15 @@
 using FileStorage.Infrastructure.Registrar;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Host.UseSerilog((context, services, configuration) =>
+                configuration.ReadFrom.Configuration(context.Configuration)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.Seq("http://localhost:5345"));
+
 builder.Services.AddServiceRegistrationModule();
 
 

@@ -120,7 +120,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
                 throw new KeyNotFoundException($"Не найдено обьявление с ID: {id}");
             }
 
-            var user = await _userService.GetById(advert.UserId, cancellation);
+            var user = await _userService.GetByIdAsync(advert.UserId, cancellation);
 
             if (user == null)
             {
@@ -143,7 +143,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
                 throw new ArgumentException($"Модель создания обьявления не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
             }
 
-            var currentUser = await _userService.GetCurrent(cancellation);
+            var currentUser = await _userService.GetCurrentAsync(cancellation);
             if(currentUser == null)
             {
                 throw new UnauthorizedAccessException($"При создании обьявления пользователь должен быть авторизован.");
@@ -187,7 +187,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
 
 
             var currentAdvert = await _advertRepository.GetByIdAsync(id, cancellation);
-            var currentUser = await _userService.GetCurrent(cancellation);
+            var currentUser = await _userService.GetCurrentAsync(cancellation);
             if (currentUser.Id != currentAdvert.UserId)
             {
                 throw new ForbiddenException($"Обновить обьявление может только его владелец. Текущий пользователь имеет ID: {currentUser.Id}");
@@ -218,7 +218,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
                 nameof(SoftDeleteAsync), id);
 
             var currentAdvert = await _advertRepository.GetByIdAsync(id, cancellation);
-            var currentUser = await _userService.GetCurrent(cancellation);
+            var currentUser = await _userService.GetCurrentAsync(cancellation);
             if (currentUser.Id != currentAdvert.UserId)
             {
                 throw new ForbiddenException($"Удалить обьявление может только владелец. Текущий пользователь имеет ID: {currentUser.Id}");

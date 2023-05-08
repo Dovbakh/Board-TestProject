@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace Board.Infrastructure.Repository
 {
+    /// <inheritdoc />
     public class CacheRepository<TEntity> : ICacheRepository<TEntity> where TEntity : class
     {
         private readonly IDistributedCache _distributedCache;
@@ -19,6 +20,7 @@ namespace Board.Infrastructure.Repository
             _distributedCache = distributedCache;
         }
 
+        /// <inheritdoc />
         public async Task<TEntity> GetById(string key, CancellationToken cancellation)
         {
             var cache = await _distributedCache.GetStringAsync(key, cancellation);
@@ -31,6 +33,7 @@ namespace Board.Infrastructure.Repository
             return null;
         }
 
+        /// <inheritdoc />
         public async Task SetWithSlidingTime(string key, TEntity entity, TimeSpan slidingTime, CancellationToken cancellation)
         {
             var options = new DistributedCacheEntryOptions()
@@ -39,6 +42,7 @@ namespace Board.Infrastructure.Repository
             await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity), options, cancellation);
         }
 
+        /// <inheritdoc />
         public async Task SetWithAbsoluteTime(string key, TEntity entity, TimeSpan absoluteTime, CancellationToken cancellation)
         {
             var options = new DistributedCacheEntryOptions()
@@ -47,6 +51,7 @@ namespace Board.Infrastructure.Repository
             await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(entity), options, cancellation);
         }
 
+        /// <inheritdoc />
         public async Task DeleteAsync(string key, CancellationToken cancellation)
         {
             try
@@ -60,7 +65,7 @@ namespace Board.Infrastructure.Repository
         }
     }
 
-
+    /// <inheritdoc />
     public class CacheRepository : ICacheRepository
     {
         private readonly IDistributedCache _distributedCache;
@@ -72,6 +77,7 @@ namespace Board.Infrastructure.Repository
             _logger = logger;
         }
 
+        /// <inheritdoc />
         public async Task<object> GetById(string key, Type type, CancellationToken cancellation)
         {
             _logger.LogInformation("{0} -> Получение ресурса из кэша с ключом: {1}. Тип: {2}",
@@ -97,6 +103,7 @@ namespace Board.Infrastructure.Repository
             }
         }
 
+        /// <inheritdoc />
         public async Task SetWithSlidingTime(string key, Type type, object entity, TimeSpan slidingTime, CancellationToken cancellation)
         {
             _logger.LogInformation("{0} -> Создание ресурса в кэше с ключом: {1}. Тип: {2}, данные: {3}, слайдовое время хранения: {4}",
@@ -115,6 +122,7 @@ namespace Board.Infrastructure.Repository
             }
         }
 
+        /// <inheritdoc />
         public async Task SetWithAbsoluteTime(string key, Type type, object entity, TimeSpan absoluteTime, CancellationToken cancellation)
         {
             _logger.LogInformation("{0} -> Создание ресурса в кэше с ключом: {1}. Тип: {2}, данные: {3}, абсолютное время хранения: {4}",
@@ -132,6 +140,8 @@ namespace Board.Infrastructure.Repository
                 _logger.LogWarning(ex, "{0} -> Не удалось подключение к серверу Redis.", nameof(SetWithAbsoluteTime));
             }
         }
+
+        /// <inheritdoc />
         public async Task DeleteAsync(string key, CancellationToken cancellation)
         {
             _logger.LogInformation("{0} -> Инвалидация ресурса из кэша с ключом: {1}",

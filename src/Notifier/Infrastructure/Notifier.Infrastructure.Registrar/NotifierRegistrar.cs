@@ -16,5 +16,16 @@ namespace Notifier.Infrastructure.Registrar
 
             return services;
         }
+
+        //public static ConfigureHostBuilder AddCustomLogger(this ConfigureHostBuilder hostBuilder, ConfigurationManager configuration)
+        //{
+        //    hostBuilder.UseSerilog((context, services, configuration) =>
+        //        configuration.ReadFrom.Configuration(context.Configuration)
+        //        .Enrich.FromLogContext()
+        //        .WriteTo.Console()
+        //        .WriteTo.Seq("http://localhost:5345"));
+
+        //    return hostBuilder;
+        //}
     }
 }

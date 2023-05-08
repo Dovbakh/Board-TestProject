@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Identity.Contracts.Contexts.Users
 {
-    public class UserEmailConfirmRequest
+    public class UserConfirmEmailRequest
     {
         public string Email { get; set; }
         public string Token { get; set; }

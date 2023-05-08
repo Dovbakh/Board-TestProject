@@ -11,6 +11,7 @@
     <PackageReference Include="IdentityServer4" Version="4.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
+    <PackageReference Include="RedLock.net" Version="2.3.2" />
   </ItemGroup>
 
   <ItemGroup>

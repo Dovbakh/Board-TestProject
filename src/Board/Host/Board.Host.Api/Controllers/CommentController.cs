@@ -107,21 +107,6 @@ namespace Board.Host.Api.Controllers
 
 
         /// <summary>
-        /// Частично изменить комментарий.
-        /// </summary>
-        /// <param name="id">Идентификатор комментария.</param>
-        /// <param name="updateRequest">Элемент <see cref="CommentUpdateRequest"/>.</param>
-        /// <param name="cancellation">Токен отмены.</param>
-        [HttpPatch("{id:Guid}")]
-        [Authorize]
-        public async Task<ActionResult<CommentDetails>> Patch(Guid id, [FromBody] JsonPatchDocument<CommentUpdateRequest> updateRequest, CancellationToken cancellation)
-        {
-            var result = await _commentService.PatchAsync(id, updateRequest, cancellation);
-
-            return Ok(result);
-        }
-
-        /// <summary>
         /// Удалить комментарий.
         /// </summary>
         /// <param name="id">Идентификатор комментария.</param>

@@ -51,13 +51,6 @@ namespace Board.Application.AppData.Contexts.Comments.Services
         /// <param name="cancellation">Токен отмены.</param>
         Task<CommentDetails> UpdateAsync(Guid id, CommentUpdateRequest updateRequest, CancellationToken cancellation);
 
-        /// <summary>
-        /// Изменить категорию.
-        /// </summary>
-        /// <param name="id">Идентификатор категории.</param>
-        /// <param name="updateRequest">Элемент <see cref="CommentUpdateRequest"/>.</param>
-        /// <param name="cancellation">Токен отмены.</param>
-        Task<CommentDetails> PatchAsync(Guid id, JsonPatchDocument<CommentUpdateRequest> updateRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Удалить категорию.

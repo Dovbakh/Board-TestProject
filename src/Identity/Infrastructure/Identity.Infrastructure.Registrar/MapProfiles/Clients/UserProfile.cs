@@ -20,7 +20,7 @@ namespace Identity.Infrastructure.Registrar.MapProfiles.Clients
             CreateMap<UserDetails, UserDetailsClientResponse>();
             CreateMap<UserGenerateEmailTokenClientRequest, UserGenerateEmailTokenRequest>();
             CreateMap<UserChangeEmailClientRequest, UserChangeEmailRequest>();
-            CreateMap<UserEmailConfirmClientRequest, UserEmailConfirmRequest>();
+            CreateMap<UserEmailConfirmClientRequest, UserConfirmEmailRequest>();
             CreateMap<UserGenerateEmailConfirmationTokenClientRequest, UserGenerateEmailConfirmationTokenRequest>();
             
         }

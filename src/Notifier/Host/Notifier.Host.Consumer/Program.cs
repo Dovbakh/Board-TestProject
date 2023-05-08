@@ -1,8 +1,16 @@
 using MassTransit;
 using Notifier.Application.AppData.Contexts.Messages.Services;
 using Notifier.Host.Consumer;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, services, configuration) =>
+                configuration.ReadFrom.Configuration(context.Configuration)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.Seq("http://localhost:5345"));
+
 builder.Services.AddScoped<IMessageService, MessageService>();
 
 builder.Services.AddMassTransit(mt => mt.AddMassTransit(x => {

@@ -26,6 +26,12 @@ using Microsoft.IdentityModel.Tokens;
 using Identity.Application.AppData;
 using FluentValidation;
 using Identity.Application.AppData.Helpers;
+using RedLockNet.SERedis.Configuration;
+using RedLockNet.SERedis;
+using RedLockNet;
+using StackExchange.Redis;
+using Microsoft.AspNetCore.Builder;
+using Serilog;
 
 namespace Identity.Infrastructure.Registrar
 {
@@ -51,6 +57,12 @@ namespace Identity.Infrastructure.Registrar
             services.AddHttpContextAccessor();
 
             services.AddValidatorsFromAssembly(typeof(UserLoginValidator).Assembly);
+
+            services.AddSingleton<IDistributedLockFactory, RedLockFactory>(x =>
+                RedLockFactory.Create(new List<RedLockMultiplexer>
+                {
+                    ConnectionMultiplexer.Connect("localhost:6379")
+                }));
 
             return services;
         }
@@ -99,6 +111,16 @@ namespace Identity.Infrastructure.Registrar
                     });
 
             return services;
+        }
+        public static ConfigureHostBuilder AddCustomLogger(this ConfigureHostBuilder hostBuilder, ConfigurationManager configuration)
+        {
+            hostBuilder.UseSerilog((context, services, configuration) =>
+                configuration.ReadFrom.Configuration(context.Configuration)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .WriteTo.Seq("http://localhost:5345"));
+
+            return hostBuilder;
         }
 
         private static MapperConfiguration GetMapperConfiguration()
