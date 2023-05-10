@@ -1,4 +1,4 @@
-﻿using Board.Contracts.Contexts.Adverts;
+﻿using Board.Contracts.Contexts.AdvertFavorites;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +11,6 @@ namespace Board.Application.AppData.Contexts.AdvertFavorites.Services
     {
         Task<Guid> AddAsync(Guid advertId, Guid userId, CancellationToken cancellation);
         Task DeleteAsync(Guid advertFavoriteId, CancellationToken cancellation);
-        Task<IReadOnlyCollection<AdvertSummary>> GetAllByUserIdAsync(Guid userId, CancellationToken cancellation);
+        Task<IReadOnlyCollection<AdvertFavoriteSummary>> GetAllByUserIdAsync(Guid userId, CancellationToken cancellation);
     }
 }

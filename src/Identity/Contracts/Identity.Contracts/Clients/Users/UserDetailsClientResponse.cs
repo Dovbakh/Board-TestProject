@@ -29,5 +29,7 @@ namespace Identity.Contracts.Clients.Users
         /// </summary>
         public DateTime CreatedAt { get; set; }
 
+        public Guid? PhotoId { get; set; }
+
     }
 }

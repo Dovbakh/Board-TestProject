@@ -38,8 +38,8 @@ using Identity.Infrastructure.Registrar;
 using Board.Application.AppData.Contexts.Users;
 using FluentValidation;
 using Board.Application.AppData.Contexts.Users.Helpers;
-using Board.Application.AppData.Contexts.Files.Services;
-using FileStorage.Clients.Contexts.Files;
+using Board.Application.AppData.Contexts.Images.Services;
+using FileStorage.Clients.Contexts.Images;
 using FileStorage.Infrastructure.Registrar;
 using SixLabors.ImageSharp;
 using Board.Application.AppData.Contexts.Notifications.Services;
@@ -51,6 +51,12 @@ using StackExchange.Redis;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Templates;
+using Board.Application.AppData.Contexts.AdvertViews.Services;
+using Board.Application.AppData.Contexts.AdvertFavorites.Services;
+using Board.Application.AppData.Contexts.AdvertViews.Repositories;
+using Board.Infrastructure.DataAccess.Contexts.AdvertViews.Repositories;
+using Board.Application.AppData.Contexts.AdvertFavorites.Repositories;
+using Board.Infrastructure.DataAccess.Contexts.AdvertFavorites.Repositories;
 
 namespace Board.Infrastructure.Registrar
 {
@@ -78,6 +84,9 @@ namespace Board.Infrastructure.Registrar
             //services.AddScoped<IFileRepository, FileRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IAdvertImageRepository, AdvertImageRepository>();
+            services.AddScoped<IAdvertViewRepository, AdvertViewRepository>();
+            services.AddScoped<IAdvertFavoriteRepository, AdvertFavoriteRepository>();
+
             #endregion
 
             //// Регистрация application-сервисов
@@ -87,6 +96,8 @@ namespace Board.Infrastructure.Registrar
             //services.AddScoped<IFileService, FileService>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IAdvertViewService, AdvertViewService>();
+            services.AddScoped<IAdvertFavoriteService, AdvertFavoriteService>();
             //services.AddScoped<INotifierService, EmailService>();
 
             //// Регистрация вспомогательных сервисов
@@ -106,7 +117,7 @@ namespace Board.Infrastructure.Registrar
             //services.AddTransient<IValidator<CommentUpdateRequestDto>, CommentUpdateValidator>();
 
 
-            services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IImageService, ImageService>();
 
             //services.AddSingleton<IMapper>(new Mapper(new MapperConfiguration
             //    (a =>
@@ -291,7 +302,7 @@ namespace Board.Infrastructure.Registrar
             services.Configure<FileClientOptions>(configuration.GetSection("FileApiClientOptions"));
 
             services.AddHttpClient<IUserClient, UserClient>(ConfigureUserHttpClient);
-            services.AddHttpClient<IFileClient, FileClient>(ConfigureFileHttpClient);
+            services.AddHttpClient<IImageClient, ImageClient>(ConfigureFileHttpClient);
 
             return services;
         }

@@ -139,7 +139,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
             _logger.LogInformation("{0} -> Создание комментария из модели {1}: {2}",
                 nameof(AddAsync), nameof(CategoryAddRequest), JsonConvert.SerializeObject(addRequest));
 
-            var newEntity = _mapper.Map<CommentAddRequest, Comment>(addRequest);
+            var newComment = _mapper.Map<CommentAddRequest, Comment>(addRequest);
 
 
             var resource = $"{CreateCommentKey}_{addRequest.AdvertisementId}_{addRequest.UserId}_{addRequest.AuthorId}";
@@ -150,22 +150,22 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
             {
                 if (redLock.IsAcquired)
                 {
-                    var comment = await _repository.GetAll()
+                    var existingComment = await _repository.GetAll()
                         .Where(c => c.AuthorId == addRequest.AuthorId)
                         .Where(c => c.UserId == addRequest.UserId)
                         .Where(c => c.AdvertisementId == addRequest.AdvertisementId)
                         .FirstOrDefaultAsync(cancellation);
 
-                    if (comment != null)
+                    if (existingComment != null)
                     {
                         throw new ArgumentException("Отзыв к этому обьявлению уже существует.");
                     }
 
-                    await _repository.AddAsync(newEntity, cancellation);
+                    await _repository.AddAsync(newComment, cancellation);
                 }
             }
 
-            return newEntity.Id;
+            return newComment.Id;
         }
 
         /// <inheritdoc />

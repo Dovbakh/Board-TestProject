@@ -72,6 +72,11 @@
             <param name="id">Идентификатор обьявления.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
+        <member name="T:Board.Host.Api.Controllers.AdvertViewController">
+            <summary>
+            Работа с обьявлениями.
+            </summary>
+        </member>
         <member name="T:Board.Host.Api.Controllers.CategoryController">
             <summary>
             Контроллер для работы с категориями.
@@ -195,19 +200,19 @@
             <param name="id">Идентификатор комментария.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
-        <member name="T:Board.Host.Api.Controllers.FileController">
+        <member name="T:Board.Host.Api.Controllers.ImageController">
             <summary>
             Работа с пользователями.
             </summary>
         </member>
-        <member name="M:Board.Host.Api.Controllers.FileController.#ctor(Board.Application.AppData.Contexts.Files.Services.IFileService,Microsoft.Extensions.Logging.ILogger{Board.Host.Api.Controllers.FileController})">
+        <member name="M:Board.Host.Api.Controllers.ImageController.#ctor(Board.Application.AppData.Contexts.Images.Services.IImageService,Microsoft.Extensions.Logging.ILogger{Board.Host.Api.Controllers.ImageController})">
             <summary>
             Работа с обьявлениями.
             </summary>
             <param name="advertisementService">Сервис для работы с обьявлениями.</param>
             <param name="logger">Логгер.</param>
         </member>
-        <member name="M:Board.Host.Api.Controllers.FileController.GetInfo(System.Guid,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.ImageController.GetInfo(System.Guid,System.Threading.CancellationToken)">
             <summary>
             Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
             </summary>
@@ -216,7 +221,7 @@
             <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Adverts.AdvertSummary"/>.</returns>
             <response code="200">Запрос выполнен успешно.</response>
         </member>
-        <member name="M:Board.Host.Api.Controllers.FileController.Upload(Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.ImageController.Upload(Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
             <summary>
             Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
             </summary>
@@ -225,7 +230,7 @@
             <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Adverts.AdvertSummary"/>.</returns>
             <response code="200">Запрос выполнен успешно.</response>
         </member>
-        <member name="M:Board.Host.Api.Controllers.FileController.Download(System.Guid,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.ImageController.Download(System.Guid,System.Threading.CancellationToken)">
             <summary>
             Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
             </summary>
@@ -234,7 +239,7 @@
             <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Adverts.AdvertSummary"/>.</returns>
             <response code="200">Запрос выполнен успешно.</response>
         </member>
-        <member name="M:Board.Host.Api.Controllers.FileController.Delete(System.Guid,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.ImageController.Delete(System.Guid,System.Threading.CancellationToken)">
             <summary>
             Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
             </summary>
@@ -254,7 +259,7 @@
             </summary>
             <param name="userService">Сервис для работы с пользователями.</param>
         </member>
-        <member name="M:Board.Host.Api.Controllers.UserController.GetAll(System.Int32,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.UserController.GetAll(System.Nullable{System.Int32},System.Nullable{System.Int32},System.Threading.CancellationToken)">
             <summary>
             Получить список всех пользователей с пагинацией.
             </summary>

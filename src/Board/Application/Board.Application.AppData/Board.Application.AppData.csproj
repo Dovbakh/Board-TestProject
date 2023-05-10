@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\..\Notifier\Contracts\Notifier.Contracts\Notifier.Contracts.csproj" />
     <ProjectReference Include="..\..\Contracts\Board.Contracts\Board.Contracts.csproj" />
     <ProjectReference Include="..\..\Domain\Board.Domain\Board.Domain.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Board.Infrastructure\Board.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

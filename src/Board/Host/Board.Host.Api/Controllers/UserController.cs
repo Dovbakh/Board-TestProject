@@ -36,7 +36,7 @@ namespace Board.Host.Api.Controllers
         /// <returns>Коллекция элементов <see cref="UserSummary"/>.</returns>
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<ActionResult<IReadOnlyCollection<UserSummary>>> GetAll(int offset, int count, CancellationToken cancellation)
+        public async Task<ActionResult<IReadOnlyCollection<UserSummary>>> GetAll(int? offset, int? count, CancellationToken cancellation)
         {
             var users = await _userService.GetAllAsync(offset, count, cancellation);
 
@@ -137,9 +137,9 @@ namespace Board.Host.Api.Controllers
         [Authorize]
         public async Task<IActionResult> SendEmailConfirmationTokenAsync([FromBody] UserGenerateEmailConfirmationTokenRequest request, CancellationToken cancellation)
         {
-            var changeLink = Url.Action(nameof(ConfirmEmail), "User", new { email = request.Email, token = "tokenValue" }, Request.Scheme);
+            var confirmLink = Url.Action(nameof(ConfirmEmail), "User", new { email = request.Email, token = "tokenValue" }, Request.Scheme);
 
-            await _userService.SendEmailConfirmationTokenAsync(request, changeLink, cancellation);
+            await _userService.SendEmailConfirmationTokenAsync(request, confirmLink, cancellation);
 
             return Ok();
         }
@@ -257,6 +257,8 @@ namespace Board.Host.Api.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<Guid>> Register(UserRegisterRequest registerRequest, CancellationToken cancellation)
         {
+            var confirmLink = Url.Action(nameof(ConfirmEmail), "User", new { email = registerRequest.Email, token = "tokenValue" }, Request.Scheme);
+
             var userId = await _userService.RegisterAsync(registerRequest, cancellation);
 
             return Ok(userId);

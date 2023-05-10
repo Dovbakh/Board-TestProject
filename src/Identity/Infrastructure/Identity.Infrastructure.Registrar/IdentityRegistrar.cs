@@ -91,7 +91,6 @@ namespace Identity.Infrastructure.Registrar
                         options.ConfigureDbContext = b =>
                         b.UseNpgsql(connectionString);
                     })
-
                     .AddDeveloperSigningCredential()
                     .AddAspNetIdentity<User>();
 
@@ -100,16 +99,30 @@ namespace Identity.Infrastructure.Registrar
 
         public static IServiceCollection AddAuthenticationServices(this IServiceCollection services)
         {
-            
-                services.AddAuthentication()
-                
-                    .AddGoogle(options =>
-                    {
-                        options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-                        options.ClientId = "914154221715-a1cbcguiqj50g0kaminlqarpcj5uru3i.apps.googleusercontent.com";
-                        options.ClientSecret = "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";
-                    });
+            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)            
+                .AddIdentityServerAuthentication(options =>
+                {
+                    options.Authority = "https://localhost:7157";
+                    //options.ApiName = "Board.Web";
+                    options.RequireHttpsMetadata = false;
 
+                })
+                .AddGoogle(options =>
+                {
+                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                    options.ClientId = "914154221715-a1cbcguiqj50g0kaminlqarpcj5uru3i.apps.googleusercontent.com";
+                    options.ClientSecret = "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";
+                }); 
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("ApiScope", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim("scope", "Board.Web");
+                });
+            });             
+                    
             return services;
         }
         public static ConfigureHostBuilder AddCustomLogger(this ConfigureHostBuilder hostBuilder, ConfigurationManager configuration)

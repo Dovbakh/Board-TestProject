@@ -12,6 +12,7 @@ using Identity.Infrastructure.DataAccess.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Options;
+using IdentityServer4.AccessTokenValidation;
 
 var seed = args.Contains("/seed");
 if (seed)
@@ -32,6 +33,8 @@ builder.Services.AddAspNetIdentityServices();
 builder.Services.AddIdentityServerServices(config);
 builder.Services.AddAuthenticationServices();
 
+
+
 //builder.Services.AddAuthorization();
 builder.Services.AddControllersWithViews();
 
@@ -41,7 +44,7 @@ app.UseStaticFiles(); //delete?
 app.UseRouting();
 
 app.UseIdentityServer();
-//app.UseAuthentication();
+app.UseAuthentication(); //
 app.UseAuthorization();
 app.UseEndpoints(endpoints =>
 {

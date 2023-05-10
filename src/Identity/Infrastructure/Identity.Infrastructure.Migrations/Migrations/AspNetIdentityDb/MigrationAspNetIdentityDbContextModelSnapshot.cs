@@ -17,7 +17,7 @@ namespace Identity.Infrastructure.Migrations.Migrations.AspNetIdentityDb
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.3")
+                .HasAnnotation("ProductVersion", "6.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -75,6 +75,9 @@ namespace Identity.Infrastructure.Migrations.Migrations.AspNetIdentityDb
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
+
+                    b.Property<Guid>("PhotoId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");

@@ -27,5 +27,7 @@ namespace Identity.Domain
         public DateTime CreatedAt { get; set; }
 
         public bool isActive { get; set; }
+
+        public Guid PhotoId { get; set; }
     }
 }

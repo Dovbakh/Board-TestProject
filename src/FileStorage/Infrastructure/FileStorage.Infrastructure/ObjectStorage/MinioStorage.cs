@@ -23,8 +23,9 @@ namespace FileStorage.Infrastructure.ObjectStorage
         public MinioStorage(IConfiguration configuration, ILogger<MinioStorage> logger)
         {
             _configuration = configuration;
-            _storage = CreateStorage();
             _logger = logger;
+            _storage = CreateStorage();
+            
         }
 
         /// <inheritdoc />
@@ -55,7 +56,7 @@ namespace FileStorage.Infrastructure.ObjectStorage
             {
                 if (ex is ObjectNotFoundException)
                 {
-                    throw new KeyNotFoundException($"Обьект с именем {objectName} не найден.");
+                    return null;
                 }
 
                 throw new Exception("Ошибка при работе с обьектным хранилищем.", ex);
@@ -90,7 +91,7 @@ namespace FileStorage.Infrastructure.ObjectStorage
             {
                 if (ex is ObjectNotFoundException)
                 {
-                    throw new KeyNotFoundException($"Обьект с именем {objectName} не найден.");
+                    return null;
                 }
 
                 throw new Exception("Ошибка при работе с обьектным хранилищем.", ex);
@@ -167,8 +168,8 @@ namespace FileStorage.Infrastructure.ObjectStorage
         private MinioClient CreateStorage()
         {          
             var endpoint = "127.0.0.1:9000"; // _configuration.GetSection(MinioAccessName).GetRequiredSection("Endpoint").Value;
-            var accessKey = "F0XUA4t6ERfJd0tM"; // _configuration.GetSection(MinioAccessName).GetRequiredSection("AccessKey").Value;
-            var secretKey = "ghZPAqEdKuEMCx04VApe6Aes6dci6zg7"; // _configuration.GetSection(MinioAccessName).GetRequiredSection("SecretKey").Value;
+            var accessKey = "solarvito"; // _configuration.GetSection(MinioAccessName).GetRequiredSection("AccessKey").Value;
+            var secretKey = "solarvito123"; // _configuration.GetSection(MinioAccessName).GetRequiredSection("SecretKey").Value;
             _logger.LogInformation("{0} -> Создание соединения с сервером MinIO: {1}",
                 nameof(Delete), endpoint);
 

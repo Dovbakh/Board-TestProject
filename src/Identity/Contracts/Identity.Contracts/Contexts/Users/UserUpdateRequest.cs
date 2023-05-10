@@ -22,5 +22,7 @@ namespace Identity.Contracts.Contexts.Users
         /// Адрес пользователя.
         /// </summary>
         public string? Address { get; set; }
+
+        public Guid? PhotoId { get; set; }
     }
 }

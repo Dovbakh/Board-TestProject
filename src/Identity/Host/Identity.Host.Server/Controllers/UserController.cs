@@ -13,7 +13,7 @@ namespace Identity.Host.Server.Controllers
     [ApiController]
     [Route("v1/[controller]")]
     [Produces("application/json")]
-    [AllowAnonymous] // TODO: удалить
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiConventionType(typeof(AppConventions))]
     public class UserController : ControllerBase
     {
@@ -36,8 +36,7 @@ namespace Identity.Host.Server.Controllers
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Коллекция элементов <see cref="UserSummary"/>.</returns>
         [HttpGet]
-        //[Authorize]
-        public async Task<ActionResult<IReadOnlyCollection<UserSummary>>> GetAll(int offset, int count, CancellationToken cancellation)
+        public async Task<ActionResult<IReadOnlyCollection<UserSummary>>> GetAll(int? offset, int? count, CancellationToken cancellation)
         {
             var users = await _userService.GetAllAsync(offset, count, cancellation);
 
@@ -64,8 +63,7 @@ namespace Identity.Host.Server.Controllers
         /// </summary>
         /// <param name="id">Идентификатор пользователя.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        [HttpPut("{id:Guid}")]
-        [Authorize]
+        [HttpPut("{id:Guid}")]       
         public async Task<ActionResult<UserDetails>> Update(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellation)
         {
             var updatedUser = await _userService.UpdateAsync(id, updateRequest, cancellation);
@@ -82,7 +80,6 @@ namespace Identity.Host.Server.Controllers
         [HttpPost("change-email")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize]
         public async Task<IActionResult> ChangeEmail([FromBody]UserChangeEmailRequest request, CancellationToken cancellation)
         {
             await _userService.ChangeEmailAsync(request, cancellation);
@@ -99,7 +96,6 @@ namespace Identity.Host.Server.Controllers
         [HttpPost("confirm-email")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize]
         public async Task<IActionResult> ConfirmEmail([FromBody] UserConfirmEmailRequest request, CancellationToken cancellation)
         {
             await _userService.ConfirmEmailAsync(request, cancellation);
@@ -115,7 +111,6 @@ namespace Identity.Host.Server.Controllers
         [HttpPost("generate-email-token")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize]
         public async Task<ActionResult<EmailChangeToken>> GenerateEmailTokenAsync([FromBody] UserGenerateEmailTokenRequest request, CancellationToken cancellation)
         {
             var token = await _userService.GenerateEmailTokenAsync(request, cancellation);
@@ -131,7 +126,6 @@ namespace Identity.Host.Server.Controllers
         [HttpPost("generate-email-confirmation-token")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize]
         public async Task<ActionResult<EmailConfirmationToken>> GenerateEmailConfirmationTokenAsync([FromBody] UserGenerateEmailConfirmationTokenRequest request, CancellationToken cancellation)
         {
             var token = await _userService.GenerateEmailConfirmationTokenAsync(request, cancellation);
@@ -215,7 +209,6 @@ namespace Identity.Host.Server.Controllers
         [HttpDelete("{id:Guid}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellation)
         {
             await _userService.DeleteAsync(id, cancellation);
@@ -255,8 +248,5 @@ namespace Identity.Host.Server.Controllers
 
             return Ok(token);
         }
-
-
-
     }
 }

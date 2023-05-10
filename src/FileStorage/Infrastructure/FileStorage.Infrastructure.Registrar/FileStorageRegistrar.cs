@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using FileStorage.Application.AppData.Contexts.Files.Repositories;
-using FileStorage.Application.AppData.Contexts.Files.Services;
-using FileStorage.Infrastructure.DataAccess.Contexts.Files.Repositories;
+using FileStorage.Application.AppData.Contexts.Images.Repositories;
+using FileStorage.Application.AppData.Contexts.Images.Services;
+using FileStorage.Infrastructure.DataAccess.Contexts.Images.Repositories;
 using FileStorage.Infrastructure.ObjectStorage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
@@ -11,6 +11,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using FluentValidation;
+using Identity.Application.AppData.Contexts.Images.Helpers;
 
 namespace FileStorage.Infrastructure.Registrar
 {
@@ -18,13 +20,15 @@ namespace FileStorage.Infrastructure.Registrar
     {
         public static IServiceCollection AddServiceRegistrationModule(this IServiceCollection services)
         {
-            services.AddScoped<IFileRepository, FileRepository>();
+            services.AddScoped<IImageRepository, ImageRepository>();
 
-            services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IImageService, ImageService>();
 
             services.AddScoped<IObjectStorage, MinioStorage>();
 
             services.AddSingleton<IMapper>(new Mapper(GetMapperConfiguration()));
+
+            services.AddValidatorsFromAssembly(typeof(ImageUploadValidator).Assembly);
 
             return services;
         }

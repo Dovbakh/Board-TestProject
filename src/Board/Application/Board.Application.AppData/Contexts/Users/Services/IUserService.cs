@@ -52,7 +52,7 @@ namespace Board.Application.AppData.Contexts.Users.Services
         /// <returns>Элемент <see cref="UserDetails"/></returns>
         Task<UserDetails> GetCurrentAsync(CancellationToken cancellationToken);
 
-        Task<Guid> GetCurrentIdAsync(CancellationToken cancellationToken);
+        Guid GetCurrentId(CancellationToken cancellationToken);
 
         /// <summary>
         /// Изменить пользователя.

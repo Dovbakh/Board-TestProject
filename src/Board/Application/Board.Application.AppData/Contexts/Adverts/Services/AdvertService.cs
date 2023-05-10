@@ -2,7 +2,7 @@
 using Board.Application.AppData.Contexts.AdvertImages.Repositories;
 using Board.Application.AppData.Contexts.Adverts.Repositories;
 using Board.Application.AppData.Contexts.Adverts.Services;
-using Board.Application.AppData.Contexts.Files.Services;
+using Board.Application.AppData.Contexts.Images.Services;
 using Board.Application.AppData.Contexts.Users.Services;
 using Board.Contracts.Contexts.AdvertImages;
 using Board.Contracts.Contexts.Adverts;
@@ -23,6 +23,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using Board.Contracts.Exceptions;
+using Board.Application.AppData.Contexts.AdvertViews.Services;
 
 namespace Board.Application.AppData.Contexts.Adverts.Services
 {
@@ -31,8 +32,9 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
     {
         private readonly IAdvertRepository _advertRepository;
         private readonly IAdvertImageRepository _advertImageRepository;
+        private readonly IAdvertViewService _advertViewService;
         private readonly IUserService _userService;
-        private readonly IFileService _fileService;
+        private readonly IImageService _fileService;
         private readonly IMapper _mapper;
         private readonly IValidator<AdvertAddRequest> _advertAddValidator;
         private readonly IValidator<AdvertUpdateRequest> _advertUpdateValidator;
@@ -42,8 +44,8 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
 
 
         public AdvertService(IAdvertRepository advertRepository, IMapper mapper, IValidator<AdvertAddRequest> advertAddValidator,
-            IValidator<AdvertUpdateRequest> advertUpdateValidator, IAdvertImageRepository advertImageRepository, IUserService userService, IFileService fileService,
-            IConfiguration configuration, ILogger<AdvertService> logger)
+            IValidator<AdvertUpdateRequest> advertUpdateValidator, IAdvertImageRepository advertImageRepository, IUserService userService, IImageService fileService,
+            IConfiguration configuration, ILogger<AdvertService> logger, IAdvertViewService advertViewService)
         {
             _advertRepository = advertRepository;
             _mapper = mapper;
@@ -54,6 +56,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
             _fileService = fileService;
             _configuration = configuration;
             _logger = logger;
+            _advertViewService = advertViewService;
         }
 
         /// <inheritdoc />
@@ -148,13 +151,12 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
             {
                 throw new UnauthorizedAccessException($"При создании обьявления пользователь должен быть авторизован.");
             }
-
             addRequest.UserId = currentUser.Id.GetValueOrDefault();
 
             foreach (var imageId in addRequest.AdvertImagesId)
             {
-                var fileInfo = _fileService.GetInfoAsync(imageId, cancellation);
-                if(fileInfo == null)
+                var isImageExists = await _fileService.IsImageExists(imageId, cancellation);
+                if(!isImageExists)
                 {
                     throw new KeyNotFoundException($"На файловом сервисе не найдено изображение с ID: {imageId}, указанное в модели создания обьявления.");
                 }
@@ -167,8 +169,8 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
                 var imageAddRequest = new AdvertImageAddRequest { AdvertId = newAdvertId, FileId = imageId };
                 await _advertImageRepository.AddAsync(imageAddRequest, cancellation);
             }
-            
-            // TODO: если обьявление не добавилось, то удалить картинки?
+
+            await _advertViewService.AddAsync(newAdvertId, cancellation);          
 
             return newAdvertId;
         }

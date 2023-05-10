@@ -126,6 +126,10 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
             {
                 user.Address = updateRequest.Address;
             }
+            if (updateRequest.PhotoId.HasValue)
+            {
+                user.PhotoId = updateRequest.PhotoId.Value;
+            }
 
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)

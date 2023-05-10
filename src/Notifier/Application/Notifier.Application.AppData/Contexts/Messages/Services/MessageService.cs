@@ -27,8 +27,8 @@ namespace Notifier.Application.AppData.Contexts.Messages.Services
         /// <inheritdoc />
         public async Task SendAsync(NotificationDetails message, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Отправление сообщения из указанной модели: {1}",
-                nameof(SendAsync), JsonConvert.SerializeObject(message));
+            _logger.LogInformation("{0} -> Отправление сообщения из указанной модели: {0}",
+                nameof(SendAsync) /*,JsonConvert.SerializeObject(message)*/);
 
             var senderEmail = _configuration.GetSection("EmailService").GetSection("EmailUsername").Value;
             var senderPassword = _configuration.GetSection("EmailService").GetSection("EmailPassword").Value;

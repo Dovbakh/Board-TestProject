@@ -36,7 +36,8 @@ namespace Identity.Infrastructure.Registrar.MapProfiles.Contexts
                 .ForMember(a => a.TwoFactorEnabled, map => map.Ignore())
                 .ForMember(a => a.LockoutEnd, map => map.Ignore())
                 .ForMember(a => a.LockoutEnabled, map => map.Ignore())
-                .ForMember(a => a.AccessFailedCount, map => map.Ignore());
+                .ForMember(a => a.AccessFailedCount, map => map.Ignore())
+                .ForMember(a => a.PhotoId, map => map.Ignore());
 
         }
     }

@@ -2,6 +2,7 @@
 using Identity.Contracts.Clients.Users;
 using Identity.Contracts.Contexts.Users;
 using IdentityModel.Client;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -22,12 +23,16 @@ namespace Identity.Clients.Users
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public UserClient(HttpClient httpClient, IConfiguration configuration, IMapper mapper)
+        public UserClient(HttpClient httpClient, IConfiguration configuration, IMapper mapper, IHttpContextAccessor contextAccessor)
         {
             _httpClient = httpClient;
             _configuration = configuration;
             _mapper = mapper;
+            _contextAccessor = contextAccessor;
+
+            SetToken();
         }
 
 
@@ -163,6 +168,16 @@ namespace Identity.Clients.Users
             var uri = $"v1/user/confirm-email";
             using var response = await _httpClient.PostAsJsonAsync(uri, request, cancellation);
             response.EnsureSuccessStatusCode();
+        }
+
+        private void SetToken()
+        {
+            var token = _contextAccessor.HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+            if (token == null)
+                return;
+
+            token = token.Replace("Bearer ", "");
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
     }
 }

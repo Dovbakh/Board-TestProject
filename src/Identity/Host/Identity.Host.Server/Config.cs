@@ -25,7 +25,8 @@ namespace Identity.Host.Server
             new ApiScope[]
             {
                 new ApiScope("Board.Host.Api"),
-                new ApiScope("Board.Web"),
+                new ApiScope("Board.Web")
+                //IdentityServerConstants.StandardScopes.OfflineAccess
             };
 
         public static IEnumerable<Client> Clients =>
@@ -59,8 +60,13 @@ namespace Identity.Host.Server
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
-                        "Board.Web"
-                    }
+                        "Board.Web",
+                        IdentityServerConstants.StandardScopes.OfflineAccess
+                    },
+
+                    AllowOfflineAccess = true,
+                    RefreshTokenUsage = TokenUsage.OneTimeOnly,
+                    RefreshTokenExpiration = TokenExpiration.Sliding
                 }
             };
 

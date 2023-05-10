@@ -32,5 +32,7 @@ namespace Board.Contracts.Contexts.Users
         /// </summary>
         public DateTime CreatedAt { get; set; }
 
+        public Guid? PhotoId { get; set; }
+
     }
 }

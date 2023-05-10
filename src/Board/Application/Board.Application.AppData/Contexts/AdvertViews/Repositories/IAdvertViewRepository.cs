@@ -8,7 +8,9 @@ namespace Board.Application.AppData.Contexts.AdvertViews.Repositories
 {
     public interface IAdvertViewRepository
     {
-        Task IncreaseCount(Guid advertId, CancellationToken cancellation);
-        Task<int> GetCount(Guid advertId, CancellationToken cancellation);
+        Task<int> GetCountAsync(Guid advertId, CancellationToken cancellation);
+        Task<Guid> AddAsync(Guid advertId, CancellationToken cancellation);
+        Task<int> UpdateCountAsync(Guid advertId, int count, CancellationToken cancellation);
+        
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Board.Application.AppData.Contexts.AdvertFavorites.Services;
+using Board.Contracts.Contexts.AdvertFavorites;
 using Board.Contracts.Contexts.Adverts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,11 +17,11 @@ namespace Board.Host.Api.Controllers
 
         [HttpGet("{userId:Guid}")]
         [AllowAnonymous]
-        public async Task<IReadOnlyCollection<AdvertSummary>> GetAllByUserIdAsync(Guid userId, CancellationToken cancellation)
+        public async Task<IReadOnlyCollection<AdvertFavoriteSummary>> GetAllByUserId(Guid userId, CancellationToken cancellation)
         {
             var favoriteList = await _advertFavoriteService.GetAllByUserIdAsync(userId, cancellation);
 
-            return (IReadOnlyCollection<AdvertSummary>)Ok(favoriteList);
+            return (IReadOnlyCollection<AdvertFavoriteSummary>)Ok(favoriteList);
         }
 
         [HttpDelete("{favoriteId:Guid}")]
