@@ -7,6 +7,7 @@ using Board.Contracts.Contexts.Users;
 using FluentValidation;
 using Identity.Clients.Users;
 using Identity.Contracts.Clients.Users;
+using IdentityModel.Client;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -131,16 +132,31 @@ namespace Board.Application.AppData.Contexts.Users.Services
 
             var claims = _contextAccessor.HttpContext.User.Claims;
             var claimId = claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+            if(claimId == null)
+            {
+                return Guid.Empty;
+            }
+
             var userId = Guid.Parse(claimId);
 
             return userId;
         }
 
+        public async Task<bool> isLogined(CancellationToken cancellationToken)
+        {
+            var token = _contextAccessor.HttpContext.Request.Headers["Authorization"];
+
+            var respose = await _userClient.IsLoginedAsync(cancellationToken);
+
+            return respose.IsActive;
+        }
+
         /// <inheritdoc />
-        public async Task<string> LoginAsync(UserLoginRequest loginRequest, CancellationToken cancellationToken)
+        public async Task<TokenResponse> LoginAsync(UserLoginRequest loginRequest, CancellationToken cancellationToken)
         {
             _logger.LogInformation("{0} -> Аутентификация пользователя с email: {1}",
-                nameof(LoginAsync), loginRequest.Email);
+                nameof(LoginAsync), loginRequest.UserName);
 
             var validationResult = _userLoginValidator.Validate(loginRequest);
             if (!validationResult.IsValid)
@@ -148,15 +164,46 @@ namespace Board.Application.AppData.Contexts.Users.Services
                 throw new ValidationException($"Модель аутентификации пользователя не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
             }
 
-            var loginClientRequest = _mapper.Map<UserLoginRequest, UserLoginClientRequest>(loginRequest);
-            var tokenResponse = await _userClient.LoginAsync(loginClientRequest, cancellationToken);
+            var tokenRequest = new PasswordTokenRequest
+            {
+                Address = _configuration.GetSection("IdentityServer").GetSection("Token").GetSection("Address").Value,
+                ClientId = _configuration.GetSection("IdentityServer").GetSection("Token").GetSection("ClientId").Value,
+                Scope = _configuration.GetSection("IdentityServer").GetSection("Token").GetSection("Scope").Value,
+                UserName = loginRequest.UserName,
+                Password = loginRequest.Password
+            };
+            var tokenResponse = await _userClient.LoginAsync(tokenRequest, cancellationToken);
 
             if(tokenResponse.IsError)
             {
                 throw new ArgumentException($"Ошибка при получении токена: {tokenResponse.ErrorDescription}");
             }
 
-            return tokenResponse.AccessToken;
+            return tokenResponse;
+        }
+
+        /// <inheritdoc />
+        public async Task<TokenResponse> LoginAsync(UserLoginRefreshRequest loginRefreshRequest, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("{0} -> Аутентификация пользователя с помощью рефреш-токена",
+                nameof(LoginAsync));
+
+            var tokenRequest = new RefreshTokenRequest
+            {
+                Address = _configuration.GetSection("IdentityServer").GetSection("Token").GetSection("Address").Value,
+                ClientId = _configuration.GetSection("IdentityServer").GetSection("Token").GetSection("ClientId").Value,
+                Scope = _configuration.GetSection("IdentityServer").GetSection("Token").GetSection("Scope").Value,
+                RefreshToken = loginRefreshRequest.refresh_token
+            };
+
+            var tokenResponse = await _userClient.LoginAsync(tokenRequest, cancellationToken);
+
+            if (tokenResponse.IsError)
+            {
+                throw new ArgumentException($"Ошибка при получении токена: {tokenResponse.ErrorDescription}");
+            }
+
+            return tokenResponse;
         }
 
         /// <inheritdoc />

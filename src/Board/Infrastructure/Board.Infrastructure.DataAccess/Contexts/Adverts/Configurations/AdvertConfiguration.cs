@@ -38,8 +38,9 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Configurations
                 .HasForeignKey(ai => ai.AdvertId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasOne(a => a.AdvertView)
+            builder.HasMany(a => a.AdvertViews)
                 .WithOne(av => av.Advert)
+                .HasForeignKey(av => av.AdvertId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
         }

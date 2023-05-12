@@ -11,7 +11,7 @@ namespace Identity.Contracts.Contexts.Users
         /// <summary>
         /// Логин пользователя.
         /// </summary>
-        public string Email { get; set; }
+        public string UserName { get; set; }
 
         /// <summary>
         /// Пароль пользователя.

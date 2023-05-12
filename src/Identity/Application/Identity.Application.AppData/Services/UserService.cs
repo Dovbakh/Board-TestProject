@@ -111,7 +111,7 @@ namespace Identity.Application.AppData.Services
         public async Task<string> LoginAsync(UserLoginRequest loginRequest, CancellationToken cancellationToken)
         {
             _logger.LogInformation("{0} -> Аутентификация пользователя с email: {1}",
-                nameof(LoginAsync), loginRequest.Email);
+                nameof(LoginAsync), loginRequest.UserName);
 
             var validationResult = _userLoginValidator.Validate(loginRequest);
             if (!validationResult.IsValid)
@@ -121,13 +121,13 @@ namespace Identity.Application.AppData.Services
 
             // TODO: сделать ручную генерацию токена для хэндлинга ошибок _identityServerTools
 
-            var existingUser = await _userRepository.GetByEmailAsync(loginRequest.Email, cancellationToken);
+            var existingUser = await _userRepository.GetByEmailAsync(loginRequest.UserName, cancellationToken);
             if (existingUser == null)
             {
                 throw new KeyNotFoundException("Введен неверный email или пароль.");
             }
 
-            var isPasswordVerified = await _userRepository.CheckPasswordAsync(loginRequest.Email, loginRequest.Password, cancellationToken);
+            var isPasswordVerified = await _userRepository.CheckPasswordAsync(loginRequest.UserName, loginRequest.Password, cancellationToken);
             if (!isPasswordVerified)
             {
                 throw new ArgumentException("Введен неверный email или пароль.");

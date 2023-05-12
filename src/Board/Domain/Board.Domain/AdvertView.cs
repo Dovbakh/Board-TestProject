@@ -10,8 +10,9 @@ namespace Board.Domain
     {
         public Guid Id { get; set; }
         public Guid AdvertId { get; set; }
-        public int ViewCount { get; set; }
-
+        public Guid VisitorId { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public bool isRegistered { get; set; }
         public Advert Advert { get; set; }
     }
 }

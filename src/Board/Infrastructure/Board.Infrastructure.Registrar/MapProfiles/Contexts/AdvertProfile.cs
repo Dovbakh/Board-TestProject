@@ -23,7 +23,7 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
                 .ForMember(a => a.CreatedAt, map => map.MapFrom(d => DateTime.UtcNow))
                 .ForMember(a => a.Category, map => map.Ignore())
                 .ForMember(a => a.AdvertFavorites, map => map.Ignore())
-                .ForMember(a => a.AdvertView, map => map.Ignore())
+                .ForMember(a => a.AdvertViews, map => map.Ignore())
                 .ForMember(a => a.AdvertImages, map => map.Ignore())
                 .ForMember(s => s.isActive, map => map.MapFrom(a => true));
             CreateMap<AdvertUpdateRequest, Advert>()
@@ -32,7 +32,7 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
                 .ForMember(a => a.UserId, map => map.Ignore())
                 .ForMember(a => a.Category, map => map.Ignore())
                 .ForMember(a => a.AdvertFavorites, map => map.Ignore())
-                .ForMember(a => a.AdvertView, map => map.Ignore())
+                .ForMember(a => a.AdvertViews, map => map.Ignore())
                 .ForMember(a => a.AdvertImages, map => map.Ignore())
                 .ForMember(s => s.isActive, map => map.Ignore());
 

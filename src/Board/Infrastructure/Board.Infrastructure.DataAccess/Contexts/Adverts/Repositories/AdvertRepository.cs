@@ -126,6 +126,15 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
         }
 
         /// <inheritdoc />
+        public async Task<bool> IsExist(Guid advertId, CancellationToken cancellation)
+        {
+            var isExist = await _repository.GetAll()
+                                    .AnyAsync(a => a.Id == advertId, cancellation);
+
+            return isExist;              
+        }
+
+        /// <inheritdoc />
         public async Task<Guid> AddAsync(AdvertAddRequest addRequest, CancellationToken cancellation)
         {
             _logger.LogInformation("{0} -> Создание обьявления из модели {1}: {2}",

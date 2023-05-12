@@ -2,6 +2,7 @@
 using Identity.Contracts.Clients.Users;
 using Identity.Contracts.Contexts.Users;
 using IdentityModel.Client;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -79,11 +80,25 @@ namespace Identity.Clients.Users
             return userId;
         }
 
-        public async Task<TokenResponse> LoginAsync(UserLoginClientRequest loginClientRequest, /*string IdentityClientId, string IdentityScopeName, */CancellationToken cancellation)
+        public async Task<TokenResponse> LoginAsync(PasswordTokenRequest tokenRequest, CancellationToken cancellation)
+        {
+            var response = await _httpClient.RequestPasswordTokenAsync(tokenRequest, cancellation);        
+            
+            return response;
+        }
+
+        public async Task<TokenResponse> LoginAsync(RefreshTokenRequest tokenRequest, /*string IdentityClientId, string IdentityScopeName, */CancellationToken cancellation)
+        {
+            var response = await _httpClient.RequestRefreshTokenAsync(tokenRequest);
+
+            return response;
+        }
+
+        public async Task<TokenIntrospectionResponse> IsLoginedAsync(CancellationToken cancellation)
         {
             //var loginRequest = _mapper.Map<UserLoginClientRequest, UserLoginRequest>(loginClientRequest);
 
-            //var uri = $"v1/user/login";          
+            //var uri = $"v1/user/login";
             //using var response = await _httpClient.PostAsJsonAsync(uri, loginRequest, cancellation);
             //response.EnsureSuccessStatusCode();
 
@@ -91,17 +106,22 @@ namespace Identity.Clients.Users
 
             //return accessToken;
 
-            // TODO: какой запрос отправлять?
-            var tokenRequest = new PasswordTokenRequest
+            //TODO: какой запрос отправлять?
+           var token = _contextAccessor.HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+            if (token == null)
+                return null;
+
+            token = token.Replace("Bearer ", "");
+
+            var tokenRequest = new TokenIntrospectionRequest
             {
-                Address = "connect/token",
+                Address = "connect/introspect",
                 ClientId = "external",/*IdentityClientId,*/
-                Scope = "Board.Web",/*IdentityScopeName,*/
-                UserName = loginClientRequest.Email,
-                Password = loginClientRequest.Password
+                Token = token
             };
-            var response = await _httpClient.RequestPasswordTokenAsync(tokenRequest, cancellation);        
-            
+
+            var response = await _httpClient.IntrospectTokenAsync(tokenRequest, cancellation);
+
             return response;
         }
 
@@ -170,7 +190,7 @@ namespace Identity.Clients.Users
             response.EnsureSuccessStatusCode();
         }
 
-        private void SetToken()
+        private async void SetToken()
         {
             var token = _contextAccessor.HttpContext.Request.Headers["Authorization"].FirstOrDefault();
             if (token == null)

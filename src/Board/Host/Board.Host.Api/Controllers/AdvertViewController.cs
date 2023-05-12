@@ -25,17 +25,19 @@ namespace Board.Host.Api.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<int>> GetCount(Guid advertId, CancellationToken cancellation)
         {
-            var totalCount = await _advertViewService.GetCountAsync(advertId, cancellation);
+            var result = await _advertViewService.GetCountAsync(advertId, cancellation);
 
-            return Ok(totalCount);
+            return Ok(result);
         }
 
-        [HttpPut("{advertId:Guid}")]
-        public async Task<IActionResult> UpdateCount(Guid advertId, int count, CancellationToken cancellation)
+        [HttpPost("{advertId:Guid}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<Guid>> Add(Guid advertId, CancellationToken cancellation)
         {
-            var totalCount = await _advertViewService.UpdateCountAsync(advertId, count, cancellation);
+            var result = await _advertViewService.AddAsync(advertId, cancellation);
 
-            return Ok(totalCount);
+            return Ok(result);
         }
+
     }
 }

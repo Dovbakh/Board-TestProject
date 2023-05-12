@@ -343,5 +343,13 @@
             <param name="cancellation"></param>
             <returns>Токен аутентификации.</returns>
         </member>
+        <member name="M:Board.Host.Api.Controllers.UserController.Login(Board.Contracts.Contexts.Users.UserLoginRefreshRequest,System.Threading.CancellationToken)">
+            <summary>
+            Залогинить пользователя.
+            </summary>
+            <param name="userLoginDto">Элемент <see cref="!:UserLoginDto"/>.</param>
+            <param name="cancellation"></param>
+            <returns>Токен аутентификации.</returns>
+        </member>
     </members>
 </doc>

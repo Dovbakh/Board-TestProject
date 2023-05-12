@@ -1,4 +1,5 @@
 ﻿using Board.Contracts.Contexts.Users;
+using IdentityModel.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,9 @@ namespace Board.Application.AppData.Contexts.Users.Services
         /// <param name="loginRequest">Элемент <see cref="UserLoginRequest"/>.</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Токен.</returns>
-        Task<string> LoginAsync(UserLoginRequest loginRequest, CancellationToken cancellationToken);
+        Task<TokenResponse> LoginAsync(UserLoginRequest loginRequest, CancellationToken cancellationToken);
+
+        Task<TokenResponse> LoginAsync(UserLoginRefreshRequest loginRefreshRequest, CancellationToken cancellationToken);
 
         /// <summary>
         /// Получить всех пользователей с пагинацией.
@@ -53,6 +56,8 @@ namespace Board.Application.AppData.Contexts.Users.Services
         Task<UserDetails> GetCurrentAsync(CancellationToken cancellationToken);
 
         Guid GetCurrentId(CancellationToken cancellationToken);
+
+        Task<bool> isLogined(CancellationToken cancellationToken);
 
         /// <summary>
         /// Изменить пользователя.

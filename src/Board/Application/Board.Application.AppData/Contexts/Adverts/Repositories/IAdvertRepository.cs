@@ -40,6 +40,8 @@ namespace Board.Application.AppData.Contexts.Adverts.Repositories
         /// <returns>Элемент <see cref="AdvertDetails"/>.</returns>
         Task<AdvertDetails> GetByIdAsync(Guid id, CancellationToken cancellation);
 
+        Task<bool> IsExist(Guid advertId, CancellationToken cancellation);
+
         /// <summary>
         /// Добавить новое обьявление.
         /// </summary>

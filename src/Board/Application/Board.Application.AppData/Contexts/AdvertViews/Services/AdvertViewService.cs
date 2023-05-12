@@ -1,5 +1,8 @@
-﻿using Board.Application.AppData.Contexts.AdvertViews.Repositories;
+﻿using Board.Application.AppData.Contexts.Adverts.Repositories;
+using Board.Application.AppData.Contexts.AdvertViews.Repositories;
+using Board.Application.AppData.Contexts.Users.Services;
 using Board.Infrastructure.Repository;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.Extensions.Logging;
 using RedLockNet;
@@ -16,10 +19,18 @@ namespace Board.Application.AppData.Contexts.AdvertViews.Services
     {
         private readonly IAdvertViewRepository _advertViewRepository;
         private readonly ILogger<AdvertViewService> _logger;
-        public AdvertViewService(IAdvertViewRepository advertViewRepository, ILogger<AdvertViewService> logger)
+        private readonly IHttpContextAccessor _contextAccessor;
+        private readonly IAdvertRepository _advertRepository;
+        private readonly IUserService _userService;
+        private const string AdvertVisitorKey = "AdvertVisitorKey_";
+        public AdvertViewService(IAdvertViewRepository advertViewRepository, ILogger<AdvertViewService> logger, IHttpContextAccessor contextAccessor,
+            IAdvertRepository advertRepository, IUserService userService)
         {
             _advertViewRepository = advertViewRepository;
             _logger = logger;
+            _contextAccessor = contextAccessor;
+            _advertRepository = advertRepository;
+            _userService = userService;
         }
 
 
@@ -33,21 +44,35 @@ namespace Board.Application.AppData.Contexts.AdvertViews.Services
         }
         public async Task<Guid> AddAsync(Guid advertId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Создание записи с количеством просмотров обьявления с ID: {1}",
+            _logger.LogInformation("{0} -> Создание записи о просмотре обьявления с ID: {1}",
                 nameof(AddAsync), advertId);
 
-            var advertViewId = await _advertViewRepository.AddAsync(advertId, cancellation);
+            var isAdvertExists = await _advertRepository.IsExist(advertId, cancellation);
+            if (!isAdvertExists) 
+            {
+                throw new KeyNotFoundException($"Не найдено обьявление с ID: {advertId}");
+            }
+
+            await _userService.isLogined(cancellation);
+
+            var currentUserId = _userService.GetCurrentId(cancellation);
+            if(currentUserId != Guid.Empty)
+            {
+                var adverViewId = await _advertViewRepository.AddAsync(advertId, currentUserId, true, cancellation);
+
+                return adverViewId;
+            }
+
+            var advertVisitorId = _contextAccessor.HttpContext.Request.Cookies[AdvertVisitorKey];
+            if(advertVisitorId == null)
+            {
+                advertVisitorId = Guid.NewGuid().ToString();
+                _contextAccessor.HttpContext.Response.Cookies.Append(AdvertVisitorKey, advertVisitorId);
+            }
+
+            var advertViewId = await _advertViewRepository.AddAsync(advertId, Guid.Parse(advertVisitorId), false, cancellation);
 
             return advertViewId;
         }
-
-        public Task<int> UpdateCountAsync(Guid advertId, int count, CancellationToken cancellation)
-        {
-            _logger.LogInformation("{0} -> Увеличение количества просмотров обьявления с ID: {1} на {2}",
-                nameof(UpdateCountAsync), advertId, count);
-
-            return _advertViewRepository.UpdateCountAsync(advertId, count, cancellation);
-        }
-
     }
 }

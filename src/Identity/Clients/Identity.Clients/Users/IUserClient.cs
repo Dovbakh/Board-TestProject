@@ -14,8 +14,9 @@ namespace Identity.Clients.Users
         public Task<IReadOnlyCollection<UserSummaryClientResponse>> GetAllAsync(int offset, int count, CancellationToken cancellation);
         public Task<UserDetailsClientResponse> GetByIdAsync(Guid id, CancellationToken cancellation);
         public Task<Guid> RegisterAsync(UserRegisterClientRequest registerClientRequest, CancellationToken cancellation);
-        public Task<TokenResponse> LoginAsync(UserLoginClientRequest loginClientRequest, CancellationToken cancellation);
-
+        public Task<TokenResponse> LoginAsync(PasswordTokenRequest tokenRequest, CancellationToken cancellation);
+        public Task<TokenResponse> LoginAsync(RefreshTokenRequest tokenRequest, CancellationToken cancellation);
+        Task<TokenIntrospectionResponse> IsLoginedAsync(CancellationToken cancellation);
         public Task<UserDetailsClientResponse> UpdateAsync(Guid id, UserUpdateClientRequest updateClientRequest, CancellationToken cancellation);
         public Task DeleteAsync(Guid id, CancellationToken cancellation);
         public Task<string> GenerateEmailTokenAsync(UserGenerateEmailTokenClientRequest request, CancellationToken cancellation);

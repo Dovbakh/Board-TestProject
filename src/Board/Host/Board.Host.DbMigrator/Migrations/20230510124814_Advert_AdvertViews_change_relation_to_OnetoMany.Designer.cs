@@ -3,6 +3,7 @@ using System;
 using Board.Host.DbMigrator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Board.Host.DbMigrator.Migrations
 {
     [DbContext(typeof(MigrationDbContext))]
-    partial class MigrationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230510124814_Advert_AdvertViews_change_relation_to_OnetoMany")]
+    partial class Advert_AdvertViews_change_relation_to_OnetoMany
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -120,9 +123,6 @@ namespace Board.Host.DbMigrator.Migrations
 
                     b.Property<Guid>("VisitorId")
                         .HasColumnType("uuid");
-
-                    b.Property<bool>("isRegistered")
-                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 

@@ -57,6 +57,7 @@ using Board.Application.AppData.Contexts.AdvertViews.Repositories;
 using Board.Infrastructure.DataAccess.Contexts.AdvertViews.Repositories;
 using Board.Application.AppData.Contexts.AdvertFavorites.Repositories;
 using Board.Infrastructure.DataAccess.Contexts.AdvertFavorites.Repositories;
+using IdentityModel.Client;
 
 namespace Board.Infrastructure.Registrar
 {
@@ -167,7 +168,7 @@ namespace Board.Infrastructure.Registrar
                 .AddIdentityServerAuthentication(options =>
                 {
                     options.Authority = "https://localhost:7157";
-                    //options.ApiName = "Board.Web";
+                    //options.ApiName = "Board.Host.Api";
                     options.RequireHttpsMetadata = false;
                     
                 });
@@ -203,6 +204,11 @@ namespace Board.Infrastructure.Registrar
                     policy.RequireAuthenticatedUser();
                     policy.RequireClaim("scope", "Board.Web");
                 });
+                //options.AddPolicy("ApiScope", policy =>
+                //{
+                //    policy.RequireAuthenticatedUser();
+                //    policy.RequireClaim("scope", "Board.Host.Api");
+                //});
             });
 
             return services;

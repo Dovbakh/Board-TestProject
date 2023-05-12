@@ -12,7 +12,7 @@ namespace Identity.Application.AppData.Helpers
     {
         public UserLoginValidator() 
         {
-            RuleFor(x => x.Email)
+            RuleFor(x => x.UserName)
                 .NotEmpty().WithMessage("Электронная почта обязательна для заполнения.")
                 .EmailAddress().WithMessage("Некорректный формат электронный почты.");
             RuleFor(x => x.Password)

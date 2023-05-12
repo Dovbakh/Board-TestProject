@@ -3,6 +3,7 @@ using System;
 using Board.Host.DbMigrator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Board.Host.DbMigrator.Migrations
 {
     [DbContext(typeof(MigrationDbContext))]
-    partial class MigrationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230510123110_Add_VisitorId_and_CreatedAt_to_AdvertViews")]
+    partial class Add_VisitorId_and_CreatedAt_to_AdvertViews
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -121,12 +124,10 @@ namespace Board.Host.DbMigrator.Migrations
                     b.Property<Guid>("VisitorId")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("isRegistered")
-                        .HasColumnType("boolean");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("AdvertId");
+                    b.HasIndex("AdvertId")
+                        .IsUnique();
 
                     b.ToTable("AdvertViews", (string)null);
                 });
@@ -248,8 +249,8 @@ namespace Board.Host.DbMigrator.Migrations
             modelBuilder.Entity("Board.Domain.AdvertView", b =>
                 {
                     b.HasOne("Board.Domain.Advert", "Advert")
-                        .WithMany("AdvertViews")
-                        .HasForeignKey("AdvertId")
+                        .WithOne("AdvertView")
+                        .HasForeignKey("Board.Domain.AdvertView", "AdvertId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -281,7 +282,7 @@ namespace Board.Host.DbMigrator.Migrations
 
                     b.Navigation("AdvertImages");
 
-                    b.Navigation("AdvertViews");
+                    b.Navigation("AdvertView");
                 });
 
             modelBuilder.Entity("Board.Domain.Category", b =>

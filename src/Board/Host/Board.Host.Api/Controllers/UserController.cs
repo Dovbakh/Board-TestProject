@@ -2,8 +2,10 @@
 using Board.Contracts.Contexts.Users;
 using Board.Contracts.Contexts.Users.Enums;
 using Board.Contracts.Conventions;
+using IdentityModel.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace Board.Host.Api.Controllers
 {
@@ -272,13 +274,27 @@ namespace Board.Host.Api.Controllers
         /// <returns>Токен аутентификации.</returns>
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult<string>> Login(UserLoginRequest loginRequest, CancellationToken cancellation)
+        public async Task<ActionResult<string>> Login([FromForm]UserLoginRequest loginRequest, CancellationToken cancellation)
         {
             var token = await _userService.LoginAsync(loginRequest, cancellation);
 
-            return Ok(token);
+            return Ok(token.Json);
         }
 
+        /// <summary>
+        /// Залогинить пользователя.
+        /// </summary>
+        /// <param name="userLoginDto">Элемент <see cref="UserLoginDto"/>.</param>
+        /// <param name="cancellation"></param>
+        /// <returns>Токен аутентификации.</returns>
+        [HttpPost("login-refresh")]
+        [AllowAnonymous]
+        public async Task<ActionResult<TokenResponse>> Login([FromForm] UserLoginRefreshRequest loginRefreshRequest/*UserLoginRequest loginRequest*/, CancellationToken cancellation)
+        {
+            var token = await _userService.LoginAsync(loginRefreshRequest, cancellation);
+
+            return Ok(token.Json);
+        }
 
 
     }

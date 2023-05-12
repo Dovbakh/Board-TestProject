@@ -33,65 +33,37 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertViews.Repositories
             _logger.LogInformation("{0} -> Получение количества просмотров обьявления с ID: {1}",
                 nameof(GetCountAsync), advertId);
 
-            var advertView = await _repository.GetAll()
+            var viewCount = await _repository.GetAll()
                 .Where(af => af.AdvertId == advertId)
-                .FirstOrDefaultAsync(cancellation);
-            if (advertView == null)
-            {
-                throw new KeyNotFoundException($"Не найдено обьявление c ID: {advertId}");
-            }
+                .CountAsync(cancellation);
 
-            return advertView.ViewCount;
+            return viewCount;
         }
 
-        public async Task<Guid> AddAsync(Guid advertId, CancellationToken cancellation)
+        public async Task<Guid> AddAsync(Guid advertId, Guid visitorId, bool isRegistered, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Создание записи с количеством просмотров обьявления с ID: {1}",
-                nameof(AddAsync), advertId);
+            _logger.LogInformation("{0} -> Создание записи о просмотре обьявления с ID: {1} посетителем с ID: {2}",
+                nameof(AddAsync), advertId, visitorId);
 
             var existingAdvertView = await _repository.GetAll()
-                .Where(av => av.AdvertId == advertId)
+                .Where(av => av.AdvertId == advertId && av.VisitorId == visitorId)
                 .FirstOrDefaultAsync(cancellation);
             if (existingAdvertView != null) 
             {
-                throw new ArgumentException($"Запись с количеством просмотра для обьявления с ID: {advertId} уже существует.");
+                return existingAdvertView.Id;
             }
-            var advertView = new AdvertView { AdvertId = advertId, ViewCount = 0 };
+
+            var advertView = new AdvertView 
+            { 
+                AdvertId = advertId, 
+                VisitorId = visitorId, 
+                CreatedAt = DateTime.UtcNow,
+                isRegistered = isRegistered
+            };
             await _repository.AddAsync(advertView, cancellation);
 
             return advertView.Id;
         }
-
-        public async Task<int> UpdateCountAsync(Guid advertId, int count, CancellationToken cancellation)
-        {
-            _logger.LogInformation("{0} -> Увеличение количества просмотров обьявления с ID: {1} на {2}",
-                nameof(UpdateCountAsync), advertId, count);
-
-            var resource = AdvertViewCountKey + advertId;
-            var expiry = TimeSpan.FromSeconds(30);
-            var wait = TimeSpan.FromSeconds(10);
-            var retry = TimeSpan.FromSeconds(1);
-            await using (var redLock = await _distributedLockFactory.CreateLockAsync(resource, expiry, wait, retry, cancellation))
-            {
-                if (redLock.IsAcquired)
-                {
-                    var advertView = await _repository.GetAllFiltered(af => af.AdvertId == advertId).FirstOrDefaultAsync(cancellation);
-                    if(advertView == null)
-                    { 
-                        throw new KeyNotFoundException($"Не найдено обьявление c ID: {advertId}");
-                    }
-
-                    advertView.ViewCount += count;
-                    await _repository.UpdateAsync(advertView, cancellation);
-
-                    return advertView.ViewCount;
-                }
-            }
-
-            throw new Exception("Произошла ошибка при увеличении количества просмотров.");
-        }
-
-
     }
 }
 
