@@ -9,28 +9,15 @@ namespace Board.Contracts.Contexts.AdvertFavorites
     public class AdvertFavoriteSummary
     {
         /// <summary>
-        /// Идентификатор обьявления.
+        /// Идентификатор избранного обьявления.
         /// </summary>
         public Guid Id { get; set; }
 
         /// <summary>
-        /// Название обьявления.
+        /// Идентификатор обьявления.
         /// </summary>
-        public string Name { get; set; }
+        public Guid AdvertId { get; set; }
 
-        /// <summary>
-        /// Цена, указанная в обьявлении.
-        /// </summary>
-        public decimal Price { get; set; }
-
-        /// <summary>
-        /// Адрес, указанный в обьявлении.
-        /// </summary>
-        public string Address { get; set; }
-
-        /// <summary>
-        /// Дата создания обьявления.
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
+        public Guid UserId { get; set; }
     }
 }

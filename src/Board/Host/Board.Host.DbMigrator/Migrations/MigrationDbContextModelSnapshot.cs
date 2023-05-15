@@ -93,7 +93,7 @@ namespace Board.Host.DbMigrator.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("FileId")
+                    b.Property<Guid>("ImageId")
                         .HasColumnType("uuid");
 
                     b.Property<bool>("isActive")
@@ -163,13 +163,7 @@ namespace Board.Host.DbMigrator.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("AdvertId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AdvertisementId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AuthorId")
+                    b.Property<Guid>("AdvertId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -270,7 +264,9 @@ namespace Board.Host.DbMigrator.Migrations
                 {
                     b.HasOne("Board.Domain.Advert", "Advert")
                         .WithMany()
-                        .HasForeignKey("AdvertId");
+                        .HasForeignKey("AdvertId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Advert");
                 });

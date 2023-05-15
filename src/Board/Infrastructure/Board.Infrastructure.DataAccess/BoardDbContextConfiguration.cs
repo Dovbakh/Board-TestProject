@@ -14,16 +14,14 @@ namespace Board.Infrastructure.DataAccess
     {
         private const string PostgesConnectionStringName = "PostgresBoardDb";
         private readonly IConfiguration _configuration;
-        //private readonly ILoggerFactory _loggerFactory;
 
         /// <summary>
         /// Инициализирует экземпляр <see cref="ShoppingCartContextConfiguration"/>.
         /// </summary>
         /// <param name="configuration">Конфигурация.</param>
         /// <param name="loggerFactory">Фабрика средства логирования.</param>
-        public BoardDbContextConfiguration(/*ILoggerFactory loggerFactory, */IConfiguration configuration)
+        public BoardDbContextConfiguration(IConfiguration configuration)
         {
-            //_loggerFactory = loggerFactory;
             _configuration = configuration;
         }
 
@@ -37,8 +35,6 @@ namespace Board.Infrastructure.DataAccess
                     $"Не найдена строка подключения с именем '{PostgesConnectionStringName}'");
             }
             options.UseNpgsql(connectionString);
-
-            //options.UseLoggerFactory(_loggerFactory);
         }
     }
 }

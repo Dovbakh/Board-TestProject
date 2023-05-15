@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Board.Infrastructure.Registrar.Options
+namespace Board.Contracts.Options
 {
-    public class FileClientOptions
+    public class UserOptions
     {
-        public string BasePath { get; set; }
+        public int ListDefaultCount { get; set; } = 10;
     }
 }

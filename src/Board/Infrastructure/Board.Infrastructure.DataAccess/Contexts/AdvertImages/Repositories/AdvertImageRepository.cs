@@ -32,8 +32,8 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertImages.Repositories
         /// <inheritdoc />
         public async Task<IReadOnlyCollection<AdvertImageDto>> GetAllByAdvertIdAsync(Guid advertId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение списка записей с указанием картинок обьявления по ID обьявления: {1} ",
-                nameof(GetAllByAdvertIdAsync), advertId);
+            _logger.LogInformation("{0}:{1} -> Получение списка записей с указанием картинок обьявления по ID обьявления: {2} ",
+                nameof(AdvertImageRepository), nameof(GetAllByAdvertIdAsync), advertId);
 
             var advertList = await _repository.GetAll()
                 .Where(a => a.AdvertId == advertId)
@@ -46,8 +46,8 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertImages.Repositories
         /// <inheritdoc />
         public async Task<AdvertImageDto> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение записи с указанием картинки обьявления по ID: {1} ",
-                nameof(GetByIdAsync), id);
+            _logger.LogInformation("{0}:{1} -> Получение записи с указанием картинки обьявления по ID: {2} ",
+                nameof(AdvertImageRepository), nameof(GetByIdAsync), id);
 
             var advert = await _repository.GetAll()
                 .Where(a => a.Id == id)
@@ -60,8 +60,8 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertImages.Repositories
         /// <inheritdoc />
         public async Task<Guid> AddAsync(AdvertImageAddRequest addRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Добавление записи с указанием картинки обьявления из модели {1}: {2}",
-                nameof(AddAsync), nameof(addRequest), JsonConvert.SerializeObject(addRequest));
+            _logger.LogInformation("{0}:{1} -> Добавление записи с указанием картинки обьявления из модели {2}: {3}",
+                nameof(AdvertImageRepository), nameof(AddAsync), nameof(addRequest), JsonConvert.SerializeObject(addRequest));
 
             var newEntity = _mapper.Map<AdvertImageAddRequest, AdvertImage>(addRequest);
             await _repository.AddAsync(newEntity, cancellation);
@@ -72,8 +72,8 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertImages.Repositories
         /// <inheritdoc />
         public async Task DeleteAsync(Guid id, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Удаление записи с указанием картинки обьявления с ID: {1}",
-                nameof(DeleteAsync), id);
+            _logger.LogInformation("{0}:{1} -> Удаление записи с указанием картинки обьявления с ID: {2}",
+                nameof(AdvertImageRepository), nameof(DeleteAsync), id);
 
             var existingEntity = await _repository.GetByIdAsync(id, cancellation);
             if(existingEntity == null) 
@@ -87,11 +87,11 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertImages.Repositories
         /// <inheritdoc />
         public async Task DeleteByFileIdAsync(Guid fileId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Удаление записи с указанием картинки обьявления с ID картинки: {1}",
-                nameof(DeleteByFileIdAsync), fileId);
+            _logger.LogInformation("{0}:{1} -> Удаление записи с указанием картинки обьявления с ID картинки: {2}",
+                nameof(AdvertImageRepository), nameof(DeleteByFileIdAsync), fileId);
 
             var existingEntity = await _repository.GetAll()
-                .Where(a => a.FileId == fileId)
+                .Where(a => a.ImageId == fileId)
                 .FirstOrDefaultAsync(cancellation);        
             
             if (existingEntity == null)

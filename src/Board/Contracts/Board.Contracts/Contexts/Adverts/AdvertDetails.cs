@@ -56,6 +56,6 @@ namespace Board.Contracts.Contexts.Adverts
         /// <summary>
         /// Коллекция изображений обьявления.
         /// </summary>
-        public ICollection<Guid> AdvertImagesId { get; set; }
+        public ICollection<Guid> ImagesId { get; set; }
     }
 }

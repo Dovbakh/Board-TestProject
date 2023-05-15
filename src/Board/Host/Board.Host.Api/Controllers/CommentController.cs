@@ -115,7 +115,7 @@ namespace Board.Host.Api.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteById(Guid id, CancellationToken cancellation)
         {
-            await _commentService.DeleteAsync(id, cancellation);
+            await _commentService.SoftDeleteAsync(id, cancellation);
 
             return NoContent();
         }

@@ -13,6 +13,9 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentValidation;
 using Identity.Application.AppData.Contexts.Images.Helpers;
+using Minio;
+using FileStorage.Contracts;
+using Microsoft.Extensions.Options;
 
 namespace FileStorage.Infrastructure.Registrar
 {
@@ -29,6 +32,24 @@ namespace FileStorage.Infrastructure.Registrar
             services.AddSingleton<IMapper>(new Mapper(GetMapperConfiguration()));
 
             services.AddValidatorsFromAssembly(typeof(ImageUploadValidator).Assembly);
+
+
+            //services.AddScoped<IObjectStorage, MinioStorage>(services =>
+            //{
+            //    return services.GetRequiredService<MinioStorageConfiguration>().Configure();
+            //});
+
+            services.AddScoped<MinioClientConfiguration>();
+
+            services.AddOptions<MinioClientOptions>()
+                .BindConfiguration("MinioServer")
+                .ValidateOnStart();
+
+            services.AddScoped<MinioClient>(services =>
+            {
+                return services.GetRequiredService<MinioClientConfiguration>().Configure();
+            });
+
 
             return services;
         }

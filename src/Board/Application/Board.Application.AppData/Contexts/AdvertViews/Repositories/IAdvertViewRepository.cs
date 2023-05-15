@@ -9,7 +9,7 @@ namespace Board.Application.AppData.Contexts.AdvertViews.Repositories
     public interface IAdvertViewRepository
     {
         Task<int> GetCountAsync(Guid advertId, CancellationToken cancellation);
-        Task<Guid> AddAsync(Guid advertId, Guid visitorId, bool isRegistered, CancellationToken cancellation);
+        Task<Guid> AddIfNotExistsAsync(Guid advertId, Guid visitorId, bool isRegistered, CancellationToken cancellation);
      
     }
 }

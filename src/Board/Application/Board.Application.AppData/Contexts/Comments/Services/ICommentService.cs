@@ -57,6 +57,8 @@ namespace Board.Application.AppData.Contexts.Comments.Services
         /// </summary>
         /// <param name="id">Идентификатор категории.</param>
         /// <param name="cancellation">Токен отмены.</param>
+        Task SoftDeleteAsync(Guid id, CancellationToken cancellation);
+
         Task DeleteAsync(Guid id, CancellationToken cancellation);
     }
 }

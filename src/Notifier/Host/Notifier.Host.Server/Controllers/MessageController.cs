@@ -16,8 +16,8 @@ namespace Notifier.Host.Server.Controllers
     [ApiConventionType(typeof(AppConventions))]
     public class MessageController : ControllerBase
     {
-        private readonly IMessageService _messageService;
-        public MessageController(IMessageService messageService)
+        private readonly INotificationService _messageService;
+        public MessageController(INotificationService messageService)
         {
             _messageService = messageService;
         }

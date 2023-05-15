@@ -12,6 +12,7 @@ namespace Board.Host.Api.Controllers
     [Route("v1/advertviews")]
     [Produces("application/json")]
     [ApiConventionType(typeof(AppConventions))]
+    [AllowAnonymous]
     public class AdvertViewController : ControllerBase
     {
         private readonly IAdvertViewService _advertViewService;
@@ -22,7 +23,6 @@ namespace Board.Host.Api.Controllers
         }
 
         [HttpGet("{advertId:Guid}")]
-        [AllowAnonymous]
         public async Task<ActionResult<int>> GetCount(Guid advertId, CancellationToken cancellation)
         {
             var result = await _advertViewService.GetCountAsync(advertId, cancellation);
@@ -31,7 +31,6 @@ namespace Board.Host.Api.Controllers
         }
 
         [HttpPost("{advertId:Guid}")]
-        [AllowAnonymous]
         public async Task<ActionResult<Guid>> Add(Guid advertId, CancellationToken cancellation)
         {
             var result = await _advertViewService.AddAsync(advertId, cancellation);

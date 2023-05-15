@@ -22,7 +22,7 @@ namespace Board.Contracts.Contexts.AdvertImages
         /// <summary>
         /// Идентификатор обьявления.
         /// </summary>
-        public Guid FileId { get; set; }
+        public Guid ImageId { get; set; }
 
         /// <summary>
         /// Дата загрузки изображения.

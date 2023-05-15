@@ -13,16 +13,14 @@ namespace Identity.Infrastructure.DataAccess
     {
         private const string PostgesConnectionStringName = "PostgresIdentityUsersDb";
         private readonly IConfiguration _configuration;
-        //private readonly ILoggerFactory _loggerFactory;
 
         /// <summary>
         /// Инициализирует экземпляр <see cref="ShoppingCartContextConfiguration"/>.
         /// </summary>
         /// <param name="configuration">Конфигурация.</param>
         /// <param name="loggerFactory">Фабрика средства логирования.</param>
-        public AspNetIdentityDbContextConfiguration(/*ILoggerFactory loggerFactory, */IConfiguration configuration)
+        public AspNetIdentityDbContextConfiguration(IConfiguration configuration)
         {
-            //_loggerFactory = loggerFactory;
             _configuration = configuration;
         }
 
@@ -36,8 +34,6 @@ namespace Identity.Infrastructure.DataAccess
                     $"Не найдена строка подключения с именем '{PostgesConnectionStringName}'");
             }
             options.UseNpgsql(connectionString);
-
-            //options.UseLoggerFactory(_loggerFactory);
         }
     }
 }

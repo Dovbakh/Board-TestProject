@@ -37,11 +37,11 @@ namespace Board.Contracts.Contexts.Adverts
         /// <summary>
         /// Коллекция изображений обьявления.
         /// </summary>
-        public ICollection<Guid> NewAdvertImagesId { get; set; }
+        public ICollection<Guid> NewImagesId { get; set; }
 
         /// <summary>
         /// Коллекция изображений обьявления.
         /// </summary>
-        public ICollection<Guid> RemovedAdvertImagesId { get; set; }
+        public ICollection<Guid> RemovedImagesId { get; set; }
     }
 }

@@ -8,10 +8,10 @@ namespace Board.Infrastructure.Repository
 {
     public interface ICacheRepository
     {
-        Task<object> GetById(string key, Type type, CancellationToken cancellation);
+        Task<T> GetById<T>(string key, CancellationToken cancellation) where T : class;
 
-        Task SetWithSlidingTime(string key, Type type, object entity, TimeSpan slidingTime, CancellationToken cancellation);
-        Task SetWithAbsoluteTime(string key, Type type, object entity, TimeSpan absoluteTime, CancellationToken cancellation);
+        Task SetWithSlidingTime(string key, object entity, TimeSpan slidingTime, CancellationToken cancellation);
+        Task SetWithAbsoluteTime(string key, object entity, TimeSpan absoluteTime, CancellationToken cancellation);
         Task DeleteAsync(string key, CancellationToken cancellation);
     }
 

@@ -36,6 +36,7 @@ namespace Identity.Host.Server.Controllers
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Коллекция элементов <see cref="UserSummary"/>.</returns>
         [HttpGet]
+        [Authorize(Policy = "ApiScope")]
         public async Task<ActionResult<IReadOnlyCollection<UserSummary>>> GetAll(int? offset, int? count, CancellationToken cancellation)
         {
             var users = await _userService.GetAllAsync(offset, count, cancellation);
@@ -50,7 +51,8 @@ namespace Identity.Host.Server.Controllers
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Элемент <see cref="UserDto"/>.</returns>
         [HttpGet("{id}")]
-        [AllowAnonymous]
+        //[AllowAnonymous]
+        [Authorize]
         public async Task<ActionResult<UserDetails>> GetById(Guid id, CancellationToken cancellation)
         {
             var user = await _userService.GetByIdAsync(id, cancellation);
@@ -231,22 +233,6 @@ namespace Identity.Host.Server.Controllers
             var userId = await _userService.RegisterAsync(registerRequest, cancellation);
 
             return Ok(userId);
-        }
-
-        /// <summary>
-        /// Залогинить пользователя.
-        /// </summary>
-        /// <param name="userLoginDto">Элемент <see cref="UserLoginDto"/>.</param>
-        /// <param name="cancellation"></param>
-        /// <returns>Токен аутентификации.</returns>
-        [HttpPost("login")]
-        [AllowAnonymous]
-        public async Task<ActionResult<string>> Login(UserLoginRequest loginRequest, CancellationToken cancellation)
-        {
-            
-            var token = await _userService.LoginAsync(loginRequest, cancellation);
-
-            return Ok(token);
         }
     }
 }

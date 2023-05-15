@@ -16,12 +16,10 @@ namespace Notifier.Clients.Contexts.Messages
     public class MessageClient : IMessageClient
     {
         private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
 
-        public MessageClient(HttpClient httpClient, IConfiguration configuration, IMapper mapper)
+        public MessageClient(HttpClient httpClient, IMapper mapper)
         {
             _httpClient = httpClient;
-            _configuration = configuration;
         }       
 
         public async Task Send(MessageDetailsClientRequest sendClientRequest, CancellationToken cancellation)
@@ -31,10 +29,6 @@ namespace Notifier.Clients.Contexts.Messages
             var uri = $"v1/message";
             using var response = await _httpClient.PostAsJsonAsync(uri, sendClientRequest, cancellation);
             response.EnsureSuccessStatusCode();
-
-            //var userId = await response.Content.ReadFromJsonAsync<Guid>();
-
-            //return userId;
         }
     }
 }

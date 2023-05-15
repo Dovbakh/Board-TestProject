@@ -11,7 +11,7 @@ builder.Host.UseSerilog((context, services, configuration) =>
                 .WriteTo.Console()
                 .WriteTo.Seq("http://localhost:5345"));
 
-builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddMassTransit(mt => mt.AddMassTransit(x => {
 

@@ -23,7 +23,7 @@ namespace Identity.Infrastructure.Registrar.MapProfiles.Contexts
                 .ForMember(a => a.Name, map => map.Ignore())
                 .ForMember(a => a.Address, map => map.Ignore())
                 //.ForMember(a => a.Role, map => map.Ignore())
-                .ForMember(a => a.isActive, map => map.Ignore())
+                .ForMember(a => a.isActive, map => map.MapFrom(s => true))
                 .ForMember(a => a.Id, map => map.Ignore())
                 .ForMember(a => a.NormalizedUserName, map => map.Ignore())
                 .ForMember(a => a.NormalizedEmail, map => map.Ignore())

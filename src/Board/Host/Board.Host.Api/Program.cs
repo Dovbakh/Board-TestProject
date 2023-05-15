@@ -1,4 +1,4 @@
-using Board.Contracts.Middlewares;
+using Board.Host.Middlewares;
 using Board.Infrastructure.Registrar;
 using Identity.Clients.Users;
 using IdentityServer4.AccessTokenValidation;

@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Notifier\Contracts\Notifier.Contracts\Notifier.Contracts.csproj" />
     <ProjectReference Include="..\..\Application\Identity.Application.AppData\Identity.Application.AppData.csproj" />
     <ProjectReference Include="..\Identity.Infrastructure.DataAccess\Identity.Infrastructure.DataAccess.csproj" />
     <ProjectReference Include="..\Identity.Infrastructure\Identity.Infrastructure.csproj" />

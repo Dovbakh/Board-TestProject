@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Board.Application.AppData.Contexts.UserImages.Repositories
+namespace Identity.Contracts.Options
 {
-    public interface IUserImageRepository
+    public class UserOptions
     {
+        public int ListDefaultCount { get; set; } = 10;
     }
 }

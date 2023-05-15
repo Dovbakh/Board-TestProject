@@ -2,10 +2,12 @@
 using AutoMapper.QueryableExtensions;
 using Identity.Application.AppData.Repositories;
 using Identity.Contracts.Contexts.Users;
+using Identity.Contracts.Options;
 using Identity.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RedLockNet;
 using System;
@@ -25,24 +27,26 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
         private readonly IMapper _mapper;
         private readonly IDistributedLockFactory _distributedLockFactory;
         private readonly ILogger<UserRepository> _logger;
-        private const string RegisterEmailKey = "RegisterEmailKey_";
+        private readonly UserRegisterLockOptions _registerLockOptions;
 
-        public UserRepository(UserManager<Domain.User> userManager, IMapper mapper, RoleManager<IdentityRole<Guid>> roleManager, IDistributedLockFactory distributedLockFactory, 
-            ILogger<UserRepository> logger)
+        public UserRepository(UserManager<Domain.User> userManager, IMapper mapper, RoleManager<IdentityRole<Guid>> roleManager, IDistributedLockFactory distributedLockFactory,
+            ILogger<UserRepository> logger, IOptions<UserRegisterLockOptions> registerLockOptionsAccessor)
         {
             _userManager = userManager;
             _mapper = mapper;
             _roleManager = roleManager;
             _distributedLockFactory = distributedLockFactory;
             _logger = logger;
+            _registerLockOptions = registerLockOptionsAccessor.Value;
         }
 
         public async Task<IReadOnlyCollection<UserSummary>> GetAllAsync(int offset, int count, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение списка пользователей. Смещение: {1}, количество: {2}",
-                nameof(GetAllAsync), offset, count);
+            _logger.LogInformation("{0}:{1} -> Получение списка пользователей. Смещение: {2}, количество: {3}",
+                nameof(UserRepository), nameof(GetAllAsync), offset, count);
 
             var users = await _userManager.Users
+                .Where(u => u.isActive == true)
                 .ProjectTo<UserSummary>(_mapper.ConfigurationProvider)
                 .Skip(offset).Take(count).ToListAsync(cancellation);
 
@@ -51,11 +55,11 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
 
         public async Task<UserDetails> GetByEmailAsync(string email, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение пользователя с email: {1}",
-                nameof(GetByEmailAsync), email);
+            _logger.LogInformation("{0}:{1} -> Получение пользователя с email: {2}",
+                nameof(UserRepository), nameof(GetByEmailAsync), email);
 
             var user = await _userManager.Users
-                .Where(u => u.Email == email)
+                .Where(u => u.Email == email && u.isActive == true)
                 .ProjectTo<UserDetails>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellation);
 
@@ -64,29 +68,49 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
 
         public async Task<UserDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение пользователя с ID: {1}",
-                nameof(GetByIdAsync), id);
+            _logger.LogInformation("{0}:{1} -> Получение пользователя с ID: {2}",
+                nameof(UserRepository), nameof(GetByIdAsync), id);
 
             var user = await _userManager.Users
-                .Where(u => u.Id == id)
+                .Where(u => u.Id == id && u.isActive == true)
                 .ProjectTo<UserDetails>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellation);
 
             return user;
         }
 
-        public async Task<Guid> AddAsync(UserRegisterRequest registerRequest, CancellationToken cancellation)
+        public async Task<bool> IsUserExists(Guid id, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Добавления нового пользователя из модели: {1}",
-                nameof(AddAsync), JsonConvert.SerializeObject(registerRequest));
+            _logger.LogInformation("{0}:{1} -> Проверка на существование пользователя с ID: {2}",
+                nameof(UserRepository), nameof(IsUserExists), id);
 
-            var newEntity = _mapper.Map<UserRegisterRequest, Domain.User>(registerRequest);
+            var isUserExists = await _userManager.Users
+                .AnyAsync(u => u.Id == id, cancellation);
 
-            var resource = RegisterEmailKey + registerRequest.Email;
-            var expiry = TimeSpan.FromSeconds(30);
-            var wait = TimeSpan.FromSeconds(10);
-            var retry = TimeSpan.FromSeconds(1);
-            await using (var redLock = await _distributedLockFactory.CreateLockAsync(resource, expiry, wait, retry, cancellation))
+            return isUserExists;
+        }
+
+        public async Task<bool> IsUserExists(string email, CancellationToken cancellation)
+        {
+            _logger.LogInformation("{0}:{1} -> Проверка на существование пользователя с email: {2}",
+                nameof(UserRepository), nameof(IsUserExists), email);
+
+            var isUserExists = await _userManager.Users
+                .AnyAsync(u => u.Email.ToLower() == email.ToLower(), cancellation);
+
+            return isUserExists;
+        }
+
+        public async Task<Guid> AddIfNotExistsAsync(UserRegisterRequest registerRequest, CancellationToken cancellation)
+        {
+            _logger.LogInformation("{0}:{1} -> Добавления нового пользователя из модели: {2}",
+                nameof(UserRepository), nameof(AddIfNotExistsAsync), JsonConvert.SerializeObject(registerRequest));
+
+            var newEntity = _mapper.Map<UserRegisterRequest, User>(registerRequest);
+
+            var resource = _registerLockOptions.UserRegisterKey + registerRequest.Email;
+            await using (var redLock = await _distributedLockFactory.CreateLockAsync(resource, _registerLockOptions.Expire, _registerLockOptions.Wait, 
+                _registerLockOptions.Retry, cancellation))
             {
                 if (redLock.IsAcquired)
                 {
@@ -105,8 +129,8 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
 
         public async Task<UserDetails> UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Обновление информации о пользователе с ID: {1} из модели {2}: {3}",
-                nameof(UpdateAsync), id, nameof(UserUpdateRequest), JsonConvert.SerializeObject(updateRequest));
+            _logger.LogInformation("{0}:{1} -> Обновление информации о пользователе с ID: {2} из модели {3}: {4}",
+                nameof(UserRepository), nameof(UpdateAsync), id, nameof(UserUpdateRequest), JsonConvert.SerializeObject(updateRequest));
 
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null)
@@ -142,8 +166,8 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Удаление пользователя с ID: {1}",
-                nameof(DeleteAsync), id);
+            _logger.LogInformation("{0}:{1} -> Удаление пользователя с ID: {2}",
+                nameof(UserRepository), nameof(DeleteAsync), id);
 
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null)
@@ -160,8 +184,8 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
 
         public async Task ChangeEmailAsync(string currentEmail, string newEmail, string token, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Изменения email пользователя с {1} на {2}",
-                nameof(ConfirmEmailAsync), currentEmail, newEmail);
+            _logger.LogInformation("{0}:{1} -> Изменения email пользователя с {2} на {3}",
+                nameof(UserRepository), nameof(ConfirmEmailAsync), currentEmail, newEmail);
 
             var user = await _userManager.FindByEmailAsync(currentEmail);
             if (user == null)
@@ -181,8 +205,8 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
 
         public async Task ConfirmEmailAsync(string email, string token, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Подтверждение email пользователя: {1}",
-                nameof(ConfirmEmailAsync), email);
+            _logger.LogInformation("{0}:{1} -> Подтверждение email пользователя: {2}",
+                nameof(UserRepository), nameof(ConfirmEmailAsync), email);
 
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
@@ -200,8 +224,8 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
 
         public async Task<EmailChangeToken> GenerateEmailTokenAsync(string currentEmail, string newEmail, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Генерация токена изменения email с {1} на {2}",
-                nameof(GenerateEmailTokenAsync), currentEmail, newEmail);
+            _logger.LogInformation("{0}:{1} -> Генерация токена изменения email с {2} на {3}",
+                nameof(UserRepository), nameof(GenerateEmailTokenAsync), currentEmail, newEmail);
 
             var user = await _userManager.FindByEmailAsync(currentEmail);
             if(user == null)
@@ -215,8 +239,8 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
 
         public async Task<EmailConfirmationToken> GenerateEmailConfirmationTokenAsync(string email, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Генерация токена подтверждения email: {1}",
-                nameof(GenerateEmailConfirmationTokenAsync), email);
+            _logger.LogInformation("{0}:{1} -> Генерация токена подтверждения email: {2}",
+                nameof(UserRepository), nameof(GenerateEmailConfirmationTokenAsync), email);
 
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
@@ -230,8 +254,8 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
 
         public async Task ChangePasswordAsync(string email, string currentPassword, string newPassword, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Изменение пароля пользователя с email: {1}",
-                nameof(ChangePasswordAsync), email);
+            _logger.LogInformation("{0}:{1} -> Изменение пароля пользователя с email: {2}",
+                nameof(UserRepository), nameof(ChangePasswordAsync), email);
 
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
@@ -248,8 +272,8 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
 
         public async Task<bool> CheckPasswordAsync(string email, string password, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Валидация пароля пользователя с email: {1}",
-                nameof(ChangePasswordAsync), email);
+            _logger.LogInformation("{0}:{1} -> Валидация пароля пользователя с email: {2}",
+                nameof(UserRepository), nameof(ChangePasswordAsync), email);
 
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
@@ -263,8 +287,8 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
 
         public async Task ResetPasswordAsync(string email, string token, string newPassword, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Сброс пароля пользователя с email: {1}",
-                nameof(ResetPasswordAsync), email);
+            _logger.LogInformation("{0}:{1} -> Сброс пароля пользователя с email: {2}",
+                nameof(UserRepository), nameof(ResetPasswordAsync), email);
 
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
@@ -283,8 +307,8 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
 
         public async Task<string> GeneratePasswordResetTokenAsync(string email, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Генерация токена для сброса пароля пользователя с email: {1}",
-                nameof(GeneratePasswordResetTokenAsync), email);
+            _logger.LogInformation("{0}:{1} -> Генерация токена для сброса пароля пользователя с email: {2}",
+                nameof(UserRepository), nameof(GeneratePasswordResetTokenAsync), email);
 
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
@@ -297,10 +321,10 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
             return token;
         }
 
-        public async Task<bool> IsInRoleAsync(Guid userId, string role, CancellationToken cancellationToken)
+        public async Task<bool> IsInRoleAsync(Guid userId, string role, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение информации имеет ли пользователь с ID: {1} роль {2}",
-                nameof(IsInRoleAsync), userId, role);
+            _logger.LogInformation("{0}:{1} -> Получение информации имеет ли пользователь с ID: {2} роль {3}",
+                nameof(UserRepository), nameof(IsInRoleAsync), userId, role);
 
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)

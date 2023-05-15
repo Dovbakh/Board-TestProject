@@ -15,17 +15,13 @@ namespace FileStorage.Infrastructure.ObjectStorage
     /// <inheritdoc />
     public class MinioStorage : IObjectStorage
     {
-        protected MinioClient _storage { get; }
-        private readonly IConfiguration _configuration;
+        protected MinioClient _minioClient;
         private readonly ILogger<MinioStorage> _logger;
-        private const string MinioAccessName = "MinioFileStorage";
 
-        public MinioStorage(IConfiguration configuration, ILogger<MinioStorage> logger)
+        public MinioStorage(ILogger<MinioStorage> logger, MinioClient minioClient)
         {
-            _configuration = configuration;
             _logger = logger;
-            _storage = CreateStorage();
-            
+            _minioClient = minioClient;
         }
 
         /// <inheritdoc />
@@ -35,7 +31,7 @@ namespace FileStorage.Infrastructure.ObjectStorage
                 nameof(GetData), objectName, bucketName);
 
             var bktExistArgs = new BucketExistsArgs().WithBucket(bucketName);
-            var found = await _storage.BucketExistsAsync(bktExistArgs, cancellation);
+            var found = await _minioClient.BucketExistsAsync(bktExistArgs, cancellation);
             if (!found)
             {
                 throw new KeyNotFoundException($"Обьект с именем {objectName} не найден.");
@@ -50,7 +46,7 @@ namespace FileStorage.Infrastructure.ObjectStorage
 
             try
             {
-                await _storage.GetObjectAsync(args, cancellation);
+                await _minioClient.GetObjectAsync(args, cancellation);
             }
             catch (Exception ex) 
             {
@@ -72,7 +68,7 @@ namespace FileStorage.Infrastructure.ObjectStorage
                 nameof(GetInfo), objectName, bucketName);
 
             var bktExistArgs = new BucketExistsArgs().WithBucket(bucketName);
-            var found = await _storage.BucketExistsAsync(bktExistArgs, cancellation);
+            var found = await _minioClient.BucketExistsAsync(bktExistArgs, cancellation);
             if (!found)
             {
                 throw new KeyNotFoundException($"Обьект с именем {objectName} не найден.");
@@ -84,7 +80,7 @@ namespace FileStorage.Infrastructure.ObjectStorage
 
             try
             {
-                var objectStat = await _storage.StatObjectAsync(args, cancellation);
+                var objectStat = await _minioClient.StatObjectAsync(args, cancellation);
                 return objectStat;
             }
             catch (Exception ex)
@@ -105,12 +101,12 @@ namespace FileStorage.Infrastructure.ObjectStorage
                 nameof(Upload), objectName, bucketName, contentType, bytes);
 
             var bktExistArgs = new BucketExistsArgs().WithBucket(bucketName);
-            var found = await _storage.BucketExistsAsync(bktExistArgs, cancellation);
+            var found = await _minioClient.BucketExistsAsync(bktExistArgs, cancellation);
             if (!found)
             {
                 var mkBktArgs = new MakeBucketArgs()
                     .WithBucket(bucketName);
-                await _storage.MakeBucketAsync(mkBktArgs, cancellation);
+                await _minioClient.MakeBucketAsync(mkBktArgs, cancellation);
             }
 
             using (var memoryStream = new MemoryStream(bytes))
@@ -125,7 +121,7 @@ namespace FileStorage.Infrastructure.ObjectStorage
                 
                 try
                 {
-                    await _storage.PutObjectAsync(args);
+                    await _minioClient.PutObjectAsync(args);
                 }
                 catch (Exception ex)
                 {
@@ -145,7 +141,7 @@ namespace FileStorage.Infrastructure.ObjectStorage
                 nameof(Delete), objectName, bucketName);
 
             var bktExistArgs = new BucketExistsArgs().WithBucket(bucketName);
-            var found = await _storage.BucketExistsAsync(bktExistArgs, cancellation);
+            var found = await _minioClient.BucketExistsAsync(bktExistArgs, cancellation);
             if (!found)
             {
                 throw new KeyNotFoundException($"Обьект с именем {objectName} не найден.");
@@ -157,29 +153,12 @@ namespace FileStorage.Infrastructure.ObjectStorage
 
             try
             {
-                await _storage.RemoveObjectAsync(args, cancellation);
+                await _minioClient.RemoveObjectAsync(args, cancellation);
             }
             catch (Exception ex)
             {
                 throw new Exception("Ошибка при работе с обьектным хранилищем.", ex);
             }
-        }
-
-        private MinioClient CreateStorage()
-        {          
-            var endpoint = "127.0.0.1:9000"; // _configuration.GetSection(MinioAccessName).GetRequiredSection("Endpoint").Value;
-            var accessKey = "solarvito"; // _configuration.GetSection(MinioAccessName).GetRequiredSection("AccessKey").Value;
-            var secretKey = "solarvito123"; // _configuration.GetSection(MinioAccessName).GetRequiredSection("SecretKey").Value;
-            _logger.LogInformation("{0} -> Создание соединения с сервером MinIO: {1}",
-                nameof(Delete), endpoint);
-
-            var minioCLient = new MinioClient();
-            minioCLient.WithEndpoint(endpoint)
-                    .WithCredentials(accessKey, secretKey)
-                    .WithSSL(false)
-                    .Build();       
-
-            return minioCLient;
         }
     }
 }

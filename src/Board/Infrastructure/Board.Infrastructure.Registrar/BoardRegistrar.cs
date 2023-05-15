@@ -31,7 +31,7 @@ using Board.Domain;
 using Microsoft.OpenApi.Models;
 using Identity.Clients.Users;
 using Microsoft.Extensions.Options;
-using Board.Infrastructure.Registrar.Options;
+using Board.Contracts.Options;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Identity.Infrastructure.Registrar;
@@ -58,6 +58,7 @@ using Board.Infrastructure.DataAccess.Contexts.AdvertViews.Repositories;
 using Board.Application.AppData.Contexts.AdvertFavorites.Repositories;
 using Board.Infrastructure.DataAccess.Contexts.AdvertFavorites.Repositories;
 using IdentityModel.Client;
+using Board.Contracts.Options;
 
 namespace Board.Infrastructure.Registrar
 {
@@ -117,7 +118,6 @@ namespace Board.Infrastructure.Registrar
             //services.AddTransient<IValidator<CommentRequestDto>, CommentValidator>();
             //services.AddTransient<IValidator<CommentUpdateRequestDto>, CommentUpdateValidator>();
 
-
             services.AddScoped<IImageService, ImageService>();
 
             //services.AddSingleton<IMapper>(new Mapper(new MapperConfiguration
@@ -125,6 +125,32 @@ namespace Board.Infrastructure.Registrar
             //    {
             //        a.AddMaps(Assembly.GetExecutingAssembly());
             //    })));
+
+
+            services.AddOptions<CommentAddLockOptions>()
+                .BindConfiguration("RedLock:CommentAddLockOptions")
+                .ValidateOnStart();
+            services.AddOptions<AdvertFavoriteAddLockOptions>()
+                .BindConfiguration("RedLock:AdvertFavoriteAddLockOptions")
+                .ValidateOnStart();
+            services.AddOptions<AdvertOptions>()
+                .BindConfiguration("Adverts")
+                .ValidateOnStart();
+            services.AddOptions<CommentOptions>()
+                .BindConfiguration("Comments")
+                .ValidateOnStart();
+            services.AddOptions<CategoryOptions>()
+                .BindConfiguration("Categories")
+                .ValidateOnStart();
+            services.AddOptions<Contracts.Options.UserOptions>()
+                .BindConfiguration("Users")
+                .ValidateOnStart();
+            services.AddOptions<CookieOptions>()
+                .BindConfiguration("Cookie")
+                .ValidateOnStart();
+            services.AddOptions<IdentityClientOptions>()
+                .BindConfiguration("IdentityServer")
+                .ValidateOnStart();
 
 
             services.AddHttpContextAccessor();
@@ -162,13 +188,12 @@ namespace Board.Infrastructure.Registrar
             return services;
         }
 
-        public static IServiceCollection AddAuthenticationServices(this IServiceCollection services/*, IConfiguration configuration*/)
+        public static IServiceCollection AddAuthenticationServices(this IServiceCollection services)
         {
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(options =>
                 {
                     options.Authority = "https://localhost:7157";
-                    //options.ApiName = "Board.Host.Api";
                     options.RequireHttpsMetadata = false;
                     
                 });
@@ -202,7 +227,11 @@ namespace Board.Infrastructure.Registrar
                 options.AddPolicy("ApiScope", policy =>
                 {
                     policy.RequireAuthenticatedUser();
-                    policy.RequireClaim("scope", "Board.Web");
+                    policy.RequireClaim("scope", "Board.Host.Api");
+                });
+                options.AddPolicy("AdminOnly", policy =>
+                {
+                    policy.RequireRole("admin");
                 });
                 //options.AddPolicy("ApiScope", policy =>
                 //{
@@ -253,8 +282,8 @@ namespace Board.Infrastructure.Registrar
         {
             services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = configuration.GetSection("RedisCache").GetRequiredSection("Host").Value;
-                options.InstanceName = configuration.GetSection("RedisCache").GetRequiredSection("InstanceName").Value;
+                options.Configuration = configuration["RedisCache:Host"];
+                options.InstanceName = configuration["RedisCache:InstanceName"];
             });
 
             return services;
@@ -304,29 +333,54 @@ namespace Board.Infrastructure.Registrar
 
         public static IServiceCollection AddHttpClients(this IServiceCollection services, ConfigurationManager configuration)
         {
-            services.Configure<UserClientOptions>(configuration.GetSection("UserApiClientOptions"));
-            services.Configure<FileClientOptions>(configuration.GetSection("FileApiClientOptions"));
+            //services.Configure<UserClientOptions>(configuration.GetSection("UserApiClientOptions"));
+            //services.Configure<FileClientOptions>(configuration.GetSection("FileApiClientOptions"));
 
-            services.AddHttpClient<IUserClient, UserClient>(ConfigureUserHttpClient);
-            services.AddHttpClient<IImageClient, ImageClient>(ConfigureFileHttpClient);
+            //services.AddHttpClient<IUserClient, UserClient>(client => client.BaseAddress = new Uri("https://localhost:7157/"));
+            //services.AddHttpClient<IImageClient, ImageClient>(ConfigureFileHttpClient);
+
+            services.AddScoped<IUserClient, UserClient>();
+            services.AddScoped<IImageClient, ImageClient>();   
+
+            services.AddHttpClient();
+            services.AddAccessTokenManagement(options =>
+            {
+                options.Client.Clients.Add("Identity.Host.Server", new ClientCredentialsTokenRequest
+                {
+                    Address = configuration.GetSection("IdentityServer").GetSection("GetTokenAddress").Value,
+                    ClientId = configuration.GetSection("IdentityServer").GetSection("InternalClientCredentials").GetSection("Id").Value,
+                    ClientSecret = configuration.GetSection("IdentityServer").GetSection("InternalClientCredentials").GetSection("Secret").Value,
+                    Scope = configuration.GetSection("IdentityServer").GetSection("InternalClientCredentials").GetSection("Scope").Value
+                });
+            });
+
+            services.AddClientAccessTokenClient("UserClient", configureClient: client =>
+            {
+                client.BaseAddress = new Uri(configuration.GetSection("UserApiClientOptions").GetSection("BasePath").Value);
+            });
+
+            services.AddClientAccessTokenClient("FileClient", configureClient: client =>
+            {
+                client.BaseAddress = new Uri(configuration.GetSection("FileApiClientOptions").GetSection("BasePath").Value);
+            });
 
             return services;
         }
 
 
-        static void ConfigureUserHttpClient(IServiceProvider serviceProvider, HttpClient client)
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<UserClientOptions>>().Value;
+        //static void ConfigureUserHttpClient(IServiceProvider serviceProvider, HttpClient client)
+        //{
+        //    var options = serviceProvider.GetRequiredService<IOptions<UserClientOptions>>().Value;
 
-            client.BaseAddress = new Uri(options.BasePath);
-        }
+        //    client.BaseAddress = new Uri(options.BasePath);
+        //}
 
-        static void ConfigureFileHttpClient(IServiceProvider serviceProvider, HttpClient client)
-        {
-            var options = serviceProvider.GetRequiredService<IOptions<FileClientOptions>>().Value;
+        //static void ConfigureFileHttpClient(IServiceProvider serviceProvider, HttpClient client)
+        //{
+        //    var options = serviceProvider.GetRequiredService<IOptions<FileClientOptions>>().Value;
 
-            client.BaseAddress = new Uri(options.BasePath);
-        }
+        //    client.BaseAddress = new Uri(options.BasePath);
+        //}
 
         public static ConfigureHostBuilder AddCustomLogger(this ConfigureHostBuilder hostBuilder, ConfigurationManager configuration)
         {

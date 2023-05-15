@@ -9,8 +9,8 @@ namespace Board.Application.AppData.Contexts.AdvertFavorites.Services
 {
     public interface IAdvertFavoriteService
     {
-        Task<Guid> AddAsync(Guid advertId, Guid userId, CancellationToken cancellation);
-        Task DeleteAsync(Guid advertFavoriteId, CancellationToken cancellation);
-        Task<IReadOnlyCollection<AdvertFavoriteSummary>> GetAllByUserIdAsync(Guid userId, CancellationToken cancellation);
+        Task AddIfNotExistsAsync(Guid advertId, CancellationToken cancellation);
+        Task DeleteAsync(Guid advertId, CancellationToken cancellation);
+        Task<IReadOnlyCollection<Guid>> GetAllForCurrentUserAsync(CancellationToken cancellation);
     }
 }

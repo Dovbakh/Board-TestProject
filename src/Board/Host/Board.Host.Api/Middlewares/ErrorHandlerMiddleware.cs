@@ -5,7 +5,7 @@ using System;
 using System.Net;
 using System.Text.Json;
 
-namespace Board.Contracts.Middlewares
+namespace Board.Host.Middlewares
 {
     public class ErrorHandlerMiddleware
     {

@@ -35,28 +35,30 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
         /// <inheritdoc />
         public async Task<IReadOnlyCollection<AdvertSummary>> GetAllAsync(int offset, int limit, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение всех обьявлений с параметрами: {1} = {2}, {3} = {4}",
-                nameof(GetAllAsync), nameof(offset), offset, nameof(limit), limit);
+            _logger.LogInformation("{0}:{1} -> Получение всех обьявлений с параметрами: {2} = {3}, {4} = {5}",
+                nameof(AdvertRepository), nameof(GetAllAsync), nameof(offset), offset, nameof(limit), limit);
 
-            var advertDetailsList = await _repository.GetAll()
-                .OrderByDescending(a => a.CreatedAt)
-                .Include(a => a.AdvertImages)
-                .ProjectTo<AdvertSummary>(_mapper.ConfigurationProvider)
+            var adverts = await _repository.GetAll()
+                .Where(a => a.isActive == true)
+                .OrderByDescending(a => a.CreatedAt)               
                 .Skip(offset)
                 .Take(limit)
+                .Include(a => a.AdvertImages)
+                .ProjectTo<AdvertSummary>(_mapper.ConfigurationProvider)             
                 .ToListAsync(cancellation);
 
-            return advertDetailsList;
+            return adverts;
         }
 
         /// <inheritdoc />
         public async Task<IReadOnlyCollection<AdvertSummary>> GetAllFilteredAsync(AdvertFilterRequest filterRequest, int offset, int limit, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение всех обьявлений по фильтру с параметрами: {1} = {2}, {3} = {4}, {5} = {6}",
-                nameof(GetAllFilteredAsync), nameof(offset), offset, nameof(limit), limit, nameof(filterRequest),
+            _logger.LogInformation("{0}:{1} -> Получение всех обьявлений по фильтру с параметрами: {2} = {3}, {4} = {5}, {6} = {7}",
+                nameof(AdvertRepository), nameof(GetAllFilteredAsync), nameof(offset), offset, nameof(limit), limit, nameof(filterRequest),
                 JsonConvert.SerializeObject(filterRequest));
 
-            var query = _repository.GetAll();
+            var query = _repository.GetAll()
+                .Where(a => a.isActive == true);
 
             if (filterRequest.UserId.HasValue)
             {
@@ -98,47 +100,64 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
                 }
             }
 
-            var advertDetailsList = await query
-                .Include(a => a.AdvertImages)
-                .ProjectTo<AdvertSummary>(_mapper.ConfigurationProvider)
+            var adverts = await query
                 .Skip(offset)
                 .Take(limit)
+                .Include(a => a.AdvertImages)
+                .ProjectTo<AdvertSummary>(_mapper.ConfigurationProvider)              
                 .ToListAsync(cancellation);
 
-
-            return advertDetailsList;
+            return adverts;
         }
 
         /// <inheritdoc />
         public async Task<AdvertDetails> GetByIdAsync(Guid advertId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение обьявления по ID: {1} ",
-                nameof(GetByIdAsync), advertId);
+            _logger.LogInformation("{0}:{1} -> Получение обьявления по ID: {2}",
+                nameof(AdvertRepository), nameof(GetByIdAsync), advertId);
 
-            var advertDetails = await _repository.GetAll()
-                .Where(a => a.Id == advertId)
+            var advert = await _repository.GetAll()
+                .Where(a => a.Id == advertId && a.isActive == true)
                 .Include(a => a.Category)
                 .Include(a => a.AdvertImages)
                 .ProjectTo<AdvertDetails>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellation);
 
-            return advertDetails;
+            return advert;
         }
 
         /// <inheritdoc />
-        public async Task<bool> IsExist(Guid advertId, CancellationToken cancellation)
+        public async Task<Guid> GetUserIdAsync(Guid advertId, CancellationToken cancellation)
         {
-            var isExist = await _repository.GetAll()
-                                    .AnyAsync(a => a.Id == advertId, cancellation);
+            _logger.LogInformation("{0}:{1} -> Получение ID пользователя, создавшего обьявления с ID: {2}",
+                nameof(AdvertRepository), nameof(GetByIdAsync), advertId);
 
-            return isExist;              
+            var userId = await _repository.GetAll()
+                .Where(a => a.Id == advertId && a.isActive == true)
+                .Select(a => a.UserId)
+                .FirstOrDefaultAsync(cancellation);
+            if(userId == null)
+            {
+                throw new KeyNotFoundException($"Не найдено обьявление с ID: {advertId}");
+            }
+
+            return userId;
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> IsExists(Guid advertId, CancellationToken cancellation)
+        {
+            var isExists = await _repository.GetAll()
+                .AnyAsync(a => a.Id == advertId, cancellation);
+
+            return isExists;              
         }
 
         /// <inheritdoc />
         public async Task<Guid> AddAsync(AdvertAddRequest addRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Создание обьявления из модели {1}: {2}",
-                nameof(AddAsync), nameof(AdvertAddRequest), JsonConvert.SerializeObject(addRequest));
+            _logger.LogInformation("{0}:{1} -> Создание обьявления из модели {2}: {3}",
+                nameof(AdvertRepository), nameof(AddAsync), nameof(AdvertAddRequest), JsonConvert.SerializeObject(addRequest));
 
             var advert = _mapper.Map<AdvertAddRequest, Advert>(addRequest);
             await _repository.AddAsync(advert, cancellation);
@@ -149,56 +168,56 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
         /// <inheritdoc />
         public async Task<AdvertDetails> UpdateAsync(Guid advertId, AdvertUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Обновление обьявления c ID: {1} из модели {2}: {3}",
-                nameof(UpdateAsync), advertId, nameof(AdvertUpdateRequest), JsonConvert.SerializeObject(updateRequest));
+            _logger.LogInformation("{0}:{1} -> Обновление обьявления c ID: {2} из модели {3}: {4}",
+                nameof(AdvertRepository), nameof(UpdateAsync), advertId, nameof(AdvertUpdateRequest), JsonConvert.SerializeObject(updateRequest));
 
-            var existingAdvert = await _repository.GetAll()
+            var advert = await _repository.GetAll()
                 .Where(a => a.Id == advertId)
                 .Include(a => a.Category)
                 .Include(a => a.AdvertImages)
                 .FirstOrDefaultAsync(cancellation);
-            if (existingAdvert == null)
+
+            if (advert == null)
             {
                 throw new KeyNotFoundException($"Не найдено обьявление с ID: {advertId}");
             }
 
-            var updatedAdvert = _mapper.Map<AdvertUpdateRequest, Advert>(updateRequest, existingAdvert);
+            var updatedAdvert = _mapper.Map<AdvertUpdateRequest, Advert>(updateRequest, advert);
             await _repository.UpdateAsync(updatedAdvert, cancellation);
+            var updatedAdvertDto = _mapper.Map<Advert, AdvertDetails>(updatedAdvert);
 
-            var updatedAdvertDetails = _mapper.Map<Advert, AdvertDetails>(updatedAdvert);
-
-            return updatedAdvertDetails;
+            return updatedAdvertDto;
         }
 
         /// <inheritdoc />
         public async Task DeleteAsync(Guid advertId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Удаление обьявления с ID: {1}",
-                nameof(DeleteAsync), advertId);
+            _logger.LogInformation("{0}:{1} -> Удаление обьявления с ID: {2}",
+                nameof(AdvertRepository), nameof(DeleteAsync), advertId);
 
-            var existingAdvert = await _repository.GetByIdAsync(advertId, cancellation);
-            if (existingAdvert == null)
+            var advert = await _repository.GetByIdAsync(advertId, cancellation);
+            if (advert == null)
             {
                 throw new KeyNotFoundException($"Не найдено обьявление с ID: {advertId}");
             }
 
-            await _repository.DeleteAsync(existingAdvert, cancellation);
+            await _repository.DeleteAsync(advert, cancellation);
         }
 
         /// <inheritdoc />
         public async Task SoftDeleteAsync(Guid advertId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Мягкое удаление обьявления с ID: {1}",
-                nameof(SoftDeleteAsync), advertId);
+            _logger.LogInformation("{0}:{1} -> Мягкое удаление обьявления с ID: {2}",
+                nameof(AdvertRepository), nameof(SoftDeleteAsync), advertId);
 
-            var existingAdvert = await _repository.GetByIdAsync(advertId, cancellation);
-            if (existingAdvert == null)
+            var advert = await _repository.GetByIdAsync(advertId, cancellation);
+            if (advert == null)
             {
                 throw new KeyNotFoundException($"Не найдено обьявление с ID: {advertId}");
             }
 
-            existingAdvert.isActive = false;
-            await _repository.UpdateAsync(existingAdvert, cancellation);
+            advert.isActive = false;
+            await _repository.UpdateAsync(advert, cancellation);
         }
     }
 }

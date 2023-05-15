@@ -2,11 +2,13 @@
 using Identity.Application.AppData.Helpers;
 using Identity.Application.AppData.Repositories;
 using Identity.Contracts.Contexts.Users;
+using Identity.Contracts.Options;
 using Identity.Domain;
 using IdentityServer4;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RedLockNet;
 using System;
@@ -22,7 +24,6 @@ namespace Identity.Application.AppData.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IdentityServerTools _identityServerTools;
         private readonly IValidator<UserLoginRequest> _userLoginValidator;
@@ -33,16 +34,17 @@ namespace Identity.Application.AppData.Services
         private readonly IValidator<UserGenerateEmailTokenRequest> _userGenerateEmailTokenValidator;
         private readonly IValidator<UserGenerateEmailConfirmationTokenRequest> _userGenerateEmailConfirmationTokenValidator;
         private readonly ILogger<UserService> _logger;
-        private const int UserListCount = 10;
+        private readonly UserOptions _userOptions;
 
 
-        public UserService(IUserRepository userRepository, IConfiguration configuration, IHttpContextAccessor contextAccessor, IdentityServerTools identityServerTools,
+
+        public UserService(IUserRepository userRepository, IHttpContextAccessor contextAccessor, IdentityServerTools identityServerTools,
             IValidator<UserLoginRequest> userLoginValidator, IValidator<UserRegisterRequest> userRegisterValidator, IValidator<UserUpdateRequest> userUpdateValidator,
             IValidator<UserGenerateEmailTokenRequest> userGenerateEmailTokenValidator, IValidator<UserGenerateEmailConfirmationTokenRequest> userGenerateEmailConfirmationTokenValidator,
-            ILogger<UserService> logger, IValidator<UserChangeEmailRequest> userChangeEmailValidator, IValidator<UserConfirmEmailRequest> userConfirmEmailValidator)
+            ILogger<UserService> logger, IValidator<UserChangeEmailRequest> userChangeEmailValidator, IValidator<UserConfirmEmailRequest> userConfirmEmailValidator, 
+            IOptions<UserOptions> userOptionsAccessor)
         {
             _userRepository = userRepository;
-            _configuration = configuration;
             _contextAccessor = contextAccessor;
             _identityServerTools = identityServerTools;
             _userLoginValidator = userLoginValidator;
@@ -53,96 +55,50 @@ namespace Identity.Application.AppData.Services
             _logger = logger;
             _userChangeEmailValidator = userChangeEmailValidator;
             _userConfirmEmailValidator = userConfirmEmailValidator;
+            _userOptions = userOptionsAccessor.Value;
         }
 
-        public Task<IReadOnlyCollection<UserSummary>> GetAllAsync(int? offset, int? count, CancellationToken cancellationToken)
+        public Task<IReadOnlyCollection<UserSummary>> GetAllAsync(int? offset, int? count, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение всех пользователей.",
-                nameof(GetAllAsync));
+            _logger.LogInformation("{0}:{1} -> Получение списка пользователей с параметрами: {2} = {3}, {4} = {5}",
+                nameof(UserService), nameof(GetAllAsync), nameof(offset), offset, nameof(count), count);
 
-            if (count.HasValue)
+            if (!count.HasValue)
             {
-                return _userRepository.GetAllAsync(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellationToken);
+                count = _userOptions.ListDefaultCount;
             }
 
-            try
-            {
-                count = Int32.Parse(_configuration.GetSection("Users").GetRequiredSection("ListDefaultCount").Value);
-            }
-            catch
-            {
-                _logger.LogWarning("{0} -> В конфигурации указано невалидное значение количества получаемых пользователей по умолчанию Users->ListDefaultCount",
-                    nameof(GetAllAsync));
-                count = UserListCount;
-            }
-
-            return _userRepository.GetAllAsync(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellationToken);
+            return _userRepository.GetAllAsync(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
         }
 
-        public Task<UserDetails> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+        public Task<UserDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение пользователя с ID: {1}",
-                nameof(GetByIdAsync), id);
+            _logger.LogInformation("{0}:{1} -> Получение пользователя с ID: {2}",
+                nameof(UserService), nameof(GetByIdAsync), id);
 
-            return _userRepository.GetByIdAsync(id, cancellationToken);
+            return _userRepository.GetByIdAsync(id, cancellation);
         }
 
-        public async Task<Guid> RegisterAsync(UserRegisterRequest registerRequest, CancellationToken cancellationToken)
+        public async Task<Guid> RegisterAsync(UserRegisterRequest registerRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Регистрация пользователя со следующим email: {1}",
-                nameof(RegisterAsync), registerRequest.Email);
+            _logger.LogInformation("{0}:{1} -> Регистрация пользователя со следующим email: {2}",
+                nameof(UserService), nameof(RegisterAsync), registerRequest.Email);
 
             var validationResult = _userRegisterValidator.Validate(registerRequest);
             if (!validationResult.IsValid)
             {
                 throw new ValidationException($"Модель регистрации нового пользователя не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
             }
-
-            var existingUser = await _userRepository.GetByEmailAsync(registerRequest.Email, cancellationToken);
-            if (existingUser != null)
-            {
-                throw new ArgumentException($"Пользователь с почтой '{registerRequest.Email}' уже зарегистрирован!");
-            }
             
+            var newUserId = await _userRepository.AddIfNotExistsAsync(registerRequest, cancellation);
 
-            return await _userRepository.AddAsync(registerRequest, cancellationToken);
+            return newUserId;
         }
 
-        public async Task<string> LoginAsync(UserLoginRequest loginRequest, CancellationToken cancellationToken)
+        public Task<UserDetails> UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Аутентификация пользователя с email: {1}",
-                nameof(LoginAsync), loginRequest.UserName);
-
-            var validationResult = _userLoginValidator.Validate(loginRequest);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException($"Модель аутентификации пользователя не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
-
-            // TODO: сделать ручную генерацию токена для хэндлинга ошибок _identityServerTools
-
-            var existingUser = await _userRepository.GetByEmailAsync(loginRequest.UserName, cancellationToken);
-            if (existingUser == null)
-            {
-                throw new KeyNotFoundException("Введен неверный email или пароль.");
-            }
-
-            var isPasswordVerified = await _userRepository.CheckPasswordAsync(loginRequest.UserName, loginRequest.Password, cancellationToken);
-            if (!isPasswordVerified)
-            {
-                throw new ArgumentException("Введен неверный email или пароль.");
-            }
-
-            var token = "";// GenerateToken(existingUser);
-
-
-            return token;
-        }
-
-        public Task<UserDetails> UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellationToken)
-        {
-            _logger.LogInformation("{0} -> Обновление информации о пользователе с ID: {1} со следующей моделью обновления {2}: {3}",
-                nameof(UpdateAsync), id, nameof(UserUpdateRequest), JsonConvert.SerializeObject(updateRequest));
+            _logger.LogInformation("{0}:{1} -> Обновление информации о пользователе с ID: {2} со следующей моделью обновления {3}: {4}",
+                nameof(UserService), nameof(UpdateAsync), id, nameof(UserUpdateRequest), JsonConvert.SerializeObject(updateRequest));
 
             var validationResult = _userUpdateValidator.Validate(updateRequest);
             if (!validationResult.IsValid)
@@ -150,35 +106,29 @@ namespace Identity.Application.AppData.Services
                 throw new ValidationException($"Модель обновления пользователя не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
             }
 
-            return _userRepository.UpdateAsync(id, updateRequest, cancellationToken);
+            return _userRepository.UpdateAsync(id, updateRequest, cancellation);
         }
 
-        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Удаление пользователя с ID: {1}",
-                nameof(DeleteAsync), id);
-            //var currentUser = await GetCurrent(cancellationToken);
-            //;
-            //if (currentUser.Id != id && currentUser.RoleName != "admin")
-            //{
-            //    throw new AccessViolationException("Нет прав.");
-            //}
+            _logger.LogInformation("{0}:{1} -> Удаление пользователя с ID: {2}",
+                nameof(UserService), nameof(DeleteAsync), id);
 
-            await _userRepository.DeleteAsync(id, cancellationToken);
+            await _userRepository.DeleteAsync(id, cancellation);
         }
 
-        public Task<bool> IsInRoleAsync(Guid userId, string role, CancellationToken cancellationToken)
+        public Task<bool> IsInRoleAsync(Guid userId, string role, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение информации имеет ли пользователь с ID: {1} роль {2}",
-                nameof(IsInRoleAsync), userId, role);
+            _logger.LogInformation("{0}:{1} -> Получение информации имеет ли пользователь с ID: {2} роль {3}",
+                nameof(UserService), nameof(IsInRoleAsync), userId, role);
 
-            return _userRepository.IsInRoleAsync(userId, role, cancellationToken);
+            return _userRepository.IsInRoleAsync(userId, role, cancellation);
         }
 
-        public async Task<EmailChangeToken> GenerateEmailTokenAsync(UserGenerateEmailTokenRequest request, CancellationToken cancellationToken)
+        public async Task<EmailChangeToken> GenerateEmailTokenAsync(UserGenerateEmailTokenRequest request, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Генерация токена изменения email с {1} на {2}",
-                nameof(GenerateEmailTokenAsync), request.CurrentEmail, request.NewEmail);
+            _logger.LogInformation("{0}:{1} -> Генерация токена изменения email с {2} на {3}",
+                nameof(UserService), nameof(GenerateEmailTokenAsync), request.CurrentEmail, request.NewEmail);
 
             var validationResult = _userGenerateEmailTokenValidator.Validate(request);
             if (!validationResult.IsValid)
@@ -186,21 +136,21 @@ namespace Identity.Application.AppData.Services
                 throw new ValidationException($"Модель генерации токена не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
             }
 
-            var isPasswordVerified = await _userRepository.CheckPasswordAsync(request.CurrentEmail, request.Password, cancellationToken);
+            var isPasswordVerified = await _userRepository.CheckPasswordAsync(request.CurrentEmail, request.Password, cancellation);
             if (!isPasswordVerified)
             {
                 throw new ArgumentException("Введен неверный пароль.");
             }
 
-            var token = await _userRepository.GenerateEmailTokenAsync(request.CurrentEmail, request.NewEmail, cancellationToken);
+            var token = await _userRepository.GenerateEmailTokenAsync(request.CurrentEmail, request.NewEmail, cancellation);
 
             return token;
         }
 
-        public async Task<EmailConfirmationToken> GenerateEmailConfirmationTokenAsync(UserGenerateEmailConfirmationTokenRequest request, CancellationToken cancellationToken)
+        public async Task<EmailConfirmationToken> GenerateEmailConfirmationTokenAsync(UserGenerateEmailConfirmationTokenRequest request, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Генерация токена подтверждения email: {1}",
-                nameof(GenerateEmailConfirmationTokenAsync), request.Email);
+            _logger.LogInformation("{0}:{1} -> Генерация токена подтверждения email: {2}",
+                nameof(UserService), nameof(GenerateEmailConfirmationTokenAsync), request.Email);
 
             var validationResult = _userGenerateEmailConfirmationTokenValidator.Validate(request);
             if (!validationResult.IsValid)
@@ -208,16 +158,16 @@ namespace Identity.Application.AppData.Services
                 throw new ValidationException($"Модель генерации токена не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
             }
 
-            var token = await _userRepository.GenerateEmailConfirmationTokenAsync(request.Email, cancellationToken);
+            var token = await _userRepository.GenerateEmailConfirmationTokenAsync(request.Email, cancellation);
 
             return token;
         }
        
 
-        public async Task ChangeEmailAsync(UserChangeEmailRequest request, CancellationToken cancellationToken)
+        public async Task ChangeEmailAsync(UserChangeEmailRequest request, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Изменение email пользователя с {1} на {2}",
-                nameof(ChangeEmailAsync), request.CurrentEmail, request.NewEmail);
+            _logger.LogInformation("{0}:{1} -> Изменение email пользователя с {2} на {3}",
+                nameof(UserService), nameof(ChangeEmailAsync), request.CurrentEmail, request.NewEmail);
 
             var validationResult = _userChangeEmailValidator.Validate(request);
             if (!validationResult.IsValid)
@@ -226,14 +176,14 @@ namespace Identity.Application.AppData.Services
             }
 
             request.Token = request.Token.Replace(" ", "+");
-            await _userRepository.ChangeEmailAsync(request.CurrentEmail, request.NewEmail, request.Token, cancellationToken);
+            await _userRepository.ChangeEmailAsync(request.CurrentEmail, request.NewEmail, request.Token, cancellation);
 
         }
 
-        public async Task ConfirmEmailAsync(UserConfirmEmailRequest request, CancellationToken cancellationToken)
+        public async Task ConfirmEmailAsync(UserConfirmEmailRequest request, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Подтверждение email пользователя: {1}",
-                nameof(ConfirmEmailAsync), request.Email);
+            _logger.LogInformation("{0}:{1} -> Подтверждение email пользователя: {2}",
+                nameof(UserService), nameof(ConfirmEmailAsync), request.Email);
 
             var validationResult = _userConfirmEmailValidator.Validate(request);
             if (!validationResult.IsValid)
@@ -241,7 +191,7 @@ namespace Identity.Application.AppData.Services
                 throw new ValidationException($"Модель подтверждения почты не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
             }
             request.Token = request.Token.Replace(" ", "+");
-            await _userRepository.ConfirmEmailAsync(request.Email, request.Token, cancellationToken);
+            await _userRepository.ConfirmEmailAsync(request.Email, request.Token, cancellation);
 
         }
     }

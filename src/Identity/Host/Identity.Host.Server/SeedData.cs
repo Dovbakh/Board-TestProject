@@ -149,19 +149,19 @@ namespace Identity.Host.Server
                 Console.WriteLine("IdentityResources already populated");
             }
 
-            //if (!context.ApiResources.Any())
-            //{
-            //    Console.WriteLine("ApiResources being populated");
-            //    foreach (var resource in Config.ApiResources.ToList())
-            //    {
-            //        context.ApiResources.Add(resource.ToEntity());
-            //    }
-            //    context.SaveChanges();
-            //}
-            //else
-            //{
-            //    Console.WriteLine("ApiResources already populated");
-            //}
+            if (!context.ApiResources.Any())
+            {
+                Console.WriteLine("ApiResources being populated");
+                foreach (var resource in Config.ApiResources.ToList())
+                {
+                    context.ApiResources.Add(resource.ToEntity());
+                }
+                context.SaveChanges();
+            }
+            else
+            {
+                Console.WriteLine("ApiResources already populated");
+            }
 
             if (!context.ApiScopes.Any())
             {

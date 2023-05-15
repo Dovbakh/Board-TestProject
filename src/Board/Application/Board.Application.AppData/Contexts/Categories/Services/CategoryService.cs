@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.Configuration.Annotations;
+using Board.Application.AppData.Contexts.AdvertFavorites.Services;
 using Board.Application.AppData.Contexts.Adverts.Helpers;
 using Board.Application.AppData.Contexts.Categories.Repositories;
 using Board.Contracts.Contexts.Categories;
@@ -39,7 +40,8 @@ namespace Board.Application.AppData.Contexts.Categories.Services
         /// <inheritdoc />
         public Task<IReadOnlyCollection<CategorySummary>> GetAllAsync(CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение всех категорий.", nameof(GetAllAsync));
+            _logger.LogInformation("{0}:{1} -> Получение всех категорий.",
+                nameof(CategoryService), nameof(GetAllAsync));
 
             return _categoryRepository.GetAllAsync(cancellation);
         }
@@ -47,8 +49,8 @@ namespace Board.Application.AppData.Contexts.Categories.Services
         /// <inheritdoc />
         public Task<IReadOnlyCollection<CategorySummary>> GetAllFilteredAsync(CategoryFilterRequest filterRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение всех категорий по фильтру {1}: {2}.",
-                nameof(GetAllFilteredAsync), nameof(CategoryFilterRequest), JsonConvert.SerializeObject(filterRequest));
+            _logger.LogInformation("{0}:{1} -> Получение всех категорий по фильтру {2}: {3}",
+                nameof(CategoryService), nameof(GetAllFilteredAsync), nameof(CategoryFilterRequest), JsonConvert.SerializeObject(filterRequest));
 
             return _categoryRepository.GetAllFilteredAsync(filterRequest, cancellation);
         }
@@ -56,24 +58,23 @@ namespace Board.Application.AppData.Contexts.Categories.Services
         /// <inheritdoc />
         public async Task<CategoryDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение категории по ID: {1} ",
-                nameof(GetByIdAsync), id);
+            _logger.LogInformation("{0}:{1} -> Получение категории по ID: {2} ",
+                nameof(CategoryService), nameof(GetByIdAsync), id);
 
-            var categoryDetails = await _categoryRepository.GetByIdAsync(id, cancellation);
-            if(categoryDetails == null) 
+            var category = await _categoryRepository.GetByIdAsync(id, cancellation);
+            if(category == null) 
             {
                 throw new KeyNotFoundException($"Не найдена категория с ID: {id} ");
             }
 
-
-            return categoryDetails;
+            return category;
         }
 
         /// <inheritdoc />
         public  Task<Guid> CreateAsync(CategoryAddRequest createRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Создание категории из модели {1}: {2}",
-                nameof(CreateAsync), nameof(CategoryAddRequest), JsonConvert.SerializeObject(createRequest));
+            _logger.LogInformation("{0}:{1} -> Создание категории из модели {2}: {3}",
+                nameof(CategoryService), nameof(CreateAsync), nameof(CategoryAddRequest), JsonConvert.SerializeObject(createRequest));
 
             var validationResult = _categoryAddValidator.Validate(createRequest);
             if (!validationResult.IsValid)
@@ -89,8 +90,8 @@ namespace Board.Application.AppData.Contexts.Categories.Services
         /// <inheritdoc />
         public async Task<CategoryDetails> UpdateAsync(Guid categoryId, CategoryUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Обновление категории c ID: {1} из модели {2}: {3}",
-                nameof(UpdateAsync), categoryId, nameof(CategoryUpdateRequest), JsonConvert.SerializeObject(updateRequest));
+            _logger.LogInformation("{0}:{1} -> Обновление категории c ID: {2} из модели {3}: {4}",
+                nameof(CategoryService), nameof(UpdateAsync), categoryId, nameof(CategoryUpdateRequest), JsonConvert.SerializeObject(updateRequest));
 
             var validationResult = _categoryUpdateValidator.Validate(updateRequest);
             if (!validationResult.IsValid)
@@ -98,16 +99,16 @@ namespace Board.Application.AppData.Contexts.Categories.Services
                 throw new ArgumentException($"Модель обновлеиня категории не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
             }
 
-            var updatedDto = await _categoryRepository.UpdateAsync(categoryId, updateRequest, cancellation);
+            var updatedCategory = await _categoryRepository.UpdateAsync(categoryId, updateRequest, cancellation);
 
-            return updatedDto;
+            return updatedCategory;
         }
 
         /// <inheritdoc />
         public Task DeleteAsync(Guid categoryId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Удаление категории с ID: {1}",
-                nameof(DeleteAsync), categoryId);
+            _logger.LogInformation("{0}:{1} -> Удаление категории с ID: {2}",
+                nameof(CategoryService), nameof(DeleteAsync), categoryId);
 
             return _categoryRepository.DeleteAsync(categoryId, cancellation);
         }

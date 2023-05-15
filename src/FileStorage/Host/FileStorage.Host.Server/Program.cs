@@ -16,7 +16,6 @@ builder.Services.AddAuthentication(IdentityServerAuthenticationDefaults.Authenti
                 .AddIdentityServerAuthentication(options =>
                 {
                     options.Authority = "https://localhost:7157";
-                    //options.ApiName = "Board.Web";
                     options.RequireHttpsMetadata = false;
 
                 });
@@ -26,7 +25,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ApiScope", policy =>
     {
         policy.RequireAuthenticatedUser();
-        policy.RequireClaim("scope", "Board.Web");
+        policy.RequireClaim("scope", "FileStorage.Host.Server");
     });
 });
 

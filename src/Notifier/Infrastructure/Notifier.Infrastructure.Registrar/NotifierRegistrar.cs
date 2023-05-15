@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Notifier.Application.AppData.Contexts.Messages.Services;
+using Notifier.Contracts.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,11 @@ namespace Notifier.Infrastructure.Registrar
     {
         public static IServiceCollection AddServiceRegistrationModule (this IServiceCollection services)
         {
-            services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<INotificationService, NotificationService>();
+
+            services.AddOptions<SmtpOptions>()
+                .BindConfiguration("SmtpServer")
+                .ValidateOnStart();
 
             return services;
         }

@@ -19,13 +19,13 @@ namespace Board.Application.AppData.Contexts.Images.Services
     public class ImageService : IImageService
     {
         private readonly IMapper _mapper;
-        private readonly IImageClient _fileClient;
+        private readonly IImageClient _imageClient;
         private readonly ILogger<ImageService> _logger;
         private readonly IValidator<IFormFile> _imageUploadValidator;
-        public ImageService(IMapper mapper, IImageClient fileClient, ILogger<ImageService> logger, IValidator<IFormFile> imageUploadValidator)
+        public ImageService(IMapper mapper, IImageClient imageClient, ILogger<ImageService> logger, IValidator<IFormFile> imageUploadValidator)
         {
             _mapper = mapper;
-            _fileClient = fileClient;
+            _imageClient = imageClient;
             _logger = logger;
             _imageUploadValidator = imageUploadValidator;
         }
@@ -36,10 +36,10 @@ namespace Board.Application.AppData.Contexts.Images.Services
             _logger.LogInformation("{0} -> Скачивание файла с ID: {1}",
                 nameof(DownloadAsync), id);
 
-            var clientResponse = await _fileClient.DownloadAsync(id, cancellation);
-            var fileData = _mapper.Map<ImageDataClientResponse, ImageData>(clientResponse);
+            var clientResponse = await _imageClient.DownloadAsync(id, cancellation);
+            var imageData = _mapper.Map<ImageDataClientResponse, ImageData>(clientResponse);
 
-            return fileData;
+            return imageData;
         }
 
         /// <inheritdoc />
@@ -48,10 +48,10 @@ namespace Board.Application.AppData.Contexts.Images.Services
             _logger.LogInformation("{0} -> Получение информации о файле с ID: {1}",
                 nameof(GetInfoAsync), id);
 
-            var clientResponse = await _fileClient.GetInfoAsync(id, cancellation);
-            var fileInfo = _mapper.Map<ImageShortInfoClientResponse, ImageShortInfo>(clientResponse);
+            var clientResponse = await _imageClient.GetInfoAsync(id, cancellation);
+            var imageInfo = _mapper.Map<ImageShortInfoClientResponse, ImageShortInfo>(clientResponse);
 
-            return fileInfo;
+            return imageInfo;
         }
 
         /// <inheritdoc />
@@ -60,7 +60,7 @@ namespace Board.Application.AppData.Contexts.Images.Services
             _logger.LogInformation("{0} -> Получение информации о файле с ID: {1}",
                 nameof(GetInfoAsync), id);
 
-            var isImageExists = await _fileClient.IsImageExists(id, cancellation);
+            var isImageExists = await _imageClient.IsImageExists(id, cancellation);
 
             return isImageExists;
         }
@@ -77,9 +77,9 @@ namespace Board.Application.AppData.Contexts.Images.Services
                 throw new ValidationException($"Загружаемый файл не прошел валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
             }
 
-            var fileId = await _fileClient.UploadAsync(file, cancellation);
+            var newImageId = await _imageClient.UploadAsync(file, cancellation);
 
-            return fileId;
+            return newImageId;
         }
 
         /// <inheritdoc />
@@ -88,7 +88,7 @@ namespace Board.Application.AppData.Contexts.Images.Services
             _logger.LogInformation("{0} -> Удаление файла с ID: {1}",
                 nameof(DeleteAsync), id);
 
-            return _fileClient.DeleteAsync(id, cancellation);
+            return _imageClient.DeleteAsync(id, cancellation);
         }
     }
 }

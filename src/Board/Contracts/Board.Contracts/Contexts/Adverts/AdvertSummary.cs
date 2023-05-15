@@ -10,7 +10,7 @@ namespace Board.Contracts.Contexts.Adverts
     public class AdvertSummary
     {
         /// <summary>
-        /// Идентификатор обьявления.
+        /// Идентификатор избранного обьявления.
         /// </summary>
         public Guid Id { get; set; }
 
@@ -37,6 +37,6 @@ namespace Board.Contracts.Contexts.Adverts
         /// <summary>
         /// Коллекция изображений обьявления.
         /// </summary>
-        //public ICollection<AdvertImage> AdvertImages { get; set; }
+        public ICollection<Guid> ImagesId { get; set; }
     }
 }

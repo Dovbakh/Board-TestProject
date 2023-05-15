@@ -37,7 +37,7 @@ namespace Board.Host.Api.Controllers
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Коллекция элементов <see cref="UserSummary"/>.</returns>
         [HttpGet]
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<IReadOnlyCollection<UserSummary>>> GetAll(int? offset, int? count, CancellationToken cancellation)
         {
             var users = await _userService.GetAllAsync(offset, count, cancellation);

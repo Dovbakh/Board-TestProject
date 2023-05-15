@@ -11,8 +11,6 @@ namespace Board.Contracts.Contexts.Users
     {
         public Guid? Id { get; set; }
 
-        public string? Email { get; set; }
-
         public string? UserName { get; set; }
 
         public float Rating { get; set; }

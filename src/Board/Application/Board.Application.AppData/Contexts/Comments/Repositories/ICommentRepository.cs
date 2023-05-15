@@ -36,7 +36,9 @@ namespace Board.Application.AppData.Contexts.Comments.Repositories
         /// <returns>Элемент <see cref="CommentDetails"/>.</returns>
         Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int offset, int limit, CancellationToken cancellation);
 
-        Task<float> GetAverageRating(Guid userId, CancellationToken cancellation);
+        Task<float> GetUserRatingAsync(Guid userId, CancellationToken cancellation);
+
+        Task<Guid> GetUserIdAsync(Guid commentId, CancellationToken cancellation);
 
         /// <summary>
         /// Добавить новую комментарий.
@@ -44,7 +46,7 @@ namespace Board.Application.AppData.Contexts.Comments.Repositories
         /// <param name="addRequest">Элемент <see cref="CommentAddRequest"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор новой комментария.</returns>
-        Task<Guid> AddAsync(CommentAddRequest addRequest, CancellationToken cancellation);
+        Task<Guid> AddIfNotExistsAsync(CommentAddRequest addRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Изменить комментарий.
@@ -58,5 +60,7 @@ namespace Board.Application.AppData.Contexts.Comments.Repositories
         /// </summary>
         /// <param name="id">Идентификатор комментария.</param>
         Task DeleteAsync(Guid id, CancellationToken cancellation);
+
+        Task SoftDeleteAsync(Guid commentId, CancellationToken cancellation);
     }
 }

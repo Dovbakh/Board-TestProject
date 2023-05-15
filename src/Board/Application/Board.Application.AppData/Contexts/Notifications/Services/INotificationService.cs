@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Notifier.Contracts.Contexts.Messages;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace Board.Application.AppData.Contexts.Notifications.Services
 {
     public interface INotificationService
     {
-        Task SendMessage(string receiver, string subject, string body);
+        Task SendMessage(NotificationDetails message);
     }
 }

@@ -38,7 +38,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Helpers
             RuleFor(x => x.CategoryId)
                 .NotEmpty().WithMessage("Категория обязательна к выбору.");
 
-            RuleFor(x => x.AdvertImagesId)
+            RuleFor(x => x.ImagesId)
                 .NotEmpty().WithMessage("Прикрепите хотя бы одно изображение.")
                 .NotNull().WithMessage("Прикрепите хотя бы одно изображение.");
                

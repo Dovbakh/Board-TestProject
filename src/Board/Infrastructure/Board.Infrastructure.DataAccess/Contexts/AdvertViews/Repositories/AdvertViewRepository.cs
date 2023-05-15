@@ -19,7 +19,6 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertViews.Repositories
         private readonly IRepository<AdvertView> _repository;
         private readonly IDistributedLockFactory _distributedLockFactory;
         private readonly ILogger<AdvertViewRepository> _logger;
-        private const string AdvertViewCountKey = "AdvertViewCountKey_";
 
         public AdvertViewRepository(IRepository<AdvertView> repository, IDistributedLockFactory distributedLockFactory, ILogger<AdvertViewRepository> logger)
         {
@@ -30,8 +29,8 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertViews.Repositories
 
         public async Task<int> GetCountAsync(Guid advertId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение количества просмотров обьявления с ID: {1}",
-                nameof(GetCountAsync), advertId);
+            _logger.LogInformation("{0}:{1} -> Получение количества просмотров обьявления с ID: {2}",
+                nameof(AdvertViewRepository), nameof(GetCountAsync), advertId);
 
             var viewCount = await _repository.GetAll()
                 .Where(af => af.AdvertId == advertId)
@@ -40,29 +39,29 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertViews.Repositories
             return viewCount;
         }
 
-        public async Task<Guid> AddAsync(Guid advertId, Guid visitorId, bool isRegistered, CancellationToken cancellation)
+        public async Task<Guid> AddIfNotExistsAsync(Guid advertId, Guid visitorId, bool isRegistered, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Создание записи о просмотре обьявления с ID: {1} посетителем с ID: {2}",
-                nameof(AddAsync), advertId, visitorId);
+            _logger.LogInformation("{0}:{1} -> Создание записи о просмотре обьявления с ID: {2} посетителем с ID: {3}",
+                 nameof(AdvertViewRepository), nameof(AddIfNotExistsAsync), advertId, visitorId);
 
-            var existingAdvertView = await _repository.GetAll()
+            var advertView = await _repository.GetAll()
                 .Where(av => av.AdvertId == advertId && av.VisitorId == visitorId)
                 .FirstOrDefaultAsync(cancellation);
-            if (existingAdvertView != null) 
+            if (advertView != null) 
             {
-                return existingAdvertView.Id;
+                return advertView.Id;
             }
 
-            var advertView = new AdvertView 
+            var newAdvertView = new AdvertView 
             { 
                 AdvertId = advertId, 
                 VisitorId = visitorId, 
                 CreatedAt = DateTime.UtcNow,
-                isRegistered = isRegistered
+                IsRegistered = isRegistered
             };
-            await _repository.AddAsync(advertView, cancellation);
+            await _repository.AddAsync(newAdvertView, cancellation);
 
-            return advertView.Id;
+            return newAdvertView.Id;
         }
     }
 }

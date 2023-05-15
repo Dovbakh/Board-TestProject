@@ -11,29 +11,35 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http.Headers;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace FileStorage.Clients.Contexts.Images
 {
     public class ImageClient : IImageClient
     {
         private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _httpClientFactory; 
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _contextAccessor;
-        public ImageClient(HttpClient httpClient, IConfiguration configuration, IMapper mapper, IHttpContextAccessor contextAccessor)
+        private readonly ILogger<ImageClient> _logger;
+
+        public ImageClient(HttpClient httpClient, IMapper mapper, IHttpContextAccessor contextAccessor, IHttpClientFactory httpClientFactory, 
+            ILogger<ImageClient> logger)
         {
-            _httpClient = httpClient;
-            _configuration = configuration;
+            _httpClientFactory = httpClientFactory;
+            _httpClient = _httpClientFactory.CreateClient("FileClient");
             _mapper = mapper;
             _contextAccessor = contextAccessor;
-
-            SetToken();
+            _logger = logger;
         }
 
         public async Task<ImageShortInfoClientResponse> GetInfoAsync(Guid id, CancellationToken cancellation)
         {
-            var uri = $"v1/files/info/{id.ToString()}";  //"?" + nameof(offset) + "=" + offset.ToString() + 
-            
+            var uri = $"v1/files/info/{id.ToString()}";
+            _logger.LogInformation("{0}:{1} -> {2}{3} -> Получение информации об изображении с ID: {4}",
+                nameof(ImageClient), nameof(GetInfoAsync), _httpClient.BaseAddress, uri, id);
+
             using var response = await _httpClient.GetAsync(uri, cancellation);
             response.EnsureSuccessStatusCode();
 
@@ -45,7 +51,10 @@ namespace FileStorage.Clients.Contexts.Images
 
         public async Task<ImageDataClientResponse> DownloadAsync(Guid id, CancellationToken cancellation)
         {
-            var uri = $"v1/files/{id.ToString()}";  //"?" + nameof(offset) + "=" + offset.ToString() + 
+            var uri = $"v1/files/{id.ToString()}";
+            _logger.LogInformation("{0}:{1} -> {2}{3} -> Скачивание файла с ID: {4}",
+                nameof(ImageClient), nameof(DownloadAsync), _httpClient.BaseAddress, uri, id);
+
             using var response = await _httpClient.GetAsync(uri, cancellation);
             response.EnsureSuccessStatusCode();
 
@@ -56,7 +65,11 @@ namespace FileStorage.Clients.Contexts.Images
         }  
 
         public async Task<Guid> UploadAsync(IFormFile file, CancellationToken cancellation)
-        {
+        {          
+            var uri = $"v1/files/";
+            _logger.LogInformation("{0}:{1} -> {2}{3} -> Загрука файла с содержимым: {4}",
+                nameof(ImageClient), nameof(DownloadAsync), _httpClient.BaseAddress, uri, JsonConvert.SerializeObject(file));
+
             var multipartFormDataContent = new MultipartFormDataContent();
             byte[] fileData;
             using (var reader = new BinaryReader(file.OpenReadStream()))
@@ -67,8 +80,6 @@ namespace FileStorage.Clients.Contexts.Images
             fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
             multipartFormDataContent.Add(fileContent, "file", file.FileName);
 
-
-            var uri = $"v1/files/";  //"?" + nameof(offset) + "=" + offset.ToString() + 
             using var response = await _httpClient.PostAsync(uri, multipartFormDataContent, cancellation);
             response.EnsureSuccessStatusCode();
 
@@ -78,14 +89,20 @@ namespace FileStorage.Clients.Contexts.Images
         }
         public async Task DeleteAsync(Guid id, CancellationToken cancellation)
         {
-            var uri = $"v1/files/{id.ToString()}";  //"?" + nameof(offset) + "=" + offset.ToString() + 
+            var uri = $"v1/files/{id.ToString()}";
+            _logger.LogInformation("{0}:{1} -> {2}{3} -> Удаление файла с ID: {4}",
+                nameof(ImageClient), nameof(DownloadAsync), _httpClient.BaseAddress, uri, id);
+
             using var response = await _httpClient.DeleteAsync(uri, cancellation);
             response.EnsureSuccessStatusCode();
         }
 
         public async Task<bool> IsImageExists(Guid id, CancellationToken cancellation)
         {
-            var uri = $"v1/files/exists/{id.ToString()}";  //"?" + nameof(offset) + "=" + offset.ToString() + 
+            var uri = $"v1/files/exists/{id.ToString()}";
+            _logger.LogInformation("{0}:{1} -> {2}{3} -> Проверка на наличие изображения с ID: {4}",
+                nameof(ImageClient), nameof(DownloadAsync), _httpClient.BaseAddress, uri, id);
+
             using var response = await _httpClient.GetAsync(uri, cancellation);
             response.EnsureSuccessStatusCode();
 
@@ -93,16 +110,5 @@ namespace FileStorage.Clients.Contexts.Images
 
             return clientResponse;
         }
-
-        private void SetToken()
-        {
-            var token = _contextAccessor.HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-            if (token == null)
-                return;
-
-            token = token.Replace("Bearer ", "");
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        }
-
     }
 }

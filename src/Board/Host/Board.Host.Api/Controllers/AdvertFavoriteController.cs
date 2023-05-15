@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Board.Host.Api.Controllers
 {
+    [ApiController]
+    [Route("v1/[controller]")]
+    [Produces("application/json")]
+    [AllowAnonymous]
     public class AdvertFavoriteController : ControllerBase
     {
         private readonly IAdvertFavoriteService _advertFavoriteService;
@@ -17,11 +21,11 @@ namespace Board.Host.Api.Controllers
 
         [HttpGet("{userId:Guid}")]
         [AllowAnonymous]
-        public async Task<IReadOnlyCollection<AdvertFavoriteSummary>> GetAllByUserId(Guid userId, CancellationToken cancellation)
+        public async Task<ActionResult<IReadOnlyCollection<Guid>>> GetAllByUserId(CancellationToken cancellation)
         {
-            var favoriteList = await _advertFavoriteService.GetAllByUserIdAsync(userId, cancellation);
+            var favoriteList = await _advertFavoriteService.GetAllForCurrentUserAsync(cancellation);
 
-            return (IReadOnlyCollection<AdvertFavoriteSummary>)Ok(favoriteList);
+            return Ok(favoriteList);
         }
 
         [HttpDelete("{favoriteId:Guid}")]
@@ -33,11 +37,11 @@ namespace Board.Host.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(Guid advertId, Guid userId, CancellationToken cancellation)
+        public async Task<IActionResult> Add(Guid advertId, CancellationToken cancellation)
         {
-            var favoriteId = await _advertFavoriteService.AddAsync(advertId, userId, cancellation);
+            await _advertFavoriteService.AddIfNotExistsAsync(advertId, cancellation);
 
-            return Ok(favoriteId);
+            return Ok();
         }
     }
 }

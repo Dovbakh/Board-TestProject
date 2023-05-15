@@ -4,12 +4,15 @@ using Board.Application.AppData.Contexts.Comments.Repositories;
 using Board.Application.AppData.Contexts.Users.Services;
 using Board.Contracts.Contexts.Categories;
 using Board.Contracts.Contexts.Comments;
+using Board.Contracts.Exceptions;
+using Board.Contracts.Options;
 using Board.Domain;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RedLockNet;
 using RedLockNet.SERedis;
@@ -35,14 +38,12 @@ namespace Board.Application.AppData.Contexts.Comments.Services
         private readonly IValidator<CommentAddRequest> _commentAddValidator;
         private readonly IValidator<CommentUpdateRequest> _commentUpdateValidator;
         private readonly IDistributedLockFactory _distributedLockFactory;
-        private readonly IConfiguration _configuration;
         private readonly ILogger<CommentService> _logger;
-        private const int CommentListCount = 10;
-        private const string CreateCommentKey = "CreateCommentKey_";
+        private readonly CommentOptions _commentOptions;
 
         public CommentService(ICommentRepository commentRepository, IUserService userService, IAdvertService advertService, IAdvertRepository advertRepository,
             IValidator<CommentAddRequest> commentAddValidator, IValidator<CommentUpdateRequest> commentUpdateValidator, IDistributedLockFactory distributedLockFactory,
-            IConfiguration configuration, ILogger<CommentService> logger)
+            ILogger<CommentService> logger, IOptions<CommentOptions> commentOptionsAccessor)
         {
             _commentRepository = commentRepository;
             _userService = userService;
@@ -51,65 +52,49 @@ namespace Board.Application.AppData.Contexts.Comments.Services
             _commentAddValidator = commentAddValidator;
             _commentUpdateValidator = commentUpdateValidator;
             _distributedLockFactory = distributedLockFactory;
-            _configuration = configuration;
             _logger = logger;
+            _commentOptions = commentOptionsAccessor.Value;
         }
 
 
         /// <inheritdoc />
         public Task<IReadOnlyCollection<CommentDetails>> GetAllAsync(int? offset, int? count, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение всех комментариев.", nameof(GetAllAsync));
+            _logger.LogInformation("{0}:{1} -> Получение всех комментариев c параметрами {2}: {3}, {4}: {5}", 
+                nameof(CommentService), nameof(GetAllAsync), nameof(offset), offset, nameof(count), count);
 
-            if (count.HasValue)
+            if (!count.HasValue)
             {
-                return _commentRepository.GetAllAsync(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
+                count = _commentOptions.ListDefaultCount;
             }
 
-            try
-            {
-                count = Int32.Parse(_configuration.GetSection("Comments").GetRequiredSection("ListDefaultCount").Value);
-            }
-            catch
-            {
-                _logger.LogWarning("{0} -> В конфигурации указано невалидное значение количества получаемых записей по умолчанию Comments->ListDefaultCount",
-                    nameof(GetAllAsync));
-                count = CommentListCount;
-            }
+            var comments = _commentRepository.GetAllAsync(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
 
-            return _commentRepository.GetAllAsync(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
+            return comments;
         }
 
         /// <inheritdoc />
         public Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int? offset, int? count, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение всех комментариев по фильтру c параметрами {1}: {2}, {3}: {4}, {5}: {6}.",
-                nameof(GetAllFilteredAsync), nameof(offset), offset, nameof(count), count, nameof(CommentFilterRequest), JsonConvert.SerializeObject(filterRequest));
+            _logger.LogInformation("{0}:{1} -> Получение всех комментариев по фильтру c параметрами {2}: {3}, {4}: {5}, {6}: {7}.",
+                nameof(CommentService), nameof(GetAllFilteredAsync), nameof(offset), offset, nameof(count), count, nameof(CommentFilterRequest), 
+                JsonConvert.SerializeObject(filterRequest));
 
-            if (count.HasValue)
+            if (!count.HasValue)
             {
-                return _commentRepository.GetAllFilteredAsync(filterRequest, offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
+                count = _commentOptions.ListDefaultCount;
             }
 
-            try
-            {
-                count = Int32.Parse(_configuration.GetSection("Comments").GetRequiredSection("ListDefaultCount").Value);
-            }
-            catch
-            {
-                _logger.LogWarning("{0} -> В конфигурации указано невалидное значение количества получаемых записей по умолчанию Comments->ListDefaultCount",
-                    nameof(GetAllAsync));
-                count = CommentListCount;
-            }
+            var comments =  _commentRepository.GetAllFilteredAsync(filterRequest, offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
 
-            return _commentRepository.GetAllFilteredAsync(filterRequest, offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
+            return comments;
         }
 
         /// <inheritdoc />
         public Task<CommentDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение комментария с ID: {1}",
-                nameof(GetByIdAsync), id);
+            _logger.LogInformation("{0}:{1} -> Получение комментария с ID: {2}",
+                nameof(CommentService), nameof(GetByIdAsync), id);
 
             var comment = _commentRepository.GetByIdAsync(id, cancellation);
             if (comment == null)
@@ -123,8 +108,8 @@ namespace Board.Application.AppData.Contexts.Comments.Services
         /// <inheritdoc />
         public async Task<Guid> CreateAsync(CommentAddRequest addRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Создание комментария из модели {1}: {2}",
-                nameof(CreateAsync), nameof(CategoryAddRequest), JsonConvert.SerializeObject(addRequest));
+            _logger.LogInformation("{0}:{1} -> Создание комментария из модели {2}: {3}",
+                nameof(CommentService), nameof(CreateAsync), nameof(CategoryAddRequest), JsonConvert.SerializeObject(addRequest));
 
             var validationResult = _commentAddValidator.Validate(addRequest);
             if (!validationResult.IsValid)
@@ -132,58 +117,76 @@ namespace Board.Application.AppData.Contexts.Comments.Services
                 throw new ArgumentException($"Модель создания комментария не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
             }
 
-            var author = await _userService.GetCurrentAsync(cancellation);
-            addRequest.AuthorId = author.Id.GetValueOrDefault();
-
-            var user = await _userService.GetByIdAsync(addRequest.UserId, cancellation);
-            if (user == null)
+            var currentUserId = _userService.GetCurrentId(cancellation);
+            if (!currentUserId.HasValue)
             {
-                throw new KeyNotFoundException($"Пользователя {addRequest.UserId} не существует.");
+                throw new UnauthorizedAccessException($"При создании комментария пользователь должен быть авторизован.");
             }
+            addRequest.UserId = currentUserId.Value;
 
-            var advert = await _advertRepository.GetByIdAsync(addRequest.AdvertisementId, cancellation);
+            var advert = await _advertRepository.GetByIdAsync(addRequest.AdvertId, cancellation);
             if (advert == null)
             {
-                throw new KeyNotFoundException($"Обьявления {addRequest.AdvertisementId} не существует.");
+                throw new KeyNotFoundException($"Обьявления {addRequest.AdvertId} не существует.");
             }
 
-            if (advert.UserId != user.Id)
-            {
-                throw new ArgumentException($"Обьявление {advert.Id} не относится к пользователю {user.Id}");
-            }
-
-            if (advert.UserId == author.Id)
+            if (advert.UserId == currentUserId)
             {
                 throw new ArgumentException("Нельзя оставить отзыв самому себе.");
             }
 
-            var commentId = await _commentRepository.AddAsync(addRequest, cancellation);
+            var commentId = await _commentRepository.AddIfNotExistsAsync(addRequest, cancellation);
 
             return commentId;
         }
 
         /// <inheritdoc />
-        public Task<CommentDetails> UpdateAsync(Guid id, CommentUpdateRequest updateRequest, CancellationToken cancellation)
+        public async Task<CommentDetails> UpdateAsync(Guid id, CommentUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Обновление комментария c ID: {1} из модели {2}: {3}",
-                nameof(UpdateAsync), id, nameof(CategoryUpdateRequest), JsonConvert.SerializeObject(updateRequest));
+            _logger.LogInformation("{0}:{1} -> Обновление комментария c ID: {2} из модели {3}: {4}",
+                nameof(CommentService), nameof(UpdateAsync), id, nameof(CategoryUpdateRequest), JsonConvert.SerializeObject(updateRequest));
 
             var validationResult = _commentUpdateValidator.Validate(updateRequest);
             if (!validationResult.IsValid)
             {
-                throw new ArgumentException(validationResult.ToString("~"));
+                throw new ArgumentException($"Модель обновления комментария не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
             }
 
-            return _commentRepository.UpdateAsync(id, updateRequest, cancellation);
+            var commentUserId = await _commentRepository.GetUserIdAsync(id, cancellation);
+            var hasPermission = _userService.HasPermission(commentUserId, cancellation);
+            if (!hasPermission)
+            {
+                throw new ForbiddenException($"Нет доступа для обновления текущего комментария.");
+            }
+
+            var updatedComment = await _commentRepository.UpdateAsync(id, updateRequest, cancellation);
+
+            return updatedComment;
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(Guid id, CancellationToken cancellation)
+        public async Task SoftDeleteAsync(Guid id, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Удаление комментария с ID: {1}",
-                nameof(DeleteAsync), id);
+            _logger.LogInformation("{0}:{1} -> Мягкое удаление комментария с ID: {2}",
+                nameof(CommentService), nameof(SoftDeleteAsync), id);
 
-            return _commentRepository.DeleteAsync(id, cancellation);
+            var commentUserId = await _commentRepository.GetUserIdAsync(id, cancellation);
+            var hasPermission = _userService.HasPermission(commentUserId, cancellation);
+            if (!hasPermission)
+            {
+                throw new ForbiddenException($"Нет доступа для удаления текущего комментария.");
+            }
+
+            await _commentRepository.SoftDeleteAsync(id, cancellation);
+        }
+
+        /// <inheritdoc />
+        public async Task DeleteAsync(Guid id, CancellationToken cancellation)
+        {
+            _logger.LogInformation("{0}:{1} -> Удаление комментария с ID: {2}",
+                nameof(CommentService), nameof(SoftDeleteAsync), id);
+
+            await _commentRepository.DeleteAsync(id, cancellation);
         }
     }
 }

@@ -32,17 +32,12 @@ namespace Board.Contracts.Contexts.Comments
         /// <summary>
         /// Идентификатор пользователя, который оставил отзыв.
         /// </summary>
-        public Guid AuthorId { get; set; }
-
-        /// <summary>
-        /// Идентификатор пользователя, которому оставлен отзыв.
-        /// </summary>
         public Guid UserId { get; set; }
 
         /// <summary>
         /// Идентификатор обьявления, для которого оставлен отзыв.
         /// </summary>
-        public Guid AdvertisementId { get; set; }
+        public Guid AdvertId { get; set; }
 
         /// <summary>
         /// Пользователь-автор.

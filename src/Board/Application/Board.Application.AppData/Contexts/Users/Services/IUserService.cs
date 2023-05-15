@@ -17,109 +17,117 @@ namespace Board.Application.AppData.Contexts.Users.Services
         /// Регистрация пользователя.
         /// </summary>
         /// <param name="registerRequest">Элемент <see cref="UserRegisterRequest"/>.</param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellation"></param>
         /// <returns>Идентификатор нового пользователя.</returns>
-        Task<Guid> RegisterAsync(UserRegisterRequest registerRequest, CancellationToken cancellationToken);
+        Task<Guid> RegisterAsync(UserRegisterRequest registerRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Авторизация пользователя.
         /// </summary>
         /// <param name="loginRequest">Элемент <see cref="UserLoginRequest"/>.</param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellation"></param>
         /// <returns>Токен.</returns>
-        Task<TokenResponse> LoginAsync(UserLoginRequest loginRequest, CancellationToken cancellationToken);
+        Task<TokenResponse> LoginAsync(UserLoginRequest loginRequest, CancellationToken cancellation);
 
-        Task<TokenResponse> LoginAsync(UserLoginRefreshRequest loginRefreshRequest, CancellationToken cancellationToken);
+        Task<TokenResponse> LoginAsync(UserLoginRefreshRequest loginRefreshRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Получить всех пользователей с пагинацией.
         /// </summary>
         /// <param name="take">Количество получаемых пользователей.</param>
         /// <param name="skip">Количество пропускаемых пользователей.</param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellation"></param>
         /// <returns>Коллекция элементов <see cref="UserSummary"/>.</returns>
-        Task<IReadOnlyCollection<UserSummary>> GetAllAsync(int? offset, int? count, CancellationToken cancellationToken);
+        Task<IReadOnlyCollection<UserSummary>> GetAllAsync(int? offset, int? count, CancellationToken cancellation);
 
         /// <summary>
         /// Получить пользователя по идентификатору.
         /// </summary>
         /// <param name="id">Идентификатор.</param>
-        /// <param name="cancellationToken">Токен отмены.</param>
+        /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Элемент <see cref="UserDetails"/>.</returns>
-        Task<UserDetails> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+        Task<UserDetails> GetByIdAsync(Guid id, CancellationToken cancellation);
 
         /// <summary>
         /// Получить текущего пользователя.
         /// </summary>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellation"></param>
         /// <returns>Элемент <see cref="UserDetails"/></returns>
-        Task<UserDetails> GetCurrentAsync(CancellationToken cancellationToken);
+        Task<UserDetails> GetCurrentAsync(CancellationToken cancellation);
 
-        Guid GetCurrentId(CancellationToken cancellationToken);
+        Guid? GetCurrentId(CancellationToken cancellation);
 
-        Task<bool> isLogined(CancellationToken cancellationToken);
+        Task<bool> IsLoginedAsync(CancellationToken cancellation);
+
+        bool HasPermission(Guid userId, CancellationToken cancellation);
+
+        bool IsCurrentUser(Guid userId, CancellationToken cancellation);
+
+        bool IsAdmin(Guid userId, CancellationToken cancellation);
+
+        Guid GetAnonymousId(CancellationToken cancellation);
 
         /// <summary>
         /// Изменить пользователя.
         /// </summary>
         /// <param name="updateRequest">Элемент <see cref="UserUpdateRequest"/>.</param>
-        /// <param name="cancellationToken"></param>
-        Task<UserDetails> UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellationToken);
+        /// <param name="cancellation"></param>
+        Task<UserDetails> UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Удалить пользователя по идентификатору.
         /// </summary>
         /// <param name="id">Идентификатор.</param>
-        /// <param name="cancellationToken">Токен отмены.</param>
-        Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+        /// <param name="cancellation">Токен отмены.</param>
+        Task DeleteAsync(Guid id, CancellationToken cancellation);
 
         ///// <summary>
         ///// Изменить пароль у пользователя.
         ///// </summary>
         ///// <param name="changePasswordRequest">Элемент <see cref="UserChangePasswordRequest"/>.</param>
-        ///// <param name="cancellationToken">Токен отмены.</param>
+        ///// <param name="cancellation">Токен отмены.</param>
         ///// <returns></returns>
-        //Task ChangePasswordAsync(UserChangePasswordRequest changePasswordRequest, CancellationToken cancellationToken);
+        //Task ChangePasswordAsync(UserChangePasswordRequest changePasswordRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Получение токена для изменения почты пользователя и его отправка на новую почту.
         /// </summary>
         /// <param name="changeEmailRequest">Элемент <see cref="UserChangeEmailRequest"/>.</param>
         /// /// <param name="changeLink">Шаблон ссылки на изменение почты.</param>
-        /// <param name="cancellationToken">Токен отмены.</param>
+        /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Токен для изменения почты пользователя.</returns>
-        Task SendEmailTokenAsync(UserGenerateEmailTokenRequest changeEmailRequest, string changeLink, CancellationToken cancellationToken);
+        Task SendEmailTokenAsync(UserGenerateEmailTokenRequest changeEmailRequest, string changeLink, CancellationToken cancellation);
 
-        Task SendEmailConfirmationTokenAsync(UserGenerateEmailConfirmationTokenRequest request, string confirmLink, CancellationToken cancellationToken);
+        Task SendEmailConfirmationTokenAsync(UserGenerateEmailConfirmationTokenRequest request, string confirmLink, CancellationToken cancellation);
 
         /// <summary>
         /// Изменить электронную почту у пользователя.
         /// </summary>
         /// <param name="newEmail">Элемент <see cref="UserEmailDto"/>.</param>
         /// <param name="token">Сгенерированный токен смены почты.</param>
-        /// <param name="cancellationToken">Токен отмены.</param>
+        /// <param name="cancellation">Токен отмены.</param>
         /// <returns></returns>
-        Task ChangeEmailAsync(string newEmail, string token, CancellationToken cancellationToken);
+        Task ChangeEmailAsync(string newEmail, string token, CancellationToken cancellation);
 
-        public Task ConfirmEmailAsync(string email, string token, CancellationToken cancellationToken);
+        public Task ConfirmEmailAsync(string email, string token, CancellationToken cancellation);
 
         ///// <summary>
         ///// Получение токена для сброса пароля пользователя и его отправка на почту.
         ///// </summary>
         ///// <param name="email">Почта пользователя.</param>
         ///// <param name="resetLink">Шаблон для ссылки на сброс пароля.</param>
-        ///// <param name="cancellationToken">Токен отмены.</param>
+        ///// <param name="cancellation">Токен отмены.</param>
         ///// <returns></returns>
-        //Task ResetPasswordRequestAsync(UserEmailDto email, string resetLink, CancellationToken cancellationToken);
+        //Task ResetPasswordRequestAsync(UserEmailDto email, string resetLink, CancellationToken cancellation);
 
         ///// <summary>
         ///// Сброс пароля пользователя.
         ///// </summary>
         ///// <param name="request">Элемент <see cref="UserResetPasswordDto"/>.</param>
         ///// <param name="token">Сгенерированный токен на сброс пароля.</param>
-        ///// <param name="cancellationToken">Токен отмены.</param>
+        ///// <param name="cancellation">Токен отмены.</param>
         ///// <returns></returns>
-        //Task ResetPasswordAsync(UserResetPasswordDto request, string token, CancellationToken cancellationToken);
+        //Task ResetPasswordAsync(UserResetPasswordDto request, string token, CancellationToken cancellation);
 
     }
 

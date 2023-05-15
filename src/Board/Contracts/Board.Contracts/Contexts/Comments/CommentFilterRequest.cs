@@ -32,7 +32,7 @@ namespace Board.Contracts.Contexts.Comments
         /// <summary>
         /// Идентификатор обьявления, для которого оставлен отзыв.
         /// </summary>
-        public Guid? AdvertisementId { get; set; }
+        public Guid? AdvertId { get; set; }
 
         /// <summary>
         /// Порядок сортировки.

@@ -7,9 +7,9 @@ namespace Notifier.Host.Consumer
 {
     public class MassTransitConsumer : IConsumer<NotificationDetails>
     {
-        private readonly IMessageService _messageService;
+        private readonly INotificationService _messageService;
 
-        public MassTransitConsumer(IMessageService messageService)
+        public MassTransitConsumer(INotificationService messageService)
         {
             _messageService = messageService;
         }

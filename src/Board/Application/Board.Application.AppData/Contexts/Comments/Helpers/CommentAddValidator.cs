@@ -18,11 +18,9 @@ namespace Board.Application.AppData.Contexts.Comments.Helpers
             RuleFor(c => c.Rating)
                     .NotEmpty().WithMessage("Укажите оценку к отзыву.")
                     .InclusiveBetween(1, 5).WithMessage("Оценка должна быть от 1 до 5.");
-            RuleFor(c => c.AuthorId)
-                    .NotEmpty().WithMessage("Укажите автора отзыва.");
             RuleFor(c => c.UserId)
-                    .NotEmpty().WithMessage("Укажите кому предназначается отзыв.");
-            RuleFor(c => c.AdvertisementId)
+                    .NotEmpty().WithMessage("Укажите автора отзыва.");
+            RuleFor(c => c.AdvertId)
                     .NotEmpty().WithMessage("Укажите к какому обьявлению относится отзыв.");
         }
     }

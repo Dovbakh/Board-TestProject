@@ -32,6 +32,7 @@ using RedLockNet;
 using StackExchange.Redis;
 using Microsoft.AspNetCore.Builder;
 using Serilog;
+using Identity.Contracts.Options;
 
 namespace Identity.Infrastructure.Registrar
 {
@@ -64,6 +65,14 @@ namespace Identity.Infrastructure.Registrar
                     ConnectionMultiplexer.Connect("localhost:6379")
                 }));
 
+
+            services.AddOptions<UserRegisterLockOptions>()
+                .BindConfiguration("RedLock:UserRegisterLockOptions")
+                .ValidateOnStart();
+            services.AddOptions<Contracts.Options.UserOptions>()
+                .BindConfiguration("Users")
+                .ValidateOnStart();
+
             return services;
         }
 
@@ -92,7 +101,8 @@ namespace Identity.Infrastructure.Registrar
                         b.UseNpgsql(connectionString);
                     })
                     .AddDeveloperSigningCredential()
-                    .AddAspNetIdentity<User>();
+                    .AddAspNetIdentity<User>()
+                    .AddProfileService<ProfileService>();
 
             return services;
         }
@@ -103,7 +113,6 @@ namespace Identity.Infrastructure.Registrar
                 .AddIdentityServerAuthentication(options =>
                 {
                     options.Authority = "https://localhost:7157";
-                    //options.ApiName = "Board.Web";
                     options.RequireHttpsMetadata = false;
 
                 })
@@ -119,7 +128,7 @@ namespace Identity.Infrastructure.Registrar
                 options.AddPolicy("ApiScope", policy =>
                 {
                     policy.RequireAuthenticatedUser();
-                    policy.RequireClaim("scope", "Board.Web");
+                    policy.RequireClaim("scope", "Identity.Host.Server");
                 });
             });             
                     

@@ -31,9 +31,8 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
                 .ForMember(s => s.Advert, map => map.Ignore())
                 .ForMember(s => s.CreatedAt, map => map.Ignore())
                 .ForMember(s => s.isActive, map => map.Ignore())
-                .ForMember(s => s.AuthorId, map => map.Ignore())
                 .ForMember(s => s.UserId, map => map.Ignore())
-                .ForMember(s => s.AdvertisementId, map => map.Ignore());
+                .ForMember(s => s.AdvertId, map => map.Ignore());
 
         }
     }

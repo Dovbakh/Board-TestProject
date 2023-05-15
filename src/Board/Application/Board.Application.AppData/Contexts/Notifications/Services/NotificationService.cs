@@ -1,5 +1,7 @@
-﻿using MassTransit;
+﻿using Board.Application.AppData.Contexts.AdvertFavorites.Services;
+using MassTransit;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Notifier.Contracts.Contexts.Messages;
 using System;
 using System.Collections.Generic;
@@ -22,12 +24,11 @@ namespace Board.Application.AppData.Contexts.Notifications.Services
         }
 
         /// <inheritdoc />
-        public Task SendMessage(string receiver, string subject, string body)
+        public Task SendMessage(NotificationDetails message)
         {
-            _logger.LogInformation("{0} -> Отправка сообщения. {1}: {2}, {3}: {4}, {5}: {6}",
-                nameof(SendMessage), nameof(receiver), receiver, nameof(subject), subject, nameof(body), body);
+            _logger.LogInformation("{0}:{1} -> Отправка сообщения. {2}: {3}",
+                nameof(NotificationService), nameof(SendMessage), nameof(NotificationDetails), JsonConvert.SerializeObject(message));
 
-            var message = new NotificationDetails { Receiver = receiver, Subject = subject, Body = body };
             return _publishEndpoint.Publish(message);
         }
     }

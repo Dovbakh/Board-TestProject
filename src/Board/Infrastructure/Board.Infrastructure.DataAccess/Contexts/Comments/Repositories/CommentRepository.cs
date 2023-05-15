@@ -5,9 +5,12 @@ using Board.Contracts.Contexts.Adverts;
 using Board.Contracts.Contexts.Categories;
 using Board.Contracts.Contexts.Comments;
 using Board.Domain;
+using Board.Contracts.Options;
 using Board.Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RedLockNet;
 using System;
@@ -26,47 +29,49 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
         private readonly IMapper _mapper;
         private readonly ILogger<ILogger> _logger;
         private readonly IDistributedLockFactory _distributedLockFactory;
-        private const string CreateCommentKey = "CreateCommentKey_";
+        private readonly CommentAddLockOptions _addLockOptions;
 
-        public CommentRepository(IRepository<Comment> repository, IMapper mapper, ILogger<ILogger> logger, IDistributedLockFactory distributedLockFactory)
+        public CommentRepository(IRepository<Comment> repository, IMapper mapper, ILogger<ILogger> logger, IDistributedLockFactory distributedLockFactory,
+            IOptions<CommentAddLockOptions> addLockOptionsAccessor)
         {
             _repository = repository;
             _mapper = mapper;
             _logger = logger;
             _distributedLockFactory = distributedLockFactory;
+            _addLockOptions = addLockOptionsAccessor.Value;
         }
 
         /// <inheritdoc />
         public async Task<IReadOnlyCollection<CommentDetails>> GetAllAsync(int offset, int limit, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение всех комментариев.", nameof(GetAllAsync));
+            _logger.LogInformation("{0}:{1} -> Получение списка комментариев с параметрами {2}: {3}, {4}: {5}",
+                nameof(CommentRepository), nameof(GetAllAsync), nameof(offset), offset, nameof(limit), limit);
 
-            var existingDtoList = await _repository.GetAll()
+            var comments = await _repository.GetAll()
+                .Where(c => c.isActive == true)
                 .ProjectTo<CommentDetails>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellation);
 
-            return existingDtoList;
+            return comments;
         }
 
         /// <inheritdoc />
         public async Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int offset, int limit, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение всех комментариев по фильтру c параметрами {1}: {2}, {3}: {4}, {5}: {6}.",
-                nameof(GetAllFilteredAsync), nameof(offset), offset, nameof(limit), limit, nameof(CategoryFilterRequest), JsonConvert.SerializeObject(filterRequest));
+            _logger.LogInformation("{0}:{1} -> Получение списка комментариев по фильтру c параметрами {2}: {3}, {4}: {5}, {6}: {7}.",
+                nameof(CommentRepository), nameof(GetAllFilteredAsync), nameof(offset), offset, nameof(limit), limit, nameof(CategoryFilterRequest), 
+                JsonConvert.SerializeObject(filterRequest));
 
-            var query = _repository.GetAll();
+            var query = _repository.GetAll()
+                .Where(c => c.isActive == true);
 
             if (filterRequest.UserId.HasValue)
             {
                 query = query.Where(a => a.UserId == filterRequest.UserId);
             }
-            if (filterRequest.AuthorId.HasValue)
+            if (filterRequest.AdvertId.HasValue)
             {
-                query = query.Where(a => a.AuthorId == filterRequest.AuthorId);
-            }
-            if (filterRequest.AdvertisementId.HasValue)
-            {
-                query = query.Where(a => a.AdvertisementId == filterRequest.AdvertisementId);
+                query = query.Where(a => a.AdvertId == filterRequest.AdvertId);
             }
             if (!string.IsNullOrWhiteSpace(filterRequest.Text))
             {
@@ -87,119 +92,143 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
                 }
             }
 
-            var existingDtoList = await query
+            var comments = await query
                 .ProjectTo<CommentDetails>(_mapper.ConfigurationProvider)
                 .Skip(offset)
                 .Take(limit)
                 .ToListAsync(cancellation);
 
-
-            return existingDtoList;
+            return comments;
         }
 
         /// <inheritdoc />
         public async Task<CommentDetails> GetByIdAsync(Guid commentId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение комментария с ID: {1}",
-                nameof(GetByIdAsync), commentId);
+            _logger.LogInformation("{0}:{1} -> Получение комментария с ID: {2}",
+                nameof(CommentRepository), nameof(GetByIdAsync), commentId);
 
-            var existingDto = await _repository.GetAll()
-                .Where(c => c.Id == commentId)
+            var comment = await _repository.GetAll()
+                .Where(c => c.Id == commentId && c.isActive == true)
                 .ProjectTo<CommentDetails>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellation);
 
-            return existingDto;
+            return comment;
         }
 
         /// <inheritdoc />
-        public async Task<float> GetAverageRating(Guid userId, CancellationToken cancellation)
+        public async Task<float> GetUserRatingAsync(Guid userId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение среднего рейтинга комментариев для пользователя с ID: {1}",
-                nameof(GetByIdAsync), userId);
+            _logger.LogInformation("{0}:{1} -> Получение среднего рейтинга комментариев для пользователя с ID: {2}",
+                nameof(CommentRepository), nameof(GetUserRatingAsync), userId);
 
             var rating = await _repository.GetAll()
-                .Where(t => t.UserId == userId)
-                .GroupBy(t => 1)
-                .Select(c => new
-                {
-                     Rating = (float)c.Count() != 0 ? (float)c.Sum(c => c.Rating) / (float)c.Count() : 0
-                }).FirstOrDefaultAsync(cancellation);
+                .Include(c => c.Advert)
+                .Where(c => c.Advert.UserId == userId && c.isActive == true)
+                .GroupBy(c => 1)
+                .Select(c => (float)c.Count() != 0 ? (float)c.Sum(c => c.Rating) / (float)c.Count() : 0)
+                .FirstOrDefaultAsync(cancellation);
 
-            if(rating == null)
+            return rating;                
+        }
+
+        public async Task<Guid> GetUserIdAsync(Guid commentId, CancellationToken cancellation)
+        {
+            _logger.LogInformation("{0}:{1} -> Получение ID пользователя, создавшего комментарий с ID: {2}",
+                nameof(CommentRepository), nameof(GetUserIdAsync), commentId);
+
+            var userId = await _repository.GetAll()
+                .Where(c => c.Id == commentId && c.isActive == true)
+                .Select(c => c.UserId)
+                .FirstOrDefaultAsync(cancellation);
+
+            if(userId == null)
             {
-                return 0;
+                throw new KeyNotFoundException($"Не найден комментарий с ID: {commentId}");
             }
 
-            return rating.Rating;                
+            return userId;
         }
 
         /// <inheritdoc />
-        public async Task<Guid> AddAsync(CommentAddRequest addRequest, CancellationToken cancellation)
+        public async Task<Guid> AddIfNotExistsAsync(CommentAddRequest addRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Создание комментария из модели {1}: {2}",
-                nameof(AddAsync), nameof(CategoryAddRequest), JsonConvert.SerializeObject(addRequest));
+            _logger.LogInformation("{0}:{1} -> Создание комментария из модели {2}: {3}",
+                nameof(CommentRepository), nameof(AddIfNotExistsAsync), nameof(CategoryAddRequest), JsonConvert.SerializeObject(addRequest));
 
-            var newComment = _mapper.Map<CommentAddRequest, Comment>(addRequest);
+            var comment = _mapper.Map<CommentAddRequest, Comment>(addRequest);
 
-
-            var resource = $"{CreateCommentKey}_{addRequest.AdvertisementId}_{addRequest.UserId}_{addRequest.AuthorId}";
-            var expiry = TimeSpan.FromSeconds(30);
-            var wait = TimeSpan.FromSeconds(10);
-            var retry = TimeSpan.FromSeconds(1);
-            await using (var redLock = await _distributedLockFactory.CreateLockAsync(resource, expiry, wait, retry, cancellation))
+            var resource = $"{_addLockOptions.CommentAddKey}_{addRequest.AdvertId}_{addRequest.UserId}";
+            await using (var redLock = await _distributedLockFactory.CreateLockAsync(resource, _addLockOptions.Expire, _addLockOptions.Wait, _addLockOptions.Retry, cancellation))
             {
                 if (redLock.IsAcquired)
                 {
-                    var existingComment = await _repository.GetAll()
-                        .Where(c => c.AuthorId == addRequest.AuthorId)
+                    var isCommentExists = await _repository.GetAll()
                         .Where(c => c.UserId == addRequest.UserId)
-                        .Where(c => c.AdvertisementId == addRequest.AdvertisementId)
-                        .FirstOrDefaultAsync(cancellation);
+                        .Where(c => c.AdvertId == addRequest.AdvertId)
+                        .AnyAsync(cancellation);
 
-                    if (existingComment != null)
+                    if (isCommentExists)
                     {
                         throw new ArgumentException("Отзыв к этому обьявлению уже существует.");
                     }
 
-                    await _repository.AddAsync(newComment, cancellation);
+                    await _repository.AddAsync(comment, cancellation);
                 }
             }
 
-            return newComment.Id;
+            return comment.Id;
         }
 
         /// <inheritdoc />
         public async Task<CommentDetails> UpdateAsync(Guid commentId, CommentUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Обновление комментария c ID: {1} из модели {2}: {3}",
-                nameof(UpdateAsync), commentId, nameof(CategoryUpdateRequest), JsonConvert.SerializeObject(updateRequest));
+            _logger.LogInformation("{0}:{1} -> Обновление комментария c ID: {2} из модели {3}: {4}",
+                nameof(CommentRepository), nameof(UpdateAsync), commentId, nameof(CategoryUpdateRequest), JsonConvert.SerializeObject(updateRequest));
 
-            var existingEntity = await _repository.GetByIdAsync(commentId, cancellation);
-            if (existingEntity == null)
+            var comment = await _repository.GetAll()
+                 .Where(c => c.Id == commentId && c.isActive == true)
+                 .FirstOrDefaultAsync(cancellation);
+            if (comment == null)
             {
                 throw new KeyNotFoundException($"Не найден комментарий с ID: {commentId}");
             }
 
-            var updatedEntity = _mapper.Map<CommentUpdateRequest, Comment>(updateRequest, existingEntity);
-            await _repository.UpdateAsync(updatedEntity, cancellation);
-            var updatedDto = _mapper.Map<Comment, CommentDetails>(updatedEntity);
+            var updatedComment = _mapper.Map<CommentUpdateRequest, Comment>(updateRequest, comment);
+            await _repository.UpdateAsync(updatedComment, cancellation);
+            var updatedCommentDto = _mapper.Map<Comment, CommentDetails>(updatedComment);
 
-            return updatedDto;
+            return updatedCommentDto;
+        }
+
+        /// <inheritdoc />
+        public async Task SoftDeleteAsync(Guid commentId, CancellationToken cancellation)
+        {
+            _logger.LogInformation("{0}:{1} -> Мягкое удаление комментария с ID: {2}",
+                nameof(CommentRepository), nameof(DeleteAsync), commentId);
+
+            var comment = await _repository.GetByIdAsync(commentId, cancellation);
+            if (comment == null)
+            {
+                throw new KeyNotFoundException($"Не найден комментарий с ID: {commentId}");
+            }
+
+            comment.isActive = false;
+            await _repository.UpdateAsync(comment, cancellation);
         }
 
         /// <inheritdoc />
         public async Task DeleteAsync(Guid commentId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Удаление комментария с ID: {1}",
-                nameof(DeleteAsync), commentId);
+            _logger.LogInformation("{0}:{1} -> Удаление комментария с ID: {2}",
+                nameof(CommentRepository), nameof(DeleteAsync), commentId);
 
-            var existingEntity = await _repository.GetByIdAsync(commentId, cancellation);
-            if (existingEntity == null)
+            var comment = await _repository.GetByIdAsync(commentId, cancellation);
+            if (comment == null)
             {
                 throw new KeyNotFoundException($"Не найден комментарий с ID: {commentId}");
             }
 
-            await _repository.DeleteAsync(existingEntity, cancellation);
+            await _repository.DeleteAsync(comment, cancellation);
         }
     }
 }

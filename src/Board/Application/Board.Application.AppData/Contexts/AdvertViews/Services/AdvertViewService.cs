@@ -1,5 +1,6 @@
 ﻿using Board.Application.AppData.Contexts.Adverts.Repositories;
 using Board.Application.AppData.Contexts.AdvertViews.Repositories;
+using Board.Application.AppData.Contexts.Categories.Services;
 using Board.Application.AppData.Contexts.Users.Services;
 using Board.Infrastructure.Repository;
 using Microsoft.AspNetCore.Http;
@@ -22,7 +23,7 @@ namespace Board.Application.AppData.Contexts.AdvertViews.Services
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly IAdvertRepository _advertRepository;
         private readonly IUserService _userService;
-        private const string AdvertVisitorKey = "AdvertVisitorKey_";
+
         public AdvertViewService(IAdvertViewRepository advertViewRepository, ILogger<AdvertViewService> logger, IHttpContextAccessor contextAccessor,
             IAdvertRepository advertRepository, IUserService userService)
         {
@@ -33,46 +34,33 @@ namespace Board.Application.AppData.Contexts.AdvertViews.Services
             _userService = userService;
         }
 
-
-
         public Task<int> GetCountAsync(Guid advertId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Получение количества просмотров обьявления с ID: {1}",
-                nameof(GetCountAsync), advertId);
+            _logger.LogInformation("{0}:{1} -> Получение количества просмотров обьявления с ID: {2}",
+                nameof(AdvertViewService), nameof(GetCountAsync), advertId);
 
             return _advertViewRepository.GetCountAsync(advertId, cancellation);
         }
         public async Task<Guid> AddAsync(Guid advertId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0} -> Создание записи о просмотре обьявления с ID: {1}",
-                nameof(AddAsync), advertId);
+            _logger.LogInformation("{0}:{1} -> Создание записи о просмотре обьявления с ID: {2}",
+                nameof(AdvertViewService), nameof(AddAsync), advertId);
 
-            var isAdvertExists = await _advertRepository.IsExist(advertId, cancellation);
+            var isAdvertExists = await _advertRepository.IsExists(advertId, cancellation);
             if (!isAdvertExists) 
             {
                 throw new KeyNotFoundException($"Не найдено обьявление с ID: {advertId}");
             }
 
-            await _userService.isLogined(cancellation);
-
-            var currentUserId = _userService.GetCurrentId(cancellation);
-            if(currentUserId != Guid.Empty)
+            var isUserLogined = await _userService.IsLoginedAsync(cancellation);
+            if (!isUserLogined)
             {
-                var adverViewId = await _advertViewRepository.AddAsync(advertId, currentUserId, true, cancellation);
-
-                return adverViewId;
+                var anonymousId = _userService.GetAnonymousId(cancellation);
+                return await _advertViewRepository.AddIfNotExistsAsync(advertId, anonymousId, false, cancellation);
             }
 
-            var advertVisitorId = _contextAccessor.HttpContext.Request.Cookies[AdvertVisitorKey];
-            if(advertVisitorId == null)
-            {
-                advertVisitorId = Guid.NewGuid().ToString();
-                _contextAccessor.HttpContext.Response.Cookies.Append(AdvertVisitorKey, advertVisitorId);
-            }
-
-            var advertViewId = await _advertViewRepository.AddAsync(advertId, Guid.Parse(advertVisitorId), false, cancellation);
-
-            return advertViewId;
+            var currentUserId = _userService.GetCurrentId(cancellation).Value;
+            return await _advertViewRepository.AddIfNotExistsAsync(advertId, currentUserId, true, cancellation);           
         }
     }
 }
