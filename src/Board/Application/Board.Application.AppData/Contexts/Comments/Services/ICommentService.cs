@@ -27,6 +27,7 @@ namespace Board.Application.AppData.Contexts.Comments.Services
         /// <returns>Коллекция элементов <see cref="CommentDetails"/>.</returns>
         Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int? offset, int? count, CancellationToken cancellation);
 
+
         /// <summary>
         /// Получить категорию по идентификатору.
         /// </summary>

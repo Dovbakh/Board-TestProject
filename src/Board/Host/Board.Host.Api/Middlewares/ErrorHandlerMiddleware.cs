@@ -1,6 +1,10 @@
-﻿using Board.Contracts.Exceptions;
+﻿using AutoMapper.Internal;
+using Board.Contracts;
+using Board.Contracts.Exceptions;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Net;
 using System.Text.Json;
@@ -27,11 +31,12 @@ namespace Board.Host.Middlewares
             catch (Exception exception)
             {
                 context.Response.ContentType = "application/json";
-                var result = JsonSerializer.Serialize(new
+                var error = new ErrorDto
                 {
-                    traceId = context.TraceIdentifier,
-                    message = exception?.Message
-                });
+                    TraceId = context.TraceIdentifier,
+                    Message = exception?.Message
+                };
+
 
                 switch (exception)
                 {
@@ -39,6 +44,11 @@ namespace Board.Host.Middlewares
                         context.Response.StatusCode = StatusCodes.Status404NotFound;
                         break;
                     case ArgumentException e:
+                        context.Response.StatusCode = StatusCodes.Status422UnprocessableEntity;
+                        break;
+                    case ValidationException e:
+                        error.Message = "Ошибка валидации: ";
+                        e.Errors.ForAll(a => error.Message += " -" + a.ErrorMessage);
                         context.Response.StatusCode = StatusCodes.Status422UnprocessableEntity;
                         break;
                     case UnauthorizedAccessException e:
@@ -50,12 +60,12 @@ namespace Board.Host.Middlewares
                     default:
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                         _logger.LogCritical(exception, exception?.Message);
-                        await context.Response.WriteAsync(result);
+                        await context.Response.WriteAsync(JsonConvert.SerializeObject(error));
                         return;
                 }
                
                 _logger.LogError(exception, exception?.Message);
-                await context.Response.WriteAsync(result);
+                await context.Response.WriteAsync(JsonConvert.SerializeObject(error));
             }
         }
     }

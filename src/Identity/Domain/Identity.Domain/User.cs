@@ -28,6 +28,6 @@ namespace Identity.Domain
 
         public bool isActive { get; set; }
 
-        public Guid PhotoId { get; set; }
+        public Guid? PhotoId { get; set; }
     }
 }

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Board.Infrastructure.Repository
+namespace Identity.Infrastructure.Repository
 {
     /// <inheritdoc />
     public class CacheRepository : ICacheRepository

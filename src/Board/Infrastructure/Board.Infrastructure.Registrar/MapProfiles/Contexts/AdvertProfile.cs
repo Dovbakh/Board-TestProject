@@ -26,7 +26,7 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
                 .ForMember(a => a.AdvertFavorites, map => map.Ignore())
                 .ForMember(a => a.AdvertViews, map => map.Ignore())
                 .ForMember(a => a.AdvertImages, map => map.Ignore())
-                .ForMember(s => s.isActive, map => map.MapFrom(a => true));
+                .ForMember(s => s.IsActive, map => map.MapFrom(a => true));
             CreateMap<AdvertUpdateRequest, Advert>()
                 .ForMember(a => a.Id, map => map.Ignore())
                 .ForMember(a => a.CreatedAt, map => map.Ignore())
@@ -35,7 +35,7 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
                 .ForMember(a => a.AdvertFavorites, map => map.Ignore())
                 .ForMember(a => a.AdvertViews, map => map.Ignore())
                 .ForMember(a => a.AdvertImages, map => map.Ignore())
-                .ForMember(s => s.isActive, map => map.Ignore());
+                .ForMember(s => s.IsActive, map => map.Ignore());
 
         }
     }

@@ -13,8 +13,8 @@ namespace Identity.Host.Server.Controllers
     [ApiController]
     [Route("v1/[controller]")]
     [Produces("application/json")]
-    [Authorize(AuthenticationSchemes = "Bearer")]
     [ApiConventionType(typeof(AppConventions))]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -36,7 +36,6 @@ namespace Identity.Host.Server.Controllers
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Коллекция элементов <see cref="UserSummary"/>.</returns>
         [HttpGet]
-        [Authorize(Policy = "ApiScope")]
         public async Task<ActionResult<IReadOnlyCollection<UserSummary>>> GetAll(int? offset, int? count, CancellationToken cancellation)
         {
             var users = await _userService.GetAllAsync(offset, count, cancellation);
@@ -52,7 +51,6 @@ namespace Identity.Host.Server.Controllers
         /// <returns>Элемент <see cref="UserDto"/>.</returns>
         [HttpGet("{id}")]
         //[AllowAnonymous]
-        [Authorize]
         public async Task<ActionResult<UserDetails>> GetById(Guid id, CancellationToken cancellation)
         {
             var user = await _userService.GetByIdAsync(id, cancellation);
@@ -135,74 +133,6 @@ namespace Identity.Host.Server.Controllers
             return Ok(token);
         }
 
-        ///// <summary>
-        ///// Изменить пользователя по идентификатору.
-        ///// </summary>
-        ///// <param name="userChangePasswordDto">Элемент <see cref="UserChangePasswordDto"/>.</param>
-        ///// <param name="cancellation">Токен отмены.</param>
-        //[HttpPut("change-password")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[Authorize]
-        //public async Task<IActionResult> ChangePassword([FromBody] UserChangePasswordDto userChangePasswordDto, CancellationToken cancellation)
-        //{
-        //    await _userService.ChangePasswordAsync(userChangePasswordDto, cancellation);
-
-        //    return Ok();
-        //}
-
-        ///// <summary>
-        ///// Изменить пользователя по идентификатору.
-        ///// </summary>
-        ///// <param name="email">Текущая электронная почта пользователя.</param>
-        ///// <param name="cancellation">Токен отмены.</param>
-        //[HttpGet("reset-password-request")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[AllowAnonymous]
-        //public async Task<IActionResult> ResetPasswordRequest([FromQuery] UserEmailDto email, CancellationToken cancellation)
-        //{
-        //    var resetLink = Url.Action(nameof(ResetPasswordConfirm), "User", new { email = email.Value, token = "tokenValue" }, Request.Scheme);
-
-        //    await _userService.ResetPasswordRequestAsync(email, resetLink, cancellation);
-
-        //    return Ok();
-        //}
-
-        ///// <summary>
-        ///// Изменить пользователя по идентификатору.
-        ///// </summary>
-        ///// <param name="email">Электронная почта пользователя.</param>
-        ///// <param name="token">Сгенерированный токен для сброса пароля.</param>
-        ///// <param name="cancellation">Токен отмены.</param>
-        //[HttpGet("reset-password-confirm")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[AllowAnonymous]
-        //public async Task<IActionResult> ResetPasswordConfirm(string email, string token, CancellationToken cancellation)
-        //{
-        //    return Ok(new { email, token });
-        //}
-
-        ///// <summary>
-        ///// Изменить пользователя по идентификатору.
-        ///// </summary>
-        ///// <param name="request">Элемент <see cref="UserResetPasswordDto"/>.</param>
-        ///// <param name="token">Идентификатор пользователя.</param>
-        ///// <param name="cancellation">Токен отмены.</param>
-        //[HttpPut("reset-password")]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[AllowAnonymous]
-        //public async Task<IActionResult> ResetPassword(UserResetPasswordDto request, string token, CancellationToken cancellation)
-        //{
-        //    await _userService.ResetPasswordAsync(request, token, cancellation);
-
-        //    return Ok();
-        //}
-
-
-
         /// <summary>
         /// Удалить пользователя по идентификатору.
         /// </summary>
@@ -227,7 +157,6 @@ namespace Identity.Host.Server.Controllers
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор нового пользователя.</returns>
         [HttpPost("register")]
-        [AllowAnonymous]
         public async Task<ActionResult<Guid>> Register(UserRegisterRequest registerRequest, CancellationToken cancellation)
         {
             var userId = await _userService.RegisterAsync(registerRequest, cancellation);

@@ -1,4 +1,5 @@
 ﻿using Board.Contracts.Contexts.Adverts;
+using Board.Contracts.Contexts.Comments;
 using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Collections.Generic;
@@ -38,6 +39,8 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         /// <returns>Элемент <see cref="AdvertDetails"/>.</returns>
         Task<AdvertDetails> GetByIdAsync(Guid id, CancellationToken cancellation);
 
+        Task<IReadOnlyCollection<CommentDetails>> GetCommentsByAdvertIdAsync(Guid id, int? offset, int? limit, CancellationToken cancellation);
+
         /// <summary>
         /// Добавить новое обьявление.
         /// </summary>
@@ -60,6 +63,8 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         /// <param name="id">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
         Task DeleteAsync(Guid id, CancellationToken cancellation);
+
+        Task SoftDeleteAsync(Guid id, CancellationToken cancellation);
     }
 
 }

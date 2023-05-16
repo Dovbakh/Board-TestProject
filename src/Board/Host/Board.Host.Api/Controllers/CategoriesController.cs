@@ -13,10 +13,10 @@ namespace Board.Host.Api.Controllers
     /// </summary>
     /// <response code="500">Произошла внутренняя ошибка.</response>
     [ApiController]
-    [Route("v1/categories")]
+    [Route("v2/[controller]")]
     [Produces("application/json")]
     [ApiConventionType(typeof(AppConventions))]
-    public class CategoryController : ControllerBase
+    public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
 
@@ -24,7 +24,7 @@ namespace Board.Host.Api.Controllers
         /// Работа с категориями.
         /// </summary>
         /// <param name="categoryService">Сервис категорий.</param>
-        public CategoryController(ICategoryService categoryService)
+        public CategoriesController(ICategoryService categoryService)
         {
             _categoryService = categoryService;
         }
@@ -72,12 +72,12 @@ namespace Board.Host.Api.Controllers
         /// <response code="422">Произошёл конфликт бизнес-логики.</response>
         /// <returns>Идентификатор новой категории.</returns>
         [HttpPost]
-        [Authorize]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<Guid>> Create([FromBody] CategoryAddRequest createRequest, CancellationToken cancellation)
         {
             var categoryId = await _categoryService.CreateAsync(createRequest, cancellation);
 
-            return CreatedAtAction(nameof(GetById), new { id = categoryId });
+            return CreatedAtAction(nameof(Create), categoryId);
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Board.Host.Api.Controllers
         /// <response code="422">Произошёл конфликт бизнес-логики.</response>
         /// <returns>Модель обновленной категории <see cref="CategoryDetails"/>.</returns>
         [HttpPut("{id:Guid}")]
-        [Authorize]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<CategoryDetails>> Update(Guid id, [FromBody] CategoryUpdateRequest updateRequest, CancellationToken cancellation)
         {
             var result = await _categoryService.UpdateAsync(id, updateRequest, cancellation);
@@ -110,7 +110,7 @@ namespace Board.Host.Api.Controllers
         /// <response code="403">Доступ запрещён.</response>
         /// <response code="404">Категория с указанным идентификатором не найдена.</response>
         [HttpDelete("{id:Guid}")]
-        [Authorize]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> DeleteById(Guid id, CancellationToken cancellation)
         {
             await _categoryService.DeleteAsync(id, cancellation);

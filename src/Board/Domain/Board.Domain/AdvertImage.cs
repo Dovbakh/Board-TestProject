@@ -33,6 +33,6 @@ namespace Board.Domain
         /// </summary>
         public Advert Advert { get; set; }
 
-        public bool isActive { get; set; }
+        public bool IsActive { get; set; }
     }
 }

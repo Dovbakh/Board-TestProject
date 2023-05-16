@@ -58,6 +58,18 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertImages.Repositories
         }
 
         /// <inheritdoc />
+        public async Task<bool> IsExists(Guid advertId, Guid imageId, CancellationToken cancellation)
+        {
+            _logger.LogInformation("{0}:{1} -> Проверка наличия записи с указанием картинки с ID: {2} для обьявления с ID: {3} ",
+                nameof(AdvertImageRepository), nameof(GetByIdAsync), imageId, advertId);
+
+            var isExists = await _repository.GetAll()
+                .AnyAsync(a => a.AdvertId == advertId && a.ImageId == imageId, cancellation);
+
+            return isExists;
+        }
+
+        /// <inheritdoc />
         public async Task<Guid> AddAsync(AdvertImageAddRequest addRequest, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Добавление записи с указанием картинки обьявления из модели {2}: {3}",
@@ -94,10 +106,10 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertImages.Repositories
                 .Where(a => a.ImageId == fileId)
                 .FirstOrDefaultAsync(cancellation);        
             
-            if (existingEntity == null)
-            {
-                throw new KeyNotFoundException($"Не найдена запись с указанием картинки обьявления с ID картинки: {fileId}");
-            }
+            //if (existingEntity == null)
+            //{
+            //    throw new KeyNotFoundException($"Не найдена запись с указанием картинки обьявления с ID картинки: {fileId}");
+            //}
 
             await _repository.DeleteAsync(existingEntity, cancellation);
         }

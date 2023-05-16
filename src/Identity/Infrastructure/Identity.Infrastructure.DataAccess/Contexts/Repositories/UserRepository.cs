@@ -4,6 +4,7 @@ using Identity.Application.AppData.Repositories;
 using Identity.Contracts.Contexts.Users;
 using Identity.Contracts.Options;
 using Identity.Domain;
+using Identity.Infrastructure.Repository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -28,9 +29,12 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
         private readonly IDistributedLockFactory _distributedLockFactory;
         private readonly ILogger<UserRepository> _logger;
         private readonly UserRegisterLockOptions _registerLockOptions;
+        private readonly ICacheRepository _cacheRepository;
+        private readonly Contracts.Options.UserOptions _userOptions;
 
         public UserRepository(UserManager<Domain.User> userManager, IMapper mapper, RoleManager<IdentityRole<Guid>> roleManager, IDistributedLockFactory distributedLockFactory,
-            ILogger<UserRepository> logger, IOptions<UserRegisterLockOptions> registerLockOptionsAccessor)
+            ILogger<UserRepository> logger, IOptions<UserRegisterLockOptions> registerLockOptionsAccessor, ICacheRepository cacheRepository, 
+            IOptions<Contracts.Options.UserOptions> userOptionsAccessor)
         {
             _userManager = userManager;
             _mapper = mapper;
@@ -38,6 +42,8 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
             _distributedLockFactory = distributedLockFactory;
             _logger = logger;
             _registerLockOptions = registerLockOptionsAccessor.Value;
+            _cacheRepository = cacheRepository;
+            _userOptions = userOptionsAccessor.Value;
         }
 
         public async Task<IReadOnlyCollection<UserSummary>> GetAllAsync(int offset, int count, CancellationToken cancellation)
@@ -71,10 +77,17 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
             _logger.LogInformation("{0}:{1} -> Получение пользователя с ID: {2}",
                 nameof(UserRepository), nameof(GetByIdAsync), id);
 
-            var user = await _userManager.Users
-                .Where(u => u.Id == id && u.isActive == true)
-                .ProjectTo<UserDetails>(_mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync(cancellation);
+            var user = await _cacheRepository.GetById<UserDetails>(_userOptions.UserIdCacheKey+id, cancellation);
+
+            if (user == null)
+            {
+                user = await _userManager.Users
+                    .Where(u => u.Id == id && u.isActive == true)
+                    .ProjectTo<UserDetails>(_mapper.ConfigurationProvider)
+                    .FirstOrDefaultAsync(cancellation);
+
+                await _cacheRepository.SetWithSlidingTime(_userOptions.UserIdCacheKey+id, user, TimeSpan.FromSeconds(60), cancellation);
+            }
 
             return user;
         }
@@ -161,6 +174,8 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
                 throw new ArgumentException($"При обновлении информации о пользователе произошла ошибка:: {JsonConvert.SerializeObject(result.Errors)}");
             }
 
+            await _cacheRepository.DeleteAsync(_userOptions.UserIdCacheKey + id, cancellation);
+
             return _mapper.Map<User, UserDetails>(user);
         }
 
@@ -180,6 +195,8 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
             {
                 throw new ArgumentException($"При удалении пользователя произошла ошибка:: {JsonConvert.SerializeObject(result.Errors)}");
             }
+
+            await _cacheRepository.DeleteAsync(_userOptions.UserIdCacheKey + id, cancellation);
         }
 
         public async Task ChangeEmailAsync(string currentEmail, string newEmail, string token, CancellationToken cancellation)

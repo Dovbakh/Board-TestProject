@@ -38,6 +38,7 @@ namespace Board.Application.AppData.Contexts.AdvertImages.Repositories
         /// <returns></returns>
         Task<Guid> AddAsync(AdvertImageAddRequest addRequest, CancellationToken cancellation);
 
+        Task<bool> IsExists(Guid advertId, Guid imageId, CancellationToken cancellation);
 
         /// <summary>
         /// Удалить изображение.

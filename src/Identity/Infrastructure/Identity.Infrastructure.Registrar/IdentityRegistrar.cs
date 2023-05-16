@@ -39,7 +39,7 @@ namespace Identity.Infrastructure.Registrar
     public static class IdentityRegistrar
     {
 
-        public static IServiceCollection AddServiceRegistrationModule(this IServiceCollection services)
+        public static IServiceCollection AddServiceRegistrationModule(this IServiceCollection services, Microsoft.Extensions.Configuration.IConfiguration configuration)
         {
             services.AddSingleton<IDbContextOptionsConfigurator<AspNetIdentityDbContext>, AspNetIdentityDbContextConfiguration>();
             services.AddDbContext<AspNetIdentityDbContext>((Action<IServiceProvider, DbContextOptionsBuilder>)
@@ -58,6 +58,15 @@ namespace Identity.Infrastructure.Registrar
             services.AddHttpContextAccessor();
 
             services.AddValidatorsFromAssembly(typeof(UserLoginValidator).Assembly);
+
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration.GetSection("RedisCache").GetRequiredSection("Host").Value;
+                options.InstanceName = configuration.GetSection("RedisCache").GetRequiredSection("InstanceName").Value;
+
+            });
+
+            services.AddScoped<ICacheRepository, CacheRepository>();
 
             services.AddSingleton<IDistributedLockFactory, RedLockFactory>(x =>
                 RedLockFactory.Create(new List<RedLockMultiplexer>

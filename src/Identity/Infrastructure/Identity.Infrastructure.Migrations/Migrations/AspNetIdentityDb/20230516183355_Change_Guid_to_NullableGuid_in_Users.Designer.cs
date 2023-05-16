@@ -3,6 +3,7 @@ using System;
 using Identity.Infrastructure.Migrations.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Identity.Infrastructure.Migrations.Migrations.AspNetIdentityDb
 {
     [DbContext(typeof(MigrationAspNetIdentityDbContext))]
-    partial class MigrationAspNetIdentityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230516183355_Change_Guid_to_NullableGuid_in_Users")]
+    partial class Change_Guid_to_NullableGuid_in_Users
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

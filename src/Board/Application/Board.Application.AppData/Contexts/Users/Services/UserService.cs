@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Board.Application.AppData.Contexts.Adverts.Repositories;
 using Board.Application.AppData.Contexts.Comments.Repositories;
 using Board.Application.AppData.Contexts.Images.Services;
 using Board.Application.AppData.Contexts.Notifications.Services;
+using Board.Contracts.Contexts.Adverts;
 using Board.Contracts.Contexts.Comments;
 using Board.Contracts.Contexts.Users;
 using Board.Contracts.Exceptions;
@@ -9,7 +11,14 @@ using Board.Contracts.Options;
 using FluentValidation;
 using Identity.Clients.Users;
 using Identity.Contracts.Clients.Users;
+using IdentityModel;
 using IdentityModel.Client;
+using IdentityServer4;
+using IdentityServer4.AccessTokenValidation;
+using IdentityServer4.Extensions;
+using IdentityServer4.Models;
+using IdentityServer4.Validation;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -53,6 +62,7 @@ namespace Board.Application.AppData.Contexts.Users.Services
         private readonly ICommentRepository _commentRepository;
         private readonly ILogger<UserService> _logger;
         private readonly IImageService _imageService;
+        private readonly IAdvertRepository _advertRepository;
         private readonly UserOptions _userOptions;
         private readonly Contracts.Options.CookieOptions _cookieOptions;
         private readonly IdentityClientOptions _identityClientOptions;
@@ -62,8 +72,8 @@ namespace Board.Application.AppData.Contexts.Users.Services
             INotificationService notificationService, IDistributedLockFactory distributedLockFactory, ICommentRepository commentRepository, ILogger<UserService> logger,
             IValidator<UserChangeEmailRequest> userChangeEmailValidator, IValidator<UserConfirmEmailRequest> userConfirmEmailValidator,
             IValidator<UserGenerateEmailTokenRequest> userGenerateEmailTokenValidator, IValidator<UserGenerateEmailConfirmationTokenRequest> userGenerateEmailConfirmationTokenValidator,
-            IValidator<UserEmail> userEmailValidator, IImageService imageService, IOptions<UserOptions> userOptionsAccessor, IOptions<Contracts.Options.CookieOptions> cookieOptionsAccessor, 
-            IOptions<IdentityClientOptions> identityClientOptionsAccessor)
+            IValidator<UserEmail> userEmailValidator, IImageService imageService, IOptions<UserOptions> userOptionsAccessor, IOptions<Contracts.Options.CookieOptions> cookieOptionsAccessor,
+            IOptions<IdentityClientOptions> identityClientOptionsAccessor, IAdvertRepository advertRepository)
         {
             _userClient = boardClient;
             _mapper = mapper;
@@ -84,6 +94,7 @@ namespace Board.Application.AppData.Contexts.Users.Services
             _userOptions = userOptionsAccessor.Value;
             _cookieOptions = cookieOptionsAccessor.Value;
             _identityClientOptions = identityClientOptionsAccessor.Value;
+            _advertRepository = advertRepository;
         }
 
         /// <inheritdoc />
@@ -120,6 +131,41 @@ namespace Board.Application.AppData.Contexts.Users.Services
             user.Rating = rating;
 
             return user;
+        }
+        
+
+        /// <inheritdoc />
+        public async Task<IReadOnlyCollection<AdvertSummary>> GetAdvertsByUserIdAsync(Guid id, int? offset, int? limit, CancellationToken cancellation)
+        {
+            _logger.LogInformation("{0}:{1} -> Получение списка обьявлений для пользователя с ID: {2} с параметрами {3}: {4}, {5}: {6}",
+                nameof(UserService), nameof(GetAdvertsByUserIdAsync), id, nameof(offset), offset, nameof(limit), limit);
+
+            if(!limit.HasValue)
+            {
+                limit = _userOptions.AdvertListDefaultCount;
+            }
+
+            var filterRequest = new AdvertFilterRequest { UserId = id };
+            var adverts = await _advertRepository.GetAllFilteredAsync(filterRequest, offset.GetValueOrDefault(), limit.GetValueOrDefault(), cancellation);
+
+            return adverts;
+        }
+
+        /// <inheritdoc />
+        public async Task<IReadOnlyCollection<CommentDetails>> GetCommentsByReceiverUserIdAsync(Guid id, int? offset, int? limit, CancellationToken cancellation)
+        {
+            _logger.LogInformation("{0}:{1} -> Получение списка отзывов, оставленных пользователю с ID: {2} с параметрами {3}: {4}, {5}: {6}",
+                nameof(UserService), nameof(GetCommentsByReceiverUserIdAsync), id, nameof(offset), offset, nameof(limit), limit);
+
+            if (!limit.HasValue)
+            {
+                limit = _userOptions.CommentListDefaultCount;
+            }
+
+            var filterRequest = new CommentFilterRequest { UserReceiverId = id };
+            var comments = await _commentRepository.GetAllFilteredAsync(filterRequest, offset.GetValueOrDefault(), limit.GetValueOrDefault(), cancellation);
+
+            return comments;
         }
 
         /// <inheritdoc />
@@ -217,18 +263,18 @@ namespace Board.Application.AppData.Contexts.Users.Services
                 return false;
             }
 
-            if(currentUserId.Value != userId)
+            if(currentUserId.Value == userId)
             {
-                return false;
+                return true;
             }
 
             var isAdmin = IsAdmin(userId, cancellation);
-            if(!isAdmin)
+            if(isAdmin)
             {
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         /// <inheritdoc />
@@ -271,11 +317,8 @@ namespace Board.Application.AppData.Contexts.Users.Services
             _logger.LogInformation("{0}:{1} -> Аутентификация пользователя с email: {2}",
                 nameof(UserService), nameof(LoginAsync), loginRequest.UserName);
 
-            var validationResult = _userLoginValidator.Validate(loginRequest);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException($"Модель аутентификации пользователя не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
+            await _userLoginValidator.ValidateAndThrowAsync(loginRequest, cancellation);
+
 
             var clientCredentials = new IdentityClientCredentials
             {
@@ -283,7 +326,6 @@ namespace Board.Application.AppData.Contexts.Users.Services
                 Secret = _identityClientOptions.ExternalClientCredentials.Secret,
                 Scope = _identityClientOptions.ExternalClientCredentials.Scope
             };
-
             var userCredentials = new UserLoginClientRequest
             {
                 UserName = loginRequest.UserName,
@@ -297,7 +339,27 @@ namespace Board.Application.AppData.Contexts.Users.Services
                 throw new ArgumentException($"Ошибка при получении токена: {tokenResponse.ErrorDescription}");
             }
 
+            _contextAccessor.HttpContext.Session.SetString(OidcConstants.TokenResponse.AccessToken, tokenResponse.AccessToken);
+            _contextAccessor.HttpContext.Session.SetString(OidcConstants.TokenResponse.RefreshToken, tokenResponse.RefreshToken);
+            _contextAccessor.HttpContext.Session.SetString(OidcConstants.TokenResponse.IssuedTokenType, tokenResponse.TokenType);
+            _contextAccessor.HttpContext.Session.SetString(OidcConstants.TokenResponse.ExpiresIn, tokenResponse.ExpiresIn.ToString());
+
             return tokenResponse;
+        }
+
+
+        /// <inheritdoc />
+        public async Task LogoutAsync(CancellationToken cancellation)
+        {
+            _logger.LogInformation("{0}:{1} -> Выход пользователя из системы.",
+                nameof(UserService), nameof(LoginAsync));
+
+            _contextAccessor.HttpContext.Session.Remove(OidcConstants.TokenResponse.AccessToken);
+            _contextAccessor.HttpContext.Session.Remove(OidcConstants.TokenResponse.RefreshToken);
+            _contextAccessor.HttpContext.Session.Remove(OidcConstants.TokenResponse.IssuedTokenType);
+            _contextAccessor.HttpContext.Session.Remove(OidcConstants.TokenResponse.ExpiresIn);
+
+            return;
         }
 
         /// <inheritdoc />
@@ -313,12 +375,17 @@ namespace Board.Application.AppData.Contexts.Users.Services
                 Scope = _identityClientOptions.ExternalClientCredentials.Scope
             };
 
-            var tokenResponse = await _userClient.GetTokenAsync(clientCredentials, loginRefreshRequest.refresh_token, cancellation);
+            var tokenResponse = await _userClient.GetTokenAsync(clientCredentials, loginRefreshRequest.RefreshToken, cancellation);
 
             if (tokenResponse.IsError)
             {
                 throw new ArgumentException($"Ошибка при получении токена: {tokenResponse.ErrorDescription}");
             }
+
+            _contextAccessor.HttpContext.Session.SetString(OidcConstants.TokenResponse.AccessToken, tokenResponse.AccessToken);
+            _contextAccessor.HttpContext.Session.SetString(OidcConstants.TokenResponse.RefreshToken, tokenResponse.RefreshToken);
+            _contextAccessor.HttpContext.Session.SetString(OidcConstants.TokenResponse.IssuedTokenType, tokenResponse.TokenType);
+            _contextAccessor.HttpContext.Session.SetString(OidcConstants.TokenResponse.ExpiresIn, tokenResponse.ExpiresIn.ToString());
 
             return tokenResponse;
         }
@@ -329,11 +396,8 @@ namespace Board.Application.AppData.Contexts.Users.Services
             _logger.LogInformation("{0}:{1} -> Регистрация пользователя со следующим email: {2}",
                 nameof(UserService), nameof(RegisterAsync), registerRequest.Email);
 
-            var validationResult = _userRegisterValidator.Validate(registerRequest);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException($"Модель регистрации нового пользователя не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
+            await _userRegisterValidator.ValidateAndThrowAsync(registerRequest, cancellation);
+
 
             var registerClientRequest = _mapper.Map<UserRegisterRequest, UserRegisterClientRequest>(registerRequest);          
             var userId = await _userClient.RegisterAsync(registerClientRequest, cancellation);
@@ -348,16 +412,12 @@ namespace Board.Application.AppData.Contexts.Users.Services
             _logger.LogInformation("{0}:{1} -> Обновление информации о пользователе с ID: {2} со следующей моделью обновления {3}: {4}",
                 nameof(UserService), nameof(UpdateAsync), id, nameof(UserUpdateRequest), JsonConvert.SerializeObject(updateRequest));
 
-            var validationResult = _userUpdateValidator.Validate(updateRequest);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException($"Модель обновления пользователя не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
+            await _userUpdateValidator.ValidateAndThrowAsync(updateRequest, cancellation);
 
-            var hasPermission = HasPermission(id, cancellation);
-            if (!hasPermission)
+            var currentUserId = GetCurrentId(cancellation);
+            if (id != currentUserId)
             {
-                throw new ForbiddenException($"Нет доступа для обновления текущего пользователя.");
+                throw new ForbiddenException($"Нет доступа для обновления данного пользователя.");
             }
 
             if (updateRequest.PhotoId.HasValue)
@@ -391,11 +451,8 @@ namespace Board.Application.AppData.Contexts.Users.Services
             _logger.LogInformation("{0}:{1} -> Генерация токена смены email из модели {2} и отправка его на новый email.",
                 nameof(UserService), nameof(SendEmailTokenAsync), JsonConvert.SerializeObject(request));
 
-            var validationResult = _userGenerateEmailTokenValidator.Validate(request);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException($"Модель генерации токена для изменения почты не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
+            await _userGenerateEmailTokenValidator.ValidateAndThrowAsync(request, cancellation);
+
 
             var clientRequest = _mapper.Map<UserGenerateEmailTokenRequest, UserGenerateEmailTokenClientRequest>(request);
             var token = await _userClient.GenerateEmailTokenAsync(clientRequest, cancellation);          
@@ -419,11 +476,8 @@ namespace Board.Application.AppData.Contexts.Users.Services
             _logger.LogInformation("{0}:{1} -> Генерация токена подтверждения email из модели {2} и отправка его на email.",
                 nameof(UserService), nameof(SendEmailConfirmationTokenAsync), JsonConvert.SerializeObject(request));
 
-            var validationResult = _userGenerateEmailConfirmationTokenValidator.Validate(request);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException($"Модель генерации токена для подтверждения почты не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
+            await _userGenerateEmailConfirmationTokenValidator.ValidateAndThrowAsync(request, cancellation);
+
 
             var clientRequest = _mapper.Map<UserGenerateEmailConfirmationTokenRequest, UserGenerateEmailConfirmationTokenClientRequest>(request);
             var token = await _userClient.GenerateEmailConfirmationTokenAsync(clientRequest, cancellation);
@@ -441,11 +495,8 @@ namespace Board.Application.AppData.Contexts.Users.Services
             _logger.LogInformation("{0}:{1} -> Изменение email текущего пользователя с ID: {2} на {3}",
                 nameof(UserService), nameof(ChangeEmailAsync), GetCurrentId(cancellation), newEmail);
 
-            var validationResult = _userEmailValidator.Validate(new UserEmail { Value = newEmail});
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException($"Модель изменения почты не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
+            await _userEmailValidator.ValidateAndThrowAsync(new UserEmail { Value = newEmail}, cancellation);
+
 
             var currentUserEmail = GetCurrentEmail(cancellation);
 
@@ -459,11 +510,8 @@ namespace Board.Application.AppData.Contexts.Users.Services
             _logger.LogInformation("{0}:{1} -> Подтверждение email: {2} текущего пользователя с ID: {3}",
                 nameof(UserService), nameof(ChangeEmailAsync), email, GetCurrentId(cancellation));
 
-            var validationResult = _userEmailValidator.Validate(new UserEmail { Value = email });
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException($"Модель подтверждения почты не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
+            await _userEmailValidator.ValidateAndThrowAsync(new UserEmail { Value = email }, cancellation);
+
 
             var currentUser = await GetCurrentAsync(cancellation);
 

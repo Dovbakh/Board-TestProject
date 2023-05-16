@@ -9,5 +9,6 @@ namespace Board.Contracts.Options
     public class AdvertOptions
     {
         public int ListDefaultCount { get; set; } = 10;
+        public int CommentListDefaultCount { get; set; } = 10;
     }
 }

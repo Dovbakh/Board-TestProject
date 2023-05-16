@@ -38,7 +38,7 @@ namespace Board.Domain
         /// </summary>
         public ICollection<Advert> Adverts { get; set; }
 
-        public bool isActive { get; set; }
+        public bool IsActive { get; set; }
 
         public DateTime CreatedAt { get; set; }
     }

@@ -10,7 +10,7 @@ namespace Board.Application.AppData.Contexts.AdvertFavorites.Repositories
 {
     public interface IAdvertFavoriteRepository
     {
-        Task<IReadOnlyCollection<Guid>> GetAllByUserIdAsync(Guid userId, CancellationToken cancellation);
+        Task<IReadOnlyCollection<Guid>> GetIdsByUserIdAsync(Guid userId, CancellationToken cancellation);
         Task<Guid> AddIfNotExistsAsync(Guid advertId, Guid userId, CancellationToken cancellation);
         Task DeleteAsync(Guid advertId, Guid userId, CancellationToken cancellation);
 
@@ -18,7 +18,7 @@ namespace Board.Application.AppData.Contexts.AdvertFavorites.Repositories
 
         void DeleteFromCookie(Guid advertId, CancellationToken cancellation);
 
-        List<Guid> GetAllFromCookie(CancellationToken cancellation);
+        List<Guid> GetIdsFromCookie(CancellationToken cancellation);
 
 
     }

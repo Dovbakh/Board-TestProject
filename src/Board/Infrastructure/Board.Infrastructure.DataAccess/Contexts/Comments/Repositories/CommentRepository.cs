@@ -48,7 +48,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
                 nameof(CommentRepository), nameof(GetAllAsync), nameof(offset), offset, nameof(limit), limit);
 
             var comments = await _repository.GetAll()
-                .Where(c => c.isActive == true)
+                .Where(c => c.IsActive == true)
                 .ProjectTo<CommentDetails>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellation);
 
@@ -63,11 +63,16 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
                 JsonConvert.SerializeObject(filterRequest));
 
             var query = _repository.GetAll()
-                .Where(c => c.isActive == true);
+                .Where(c => c.IsActive == true);
 
-            if (filterRequest.UserId.HasValue)
+            if (filterRequest.UserReceiverId.HasValue)
             {
-                query = query.Where(a => a.UserId == filterRequest.UserId);
+                query = query.Include(a => a.Advert)
+                    .Where(a => a.Advert.UserId == filterRequest.UserReceiverId.Value);
+            }
+            if (filterRequest.UserAuthorId.HasValue)
+            {
+                query = query.Where(a => a.UserAuthorId == filterRequest.UserAuthorId);
             }
             if (filterRequest.AdvertId.HasValue)
             {
@@ -108,7 +113,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
                 nameof(CommentRepository), nameof(GetByIdAsync), commentId);
 
             var comment = await _repository.GetAll()
-                .Where(c => c.Id == commentId && c.isActive == true)
+                .Where(c => c.Id == commentId && c.IsActive == true)
                 .ProjectTo<CommentDetails>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellation);
 
@@ -123,7 +128,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
 
             var rating = await _repository.GetAll()
                 .Include(c => c.Advert)
-                .Where(c => c.Advert.UserId == userId && c.isActive == true)
+                .Where(c => c.Advert.UserId == userId && c.IsActive == true)
                 .GroupBy(c => 1)
                 .Select(c => (float)c.Count() != 0 ? (float)c.Sum(c => c.Rating) / (float)c.Count() : 0)
                 .FirstOrDefaultAsync(cancellation);
@@ -137,8 +142,8 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
                 nameof(CommentRepository), nameof(GetUserIdAsync), commentId);
 
             var userId = await _repository.GetAll()
-                .Where(c => c.Id == commentId && c.isActive == true)
-                .Select(c => c.UserId)
+                .Where(c => c.Id == commentId && c.IsActive == true)
+                .Select(c => c.UserAuthorId)
                 .FirstOrDefaultAsync(cancellation);
 
             if(userId == null)
@@ -157,13 +162,13 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
 
             var comment = _mapper.Map<CommentAddRequest, Comment>(addRequest);
 
-            var resource = $"{_addLockOptions.CommentAddKey}_{addRequest.AdvertId}_{addRequest.UserId}";
+            var resource = $"{_addLockOptions.CommentAddKey}_{addRequest.AdvertId}_{addRequest.UserAuthorId}";
             await using (var redLock = await _distributedLockFactory.CreateLockAsync(resource, _addLockOptions.Expire, _addLockOptions.Wait, _addLockOptions.Retry, cancellation))
             {
                 if (redLock.IsAcquired)
                 {
                     var isCommentExists = await _repository.GetAll()
-                        .Where(c => c.UserId == addRequest.UserId)
+                        .Where(c => c.UserAuthorId == addRequest.UserAuthorId)
                         .Where(c => c.AdvertId == addRequest.AdvertId)
                         .AnyAsync(cancellation);
 
@@ -186,7 +191,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
                 nameof(CommentRepository), nameof(UpdateAsync), commentId, nameof(CategoryUpdateRequest), JsonConvert.SerializeObject(updateRequest));
 
             var comment = await _repository.GetAll()
-                 .Where(c => c.Id == commentId && c.isActive == true)
+                 .Where(c => c.Id == commentId && c.IsActive == true)
                  .FirstOrDefaultAsync(cancellation);
             if (comment == null)
             {
@@ -212,7 +217,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
                 throw new KeyNotFoundException($"Не найден комментарий с ID: {commentId}");
             }
 
-            comment.isActive = false;
+            comment.IsActive = false;
             await _repository.UpdateAsync(comment, cancellation);
         }
 

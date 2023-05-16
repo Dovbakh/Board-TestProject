@@ -2,6 +2,7 @@
 using Board.Application.AppData.Contexts.Adverts.Services;
 using Board.Application.AppData.Contexts.Comments.Repositories;
 using Board.Application.AppData.Contexts.Users.Services;
+using Board.Contracts.Contexts.Adverts;
 using Board.Contracts.Contexts.Categories;
 using Board.Contracts.Contexts.Comments;
 using Board.Contracts.Exceptions;
@@ -111,18 +112,10 @@ namespace Board.Application.AppData.Contexts.Comments.Services
             _logger.LogInformation("{0}:{1} -> Создание комментария из модели {2}: {3}",
                 nameof(CommentService), nameof(CreateAsync), nameof(CategoryAddRequest), JsonConvert.SerializeObject(addRequest));
 
-            var validationResult = _commentAddValidator.Validate(addRequest);
-            if (!validationResult.IsValid)
-            {
-                throw new ArgumentException($"Модель создания комментария не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
+            await _commentAddValidator.ValidateAndThrowAsync(addRequest, cancellation);
 
-            var currentUserId = _userService.GetCurrentId(cancellation);
-            if (!currentUserId.HasValue)
-            {
-                throw new UnauthorizedAccessException($"При создании комментария пользователь должен быть авторизован.");
-            }
-            addRequest.UserId = currentUserId.Value;
+
+            addRequest.UserAuthorId = _userService.GetCurrentId(cancellation).Value;
 
             var advert = await _advertRepository.GetByIdAsync(addRequest.AdvertId, cancellation);
             if (advert == null)
@@ -130,7 +123,7 @@ namespace Board.Application.AppData.Contexts.Comments.Services
                 throw new KeyNotFoundException($"Обьявления {addRequest.AdvertId} не существует.");
             }
 
-            if (advert.UserId == currentUserId)
+            if (advert.UserId == addRequest.UserAuthorId)
             {
                 throw new ArgumentException("Нельзя оставить отзыв самому себе.");
             }
@@ -146,17 +139,14 @@ namespace Board.Application.AppData.Contexts.Comments.Services
             _logger.LogInformation("{0}:{1} -> Обновление комментария c ID: {2} из модели {3}: {4}",
                 nameof(CommentService), nameof(UpdateAsync), id, nameof(CategoryUpdateRequest), JsonConvert.SerializeObject(updateRequest));
 
-            var validationResult = _commentUpdateValidator.Validate(updateRequest);
-            if (!validationResult.IsValid)
-            {
-                throw new ArgumentException($"Модель обновления комментария не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
+            await _commentUpdateValidator.ValidateAndThrowAsync(updateRequest, cancellation);
+
 
             var commentUserId = await _commentRepository.GetUserIdAsync(id, cancellation);
-            var hasPermission = _userService.HasPermission(commentUserId, cancellation);
-            if (!hasPermission)
+            var currentUserId = _userService.GetCurrentId(cancellation);
+            if (commentUserId != currentUserId)
             {
-                throw new ForbiddenException($"Нет доступа для обновления текущего комментария.");
+                throw new ForbiddenException($"Нет доступа для обновления данного комментария.");
             }
 
             var updatedComment = await _commentRepository.UpdateAsync(id, updateRequest, cancellation);
@@ -171,10 +161,10 @@ namespace Board.Application.AppData.Contexts.Comments.Services
                 nameof(CommentService), nameof(SoftDeleteAsync), id);
 
             var commentUserId = await _commentRepository.GetUserIdAsync(id, cancellation);
-            var hasPermission = _userService.HasPermission(commentUserId, cancellation);
-            if (!hasPermission)
+            var currentUserId = _userService.GetCurrentId(cancellation);
+            if (commentUserId != currentUserId)
             {
-                throw new ForbiddenException($"Нет доступа для удаления текущего комментария.");
+                throw new ForbiddenException($"Нет доступа для удаления данного комментария.");
             }
 
             await _commentRepository.SoftDeleteAsync(id, cancellation);

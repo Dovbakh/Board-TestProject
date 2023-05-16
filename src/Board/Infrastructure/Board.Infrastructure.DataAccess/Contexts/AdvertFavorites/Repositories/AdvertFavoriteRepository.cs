@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using Board.Application.AppData.Contexts.AdvertFavorites.Repositories;
 using Board.Application.AppData.Contexts.AdvertFavorites.Services;
 using Board.Contracts.Contexts.AdvertFavorites;
+using Board.Contracts.Contexts.Adverts;
 using Board.Contracts.Options;
 using Board.Domain;
 using Board.Infrastructure.DataAccess.Contexts.AdvertImages.Repositories;
@@ -46,16 +47,41 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertFavorites.Repositories
         }
 
         /// <inheritdoc />
-        public async Task<IReadOnlyCollection<Guid>> GetAllByUserIdAsync(Guid userId, CancellationToken cancellation)
+        public async Task<IReadOnlyCollection<Guid>> GetIdsByUserIdAsync(Guid userId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение списка избранных обьявлений пользователя с ID: {2}",
-                nameof(AdvertFavoriteRepository), nameof(GetAllByUserIdAsync), userId);
+                nameof(AdvertFavoriteRepository), nameof(GetIdsByUserIdAsync), userId);
 
             return await _repository.GetAll()
                 .Where(a => a.UserId == userId)
                 .Select(a => a.AdvertId)
                 .ToListAsync(cancellation);
         }
+
+        /// <inheritdoc />
+        //public async Task<IReadOnlyCollection<AdvertSummary>> GetAdvertsByUserIdAsync(Guid userId, int limit, int offset, CancellationToken cancellation)
+        //{
+        //    _logger.LogInformation("{0}:{1} -> Получение списка избранных обьявлений пользователя с ID: {2}",
+        //        nameof(AdvertFavoriteRepository), nameof(GetIdsByUserIdAsync), userId);
+
+        //    var adverts = await _repository.GetAll()
+        //        .Where(a => a.UserId == userId)
+        //        .Include(a => a.Advert)
+        //        .Select(a => a.AdvertId)
+        //        .ToListAsync(cancellation);
+
+
+        //    var adverts = await _repository.GetAll()
+        //        .Where(a => a.UserId == userId)
+        //        .OrderByDescending(a => a.CreatedAt)
+        //        .Skip(offset)
+        //        .Take(limit)
+        //        .Include(a => a.AdvertImages)
+        //        .ProjectTo<AdvertSummary>(_mapper.ConfigurationProvider)
+        //        .ToListAsync(cancellation);
+
+        //    return adverts;
+        //}
 
         /// <inheritdoc />
         public async Task<Guid> AddIfNotExistsAsync(Guid advertId, Guid userId, CancellationToken cancellation)
@@ -122,7 +148,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertFavorites.Repositories
             {
                 advertFavoriteIds = JsonConvert.DeserializeObject<List<Guid>>(cookie);
             }
-            catch (JsonException e)
+            catch (Exception e)
             {
             }
 
@@ -145,7 +171,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertFavorites.Repositories
             {
                 advertFavoriteIds = JsonConvert.DeserializeObject<List<Guid>>(cookie);
             }
-            catch (JsonException e)
+            catch (Exception e)
             {
             }
             advertFavoriteIds.Remove(advertId);
@@ -153,10 +179,10 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertFavorites.Repositories
             _contextAccessor.HttpContext.Response.Cookies.Append(_cookieOptions.AnonymousFavoriteKey, JsonConvert.SerializeObject(advertFavoriteIds));
         }
 
-        public List<Guid> GetAllFromCookie(CancellationToken cancellation)
+        public List<Guid> GetIdsFromCookie(CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение списка избранных обьявлений из cookie анонимного пользователя.",
-            nameof(AdvertFavoriteRepository), nameof(GetAllFromCookie));
+            nameof(AdvertFavoriteRepository), nameof(GetIdsFromCookie));
 
             var advertFavoriteIds = new List<Guid>();
             var cookie = _contextAccessor.HttpContext.Request.Cookies[_cookieOptions.AnonymousFavoriteKey];
@@ -164,7 +190,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertFavorites.Repositories
             {
                 return JsonConvert.DeserializeObject<List<Guid>>(cookie);
             }
-            catch (JsonException e)
+            catch (Exception e)
             {
             }
 

@@ -8,5 +8,8 @@ namespace Board.Contracts
 {
     public class ErrorDto
     {
+        public string TraceId { get; set; }
+        public string Message { get; set; }
+
     }
 }

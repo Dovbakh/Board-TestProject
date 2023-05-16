@@ -26,6 +26,8 @@ using Board.Contracts.Exceptions;
 using Board.Application.AppData.Contexts.AdvertViews.Services;
 using Microsoft.Extensions.Options;
 using Board.Contracts.Options;
+using Board.Contracts.Contexts.Comments;
+using Board.Application.AppData.Contexts.Comments.Repositories;
 
 namespace Board.Application.AppData.Contexts.Adverts.Services
 {
@@ -34,6 +36,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
     {
         private readonly IAdvertRepository _advertRepository;
         private readonly IAdvertImageRepository _advertImageRepository;
+        private readonly ICommentRepository _commentRepository;
         private readonly IAdvertViewService _advertViewService;
         private readonly IUserService _userService;
         private readonly IImageService _imageService;
@@ -46,7 +49,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
 
         public AdvertService(IAdvertRepository advertRepository, IMapper mapper, IValidator<AdvertAddRequest> advertAddValidator,
             IValidator<AdvertUpdateRequest> advertUpdateValidator, IAdvertImageRepository advertImageRepository, IUserService userService, IImageService imageService,
-            ILogger<AdvertService> logger, IAdvertViewService advertViewService, IOptions<AdvertOptions> advertOptionsAccessor)
+            ILogger<AdvertService> logger, IAdvertViewService advertViewService, IOptions<AdvertOptions> advertOptionsAccessor, ICommentRepository commentRepository)
         {
             _advertRepository = advertRepository;
             _mapper = mapper;
@@ -58,6 +61,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
             _logger = logger;
             _advertViewService = advertViewService;
             _advertOptions = advertOptionsAccessor.Value;
+            _commentRepository = commentRepository;
         }
 
         /// <inheritdoc />
@@ -112,42 +116,41 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         }
 
         /// <inheritdoc />
+        public async Task<IReadOnlyCollection<CommentDetails>> GetCommentsByAdvertIdAsync(Guid id, int? offset, int? limit, CancellationToken cancellation)
+        {
+            _logger.LogInformation("{0}:{1} -> Получение всех комментариев для обьявления с ID: {2} с параметрами {3}: {4}, {5}: {6} ",
+                nameof(AdvertService), nameof(GetByIdAsync), id, nameof(offset), offset, nameof(limit), limit);
+
+            if(!limit.HasValue)
+            {
+                limit = _advertOptions.CommentListDefaultCount;
+            }
+
+            var filterRequest = new CommentFilterRequest { AdvertId = id };
+            var comments = await _commentRepository.GetAllFilteredAsync(filterRequest, offset.GetValueOrDefault(), limit.GetValueOrDefault(), cancellation);
+
+            return comments;
+        }
+
+        /// <inheritdoc />
         public async Task<Guid> CreateAsync(AdvertAddRequest addRequest, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Создание обьявления из модели {2}: {3}",
                 nameof(AdvertService), nameof(CreateAsync), nameof(AdvertAddRequest), JsonConvert.SerializeObject(addRequest));
 
-            var validationResult = _advertAddValidator.Validate(addRequest);
-            if (!validationResult.IsValid)
-            {
-                throw new ArgumentException($"Модель создания обьявления не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
+            await _advertAddValidator.ValidateAndThrowAsync(addRequest, cancellation);
 
-            var currentUserId = _userService.GetCurrentId(cancellation);
-            if(!currentUserId.HasValue)
-            {
-                throw new UnauthorizedAccessException($"При создании обьявления пользователь должен быть авторизован.");
-            }
-            addRequest.UserId = currentUserId.Value;
 
-            foreach (var imageId in addRequest.ImagesId)
-            {
-                var isImageExists = await _imageService.IsImageExists(imageId, cancellation);
-                if(!isImageExists)
-                {
-                    throw new KeyNotFoundException($"На файловом сервисе не найдено изображение с ID: {imageId}, указанное в модели создания обьявления.");
-                }
-            }
+            addRequest.UserId = _userService.GetCurrentId(cancellation).Value;
 
-            var newAdvertId = await _advertRepository.AddAsync(addRequest, cancellation);
+            await CheckImagesUploaded(addRequest.ImagesId, cancellation);
 
-            foreach(var imageId in addRequest.ImagesId)
-            {
-                var imageAddRequest = new AdvertImageAddRequest { AdvertId = newAdvertId, ImageId = imageId };
-                await _advertImageRepository.AddAsync(imageAddRequest, cancellation);
-            }        
+            var advertId = await _advertRepository.AddAsync(addRequest, cancellation);
 
-            return newAdvertId;
+            await AddImagesToAdvert(addRequest.ImagesId, advertId, cancellation);     
+
+
+            return advertId;
         }
 
         /// <inheritdoc />
@@ -156,37 +159,25 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
             _logger.LogInformation("{0}:{1} -> Обновление обьявления c ID: {2} из модели {3}: {4}",
                 nameof(AdvertService), nameof(UpdateAsync), id, nameof(AdvertUpdateRequest), JsonConvert.SerializeObject(updateRequest));
 
-            var validationResult = _advertUpdateValidator.Validate(updateRequest);
-            if (!validationResult.IsValid)
-            {
-                throw new ArgumentException($"Модель обновления обьявления не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
+
+            await _advertUpdateValidator.ValidateAndThrowAsync(updateRequest, cancellation);
+
 
             var advertUserId = await _advertRepository.GetUserIdAsync(id, cancellation);
-            var hasPermission = _userService.HasPermission(advertUserId, cancellation);
-            if (!hasPermission)
+            var currentUserId = _userService.GetCurrentId(cancellation);
+            if (advertUserId != currentUserId)
             {
-                throw new ForbiddenException($"Нет доступа для обновления текущего обьявления.");
+                throw new ForbiddenException($"Нет доступа для обновления данного обьявления.");
             }
 
-            foreach (var imageId in updateRequest.NewImagesId)
-            {
-                var imageAddRequest = new AdvertImageAddRequest { AdvertId = id, ImageId = imageId };
-                await _advertImageRepository.AddAsync(imageAddRequest, cancellation);
-            }
-            foreach (var imageId in updateRequest.RemovedImagesId)
-            {
-                await _advertImageRepository.DeleteByFileIdAsync(imageId, cancellation);
-            }
+            await CheckImagesUploaded(updateRequest.NewImagesId, cancellation);
+            await AddImagesToAdvert(updateRequest.NewImagesId, id, cancellation);
+            await RemoveImages(updateRequest.RemovedImagesId, cancellation);
+
 
             var updatedAdvert = await _advertRepository.UpdateAsync(id, updateRequest, cancellation);
+            updatedAdvert.User = await _userService.GetByIdAsync(updatedAdvert.UserId, cancellation);
 
-            var user = await _userService.GetByIdAsync(updatedAdvert.UserId, cancellation);
-            if (user == null)
-            {
-                throw new KeyNotFoundException($"Не найден пользователь с ID: {updatedAdvert.UserId}, указанный в обьявлении с ID: {id}"); ;
-            }
-            updatedAdvert.User = user;
 
             return updatedAdvert;
         }
@@ -198,10 +189,10 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
                 nameof(AdvertService), nameof(SoftDeleteAsync), id);
 
             var advertUserId = await _advertRepository.GetUserIdAsync(id, cancellation);
-            var hasPermission = _userService.HasPermission(advertUserId, cancellation);
-            if(!hasPermission)
+            var currentUserId = _userService.GetCurrentId(cancellation);
+            if (advertUserId != currentUserId)
             {
-                throw new ForbiddenException($"Нет доступа для удаления текущего обьявления.");
+                throw new ForbiddenException($"Нет доступа для удаления данного обьявления.");
             }
 
             await _advertRepository.SoftDeleteAsync(id, cancellation);
@@ -214,6 +205,90 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
                 nameof(AdvertService), nameof(DeleteAsync), id);
 
             await _advertRepository.DeleteAsync(id, cancellation);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="advertId"></param>
+        /// <param name="newImageIds"></param>
+        /// <param name="removedImageIds"></param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException"></exception>
+        private async Task UpdateImageCollection(Guid advertId, ICollection<Guid> newImageIds, ICollection<Guid> removedImageIds, CancellationToken cancellation)
+        {
+            foreach (var imageId in newImageIds)
+            {
+                var isImageExists = await _imageService.IsImageExists(imageId, cancellation);
+                if (!isImageExists)
+                {
+                    throw new KeyNotFoundException($"На файловом сервисе не найдено изображение с ID: {imageId}, указанное в модели обновления обьявления.");
+                }
+
+                var imageAddRequest = new AdvertImageAddRequest { AdvertId = advertId, ImageId = imageId };
+                await _advertImageRepository.AddAsync(imageAddRequest, cancellation);
+            }
+            foreach (var imageId in removedImageIds)
+            {
+                await _advertImageRepository.DeleteByFileIdAsync(imageId, cancellation);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="imageIds"></param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException"></exception>
+        private async Task CheckImagesUploaded(ICollection<Guid> imageIds, CancellationToken cancellation)
+        {
+            foreach (var imageId in imageIds)
+            {
+                var isImageExists = await _imageService.IsImageExists(imageId, cancellation);
+                if (!isImageExists)
+                {
+                    throw new KeyNotFoundException($"На файловом сервисе не найдено изображение с ID: {imageId}, указанное в модели обновления обьявления.");
+                }
+            }          
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="imageIds"></param>
+        /// <param name="advertId"></param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        private async Task AddImagesToAdvert(ICollection<Guid> imageIds, Guid advertId, CancellationToken cancellation)
+        {
+            foreach (var imageId in imageIds)
+            {   
+                var isExists = await _advertImageRepository.IsExists(advertId, imageId, cancellation);
+                if(isExists)
+                {
+                    continue; 
+                }
+
+                var imageAddRequest = new AdvertImageAddRequest { AdvertId = advertId, ImageId = imageId };
+                await _advertImageRepository.AddAsync(imageAddRequest, cancellation);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="imageIds"></param>
+        /// <param name="cancellation"></param>
+        /// <returns></returns>
+        private async Task RemoveImages(ICollection<Guid> imageIds,CancellationToken cancellation)
+        {
+            foreach (var imageId in imageIds)
+            {
+                await _advertImageRepository.DeleteByFileIdAsync(imageId, cancellation);
+                await _imageService.DeleteAsync(imageId, cancellation);
+            }
         }
     }
 }

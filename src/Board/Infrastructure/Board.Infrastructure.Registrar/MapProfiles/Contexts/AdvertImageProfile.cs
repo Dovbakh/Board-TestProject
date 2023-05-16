@@ -15,7 +15,7 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
         {
             CreateMap<AdvertImageAddRequest, AdvertImage>()
                 .ForMember(a => a.Id, map => map.Ignore())
-                .ForMember(a => a.isActive, map => map.MapFrom(s => true))
+                .ForMember(a => a.IsActive, map => map.MapFrom(s => true))
                 .ForMember(a => a.CreatedAt, map => map.MapFrom(s => DateTime.UtcNow))
                 .ForMember(a => a.Advert, map => map.Ignore());
             CreateMap<AdvertImage, AdvertImageDto>();

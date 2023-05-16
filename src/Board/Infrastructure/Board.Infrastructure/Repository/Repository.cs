@@ -61,7 +61,7 @@ namespace Board.Infrastructure.Repository
         public async Task AddAsync(TEntity model, CancellationToken cancellation)
         {
             _logger.LogInformation("{0} -> Добавление сущности {1} c моделью: {2} из базы данных.",
-                nameof(AddAsync), nameof(TEntity), JsonConvert.SerializeObject(model));
+                nameof(AddAsync), nameof(TEntity), JsonConvert.SerializeObject(model, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
 
             if (model == null)
             {
@@ -83,7 +83,7 @@ namespace Board.Infrastructure.Repository
         public async Task UpdateAsync(TEntity model, CancellationToken cancellation)
         {
             _logger.LogInformation("{0} -> Обновление сущности {1} c моделью: {2} в базе данных.",
-                nameof(UpdateAsync), nameof(TEntity), JsonConvert.SerializeObject(model));
+                nameof(UpdateAsync), nameof(TEntity), JsonConvert.SerializeObject(model, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }));
 
             if (model == null)
             {
@@ -105,14 +105,15 @@ namespace Board.Infrastructure.Repository
         public async Task DeleteAsync(TEntity model, CancellationToken cancellation)
         {
             _logger.LogInformation("{0} -> Удаление сущности {1} c моделью: {2} в базе данных.",
-                nameof(DeleteAsync), nameof(TEntity), JsonConvert.SerializeObject(model));
+                nameof(DeleteAsync), nameof(TEntity), JsonConvert.SerializeObject(model, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore})) ;
 
             if (model == null)
             {
+                return;
                 throw new ArgumentNullException($"Удаляемая сущность не должна быть пустой.");
             }
 
-            
+
             try
             {
                 DbSet.Remove(model);

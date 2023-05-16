@@ -28,7 +28,7 @@ if (seed)
     SeedData.EnsureSeedData(config);
 }
 
-builder.Services.AddServiceRegistrationModule();
+builder.Services.AddServiceRegistrationModule(config);
 builder.Services.AddAspNetIdentityServices();
 builder.Services.AddIdentityServerServices(config);
 builder.Services.AddAuthenticationServices();
@@ -46,7 +46,7 @@ app.UseRouting();
 app.UseIdentityServer();
 app.UseAuthentication(); //
 app.UseAuthorization();
-app.MapControllers().RequireAuthorization("ApiScope");
+app.MapControllers();//.RequireAuthorization("ApiScope");
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapDefaultControllerRoute();

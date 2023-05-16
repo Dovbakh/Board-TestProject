@@ -13,7 +13,6 @@ namespace FileStorage.Host.Server.Controllers
     [Route("v1/files")]
     [Produces("application/json")]
     [ApiConventionType(typeof(AppConventions))]
-
     public class ImageController : ControllerBase
     {
         private readonly IImageService _fileService;
@@ -38,7 +37,6 @@ namespace FileStorage.Host.Server.Controllers
         /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
         /// <response code="200">Запрос выполнен успешно.</response>
         [HttpGet("info/{id:Guid}")]
-        [Authorize] //TODO: изменить тэг
         public async Task<ActionResult<ImageShortInfo>> GetInfo(Guid id, CancellationToken cancellation)
         {
             var result = await _fileService.GetInfoAsync(id, cancellation);
@@ -62,7 +60,6 @@ namespace FileStorage.Host.Server.Controllers
         /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
         /// <response code="200">Запрос выполнен успешно.</response>
         [HttpPost]
-        //[AllowAnonymous]
         public async Task<ActionResult<Guid>> Upload(IFormFile file, CancellationToken cancellation)
         {
             var fileName = await _fileService.UploadAsync(file, cancellation);
@@ -78,7 +75,6 @@ namespace FileStorage.Host.Server.Controllers
         /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
         /// <response code="200">Запрос выполнен успешно.</response>
         [HttpGet("{id:Guid}")]
-        //[AllowAnonymous]
         public async Task<ActionResult<ImageData>> Download(Guid id, CancellationToken cancellation)
         {
             var result = await _fileService.DownloadAsync(id, cancellation);
@@ -94,7 +90,6 @@ namespace FileStorage.Host.Server.Controllers
         /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
         /// <response code="200">Запрос выполнен успешно.</response>
         [HttpDelete("{id:Guid}")]
-        //[AllowAnonymous]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellation)
         {
             await _fileService.DeleteAsync(id, cancellation);

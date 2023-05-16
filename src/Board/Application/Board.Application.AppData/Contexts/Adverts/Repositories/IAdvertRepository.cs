@@ -32,6 +32,10 @@ namespace Board.Application.AppData.Contexts.Adverts.Repositories
         /// <returns></returns>
         Task<IReadOnlyCollection<AdvertSummary>> GetAllFilteredAsync(AdvertFilterRequest filter, int offset, int count, CancellationToken cancellation);
 
+        Task<IReadOnlyCollection<AdvertSummary>> GetByListIdAsync(List<Guid> advertIds, int offset, int limit, CancellationToken cancellation);
+
+        Task<IReadOnlyCollection<AdvertSummary>> GetFavoritesByUserIdAsync(Guid userId, int offset, int limit, CancellationToken cancellation);
+
         /// <summary>
         /// Получить обьявление по идентификатору.
         /// </summary>

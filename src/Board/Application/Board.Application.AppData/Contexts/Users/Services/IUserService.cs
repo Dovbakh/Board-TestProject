@@ -1,4 +1,6 @@
-﻿using Board.Contracts.Contexts.Users;
+﻿using Board.Contracts.Contexts.Adverts;
+using Board.Contracts.Contexts.Comments;
+using Board.Contracts.Contexts.Users;
 using IdentityModel.Client;
 using System;
 using System.Collections.Generic;
@@ -31,6 +33,8 @@ namespace Board.Application.AppData.Contexts.Users.Services
 
         Task<TokenResponse> LoginAsync(UserLoginRefreshRequest loginRefreshRequest, CancellationToken cancellation);
 
+        Task LogoutAsync(CancellationToken cancellation);
+
         /// <summary>
         /// Получить всех пользователей с пагинацией.
         /// </summary>
@@ -47,6 +51,10 @@ namespace Board.Application.AppData.Contexts.Users.Services
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Элемент <see cref="UserDetails"/>.</returns>
         Task<UserDetails> GetByIdAsync(Guid id, CancellationToken cancellation);
+
+        Task<IReadOnlyCollection<AdvertSummary>> GetAdvertsByUserIdAsync(Guid id, int? offset, int? limit, CancellationToken cancellation);
+
+        Task<IReadOnlyCollection<CommentDetails>> GetCommentsByReceiverUserIdAsync(Guid id, int? offset, int? limit, CancellationToken cancellation);
 
         /// <summary>
         /// Получить текущего пользователя.
@@ -81,13 +89,6 @@ namespace Board.Application.AppData.Contexts.Users.Services
         /// <param name="cancellation">Токен отмены.</param>
         Task DeleteAsync(Guid id, CancellationToken cancellation);
 
-        ///// <summary>
-        ///// Изменить пароль у пользователя.
-        ///// </summary>
-        ///// <param name="changePasswordRequest">Элемент <see cref="UserChangePasswordRequest"/>.</param>
-        ///// <param name="cancellation">Токен отмены.</param>
-        ///// <returns></returns>
-        //Task ChangePasswordAsync(UserChangePasswordRequest changePasswordRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Получение токена для изменения почты пользователя и его отправка на новую почту.
@@ -111,23 +112,6 @@ namespace Board.Application.AppData.Contexts.Users.Services
 
         public Task ConfirmEmailAsync(string email, string token, CancellationToken cancellation);
 
-        ///// <summary>
-        ///// Получение токена для сброса пароля пользователя и его отправка на почту.
-        ///// </summary>
-        ///// <param name="email">Почта пользователя.</param>
-        ///// <param name="resetLink">Шаблон для ссылки на сброс пароля.</param>
-        ///// <param name="cancellation">Токен отмены.</param>
-        ///// <returns></returns>
-        //Task ResetPasswordRequestAsync(UserEmailDto email, string resetLink, CancellationToken cancellation);
-
-        ///// <summary>
-        ///// Сброс пароля пользователя.
-        ///// </summary>
-        ///// <param name="request">Элемент <see cref="UserResetPasswordDto"/>.</param>
-        ///// <param name="token">Сгенерированный токен на сброс пароля.</param>
-        ///// <param name="cancellation">Токен отмены.</param>
-        ///// <returns></returns>
-        //Task ResetPasswordAsync(UserResetPasswordDto request, string token, CancellationToken cancellation);
 
     }
 

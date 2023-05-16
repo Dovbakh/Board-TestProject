@@ -11,20 +11,20 @@ namespace Board.Host.Api.Controllers
     /// Работа с пользователями.
     /// </summary>
     [ApiController]
-    [Route("v1/[controller]")]
+    [Route("v2/[controller]")]
     [Produces("application/json")]
     [ApiConventionType(typeof(AppConventions))]
-    public class ImageController : ControllerBase
+    public class ImagesController : ControllerBase
     {
         private readonly IImageService _fileService;
-        private readonly ILogger<ImageController> _logger;
+        private readonly ILogger<ImagesController> _logger;
 
         /// <summary>
         /// Работа с обьявлениями.
         /// </summary>
         /// <param name="advertisementService">Сервис для работы с обьявлениями.</param>
         /// <param name="logger">Логгер.</param>
-        public ImageController(IImageService fileService, ILogger<ImageController> logger)
+        public ImagesController(IImageService fileService, ILogger<ImagesController> logger)
         {
             _fileService = fileService;
             _logger = logger;
@@ -38,7 +38,7 @@ namespace Board.Host.Api.Controllers
         /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
         /// <response code="200">Запрос выполнен успешно.</response>
         [HttpGet("info/{id:Guid}")]
-        //[AllowAnonymous]
+        [AllowAnonymous]
         public async Task<ActionResult<ImageShortInfo>> GetInfo(Guid id, CancellationToken cancellation)
         {
             var result = await _fileService.GetInfoAsync(id, cancellation);
@@ -54,7 +54,6 @@ namespace Board.Host.Api.Controllers
         /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
         /// <response code="200">Запрос выполнен успешно.</response>
         [HttpPost]
-        //[AllowAnonymous]
         public async Task<ActionResult<Guid>> Upload(IFormFile file, CancellationToken cancellation)
         {
             var fileName = await _fileService.UploadAsync(file, cancellation);
@@ -70,7 +69,7 @@ namespace Board.Host.Api.Controllers
         /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
         /// <response code="200">Запрос выполнен успешно.</response>
         [HttpGet("{id:Guid}")]
-        //[AllowAnonymous]
+        [AllowAnonymous]
         public async Task<ActionResult> Download(Guid id, CancellationToken cancellation)
         {
             var result = await _fileService.DownloadAsync(id, cancellation);
@@ -86,7 +85,7 @@ namespace Board.Host.Api.Controllers
         /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
         /// <response code="200">Запрос выполнен успешно.</response>
         [HttpDelete("{id:Guid}")]
-        //[AllowAnonymous]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellation)
         {
             await _fileService.DeleteAsync(id, cancellation);

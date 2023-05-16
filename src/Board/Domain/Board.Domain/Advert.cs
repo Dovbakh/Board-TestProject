@@ -67,7 +67,7 @@ namespace Board.Domain
 
         public ICollection<AdvertView> AdvertViews { get; set; }
 
-        public bool isActive { get; set; }
+        public bool IsActive { get; set; }
 
     }
 }

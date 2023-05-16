@@ -12,7 +12,6 @@ namespace Notifier.Host.Server.Controllers
     [ApiController]
     [Route("v1/[controller]")]
     [Produces("application/json")]
-    [AllowAnonymous] // TODO: удалить
     [ApiConventionType(typeof(AppConventions))]
     public class MessageController : ControllerBase
     {
@@ -31,7 +30,6 @@ namespace Notifier.Host.Server.Controllers
         /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
         /// <response code="200">Запрос выполнен успешно.</response>
         [HttpPost]
-        //[AllowAnonymous]
         public async Task<IActionResult> Send(NotificationDetails message, CancellationToken cancellation)
         {
             await _messageService.SendAsync(message, cancellation);

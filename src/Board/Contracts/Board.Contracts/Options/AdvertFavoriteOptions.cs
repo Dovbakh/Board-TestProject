@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Options
 {
-    public class UserOptions
+    public class AdvertFavoriteOptions
     {
         public int ListDefaultCount { get; set; } = 10;
-        public int AdvertListDefaultCount { get; set; } = 10;
-        public int CommentListDefaultCount { get; set; } = 10;
     }
 }

@@ -39,7 +39,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
                 nameof(AdvertRepository), nameof(GetAllAsync), nameof(offset), offset, nameof(limit), limit);
 
             var adverts = await _repository.GetAll()
-                .Where(a => a.isActive == true)
+                .Where(a => a.IsActive == true)
                 .OrderByDescending(a => a.CreatedAt)               
                 .Skip(offset)
                 .Take(limit)
@@ -58,7 +58,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
                 JsonConvert.SerializeObject(filterRequest));
 
             var query = _repository.GetAll()
-                .Where(a => a.isActive == true);
+                .Where(a => a.IsActive == true);
 
             if (filterRequest.UserId.HasValue)
             {
@@ -74,14 +74,14 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
                 query = query.Where(p => p.Name.ToLower().Contains(filterRequest.Text.ToLower()) || p.Description.ToLower().Contains(filterRequest.Text.ToLower()));
             }
 
-            if (filterRequest.minPrice.HasValue)
+            if (filterRequest.MinPrice.HasValue)
             {
-                query = query.Where(p => p.Price >= filterRequest.minPrice);
+                query = query.Where(p => p.Price >= filterRequest.MinPrice);
             }
 
-            if (filterRequest.maxPrice.HasValue)
+            if (filterRequest.MaxPrice.HasValue)
             {
-                query = query.Where(p => p.Price <= filterRequest.maxPrice);
+                query = query.Where(p => p.Price <= filterRequest.MaxPrice);
             }
 
             if (!string.IsNullOrWhiteSpace(filterRequest.SortBy))
@@ -117,13 +117,47 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
                 nameof(AdvertRepository), nameof(GetByIdAsync), advertId);
 
             var advert = await _repository.GetAll()
-                .Where(a => a.Id == advertId && a.isActive == true)
+                .Where(a => a.Id == advertId && a.IsActive == true)
                 .Include(a => a.Category)
                 .Include(a => a.AdvertImages)
                 .ProjectTo<AdvertDetails>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellation);
 
             return advert;
+        }
+
+        public async Task<IReadOnlyCollection<AdvertSummary>> GetByListIdAsync(List<Guid> advertIds, int offset, int limit, CancellationToken cancellation)
+        {
+            _logger.LogInformation("{0}:{1} -> Получение списка обьявлений с ID из списка: {2}",
+                nameof(AdvertRepository), nameof(GetByIdAsync), JsonConvert.SerializeObject(advertIds));
+
+            var adverts = await _repository.GetAll()
+                .Where(a => advertIds.Contains(a.Id))
+                .OrderByDescending(a => a.CreatedAt)
+                .Skip(offset)
+                .Take(limit)
+                .Include(a => a.AdvertImages)
+                .ProjectTo<AdvertSummary>(_mapper.ConfigurationProvider)
+                .ToListAsync(cancellation);
+
+            return adverts;
+        }
+
+        public async Task<IReadOnlyCollection<AdvertSummary>> GetFavoritesByUserIdAsync(Guid userId, int offset, int limit, CancellationToken cancellation)
+        {
+            _logger.LogInformation("{0}:{1} -> Получение списка избранных обьявлений для пользователя с ID: {2}",
+                nameof(AdvertRepository), nameof(GetByIdAsync), JsonConvert.SerializeObject(userId));
+
+            var adverts = await _repository.GetAll()
+                .Where(a => a.AdvertFavorites.Any(af => af.UserId == userId))
+                .OrderByDescending(a => a.CreatedAt)
+                .Skip(offset)
+                .Take(limit)
+                .Include(a => a.AdvertImages)
+                .ProjectTo<AdvertSummary>(_mapper.ConfigurationProvider)
+                .ToListAsync(cancellation);
+
+            return adverts;
         }
 
         /// <inheritdoc />
@@ -133,7 +167,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
                 nameof(AdvertRepository), nameof(GetByIdAsync), advertId);
 
             var userId = await _repository.GetAll()
-                .Where(a => a.Id == advertId && a.isActive == true)
+                .Where(a => a.Id == advertId && a.IsActive == true)
                 .Select(a => a.UserId)
                 .FirstOrDefaultAsync(cancellation);
             if(userId == null)
@@ -173,7 +207,6 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
 
             var advert = await _repository.GetAll()
                 .Where(a => a.Id == advertId)
-                .Include(a => a.Category)
                 .Include(a => a.AdvertImages)
                 .FirstOrDefaultAsync(cancellation);
 
@@ -216,7 +249,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
                 throw new KeyNotFoundException($"Не найдено обьявление с ID: {advertId}");
             }
 
-            advert.isActive = false;
+            advert.IsActive = false;
             await _repository.UpdateAsync(advert, cancellation);
         }
     }

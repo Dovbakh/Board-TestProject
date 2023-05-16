@@ -6,6 +6,7 @@ using Board.Application.AppData.Contexts.Categories.Repositories;
 using Board.Contracts.Contexts.Categories;
 using Board.Domain;
 using FluentValidation;
+using MassTransit.Configuration;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -71,18 +72,14 @@ namespace Board.Application.AppData.Contexts.Categories.Services
         }
 
         /// <inheritdoc />
-        public  Task<Guid> CreateAsync(CategoryAddRequest createRequest, CancellationToken cancellation)
+        public  async Task<Guid> CreateAsync(CategoryAddRequest createRequest, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Создание категории из модели {2}: {3}",
                 nameof(CategoryService), nameof(CreateAsync), nameof(CategoryAddRequest), JsonConvert.SerializeObject(createRequest));
 
-            var validationResult = _categoryAddValidator.Validate(createRequest);
-            if (!validationResult.IsValid)
-            {
-                throw new ArgumentException($"Модель создания категории не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
+            await _categoryAddValidator.ValidateAndThrowAsync(createRequest, cancellation);
 
-            var newCategoryId = _categoryRepository.AddAsync(createRequest, cancellation);
+            var newCategoryId = await _categoryRepository.AddAsync(createRequest, cancellation);
 
             return newCategoryId;
         }
@@ -93,11 +90,7 @@ namespace Board.Application.AppData.Contexts.Categories.Services
             _logger.LogInformation("{0}:{1} -> Обновление категории c ID: {2} из модели {3}: {4}",
                 nameof(CategoryService), nameof(UpdateAsync), categoryId, nameof(CategoryUpdateRequest), JsonConvert.SerializeObject(updateRequest));
 
-            var validationResult = _categoryUpdateValidator.Validate(updateRequest);
-            if (!validationResult.IsValid)
-            {
-                throw new ArgumentException($"Модель обновлеиня категории не прошла валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
+            await _categoryUpdateValidator.ValidateAndThrowAsync(updateRequest, cancellation); 
 
             var updatedCategory = await _categoryRepository.UpdateAsync(categoryId, updateRequest, cancellation);
 

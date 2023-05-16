@@ -22,7 +22,7 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
                 //.ForMember(s => s.Author, map => map.Ignore())
                 .ForMember(s => s.Advert, map => map.Ignore())
                 .ForMember(a => a.CreatedAt, map => map.MapFrom(d => DateTime.UtcNow))
-                .ForMember(s => s.isActive, map => map.MapFrom(a => true));
+                .ForMember(s => s.IsActive, map => map.MapFrom(a => true));
 
             CreateMap<CommentUpdateRequest, Comment>()
                 .ForMember(s => s.Id, map => map.Ignore())
@@ -30,8 +30,8 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
                 //.ForMember(s => s.Author, map => map.Ignore())
                 .ForMember(s => s.Advert, map => map.Ignore())
                 .ForMember(s => s.CreatedAt, map => map.Ignore())
-                .ForMember(s => s.isActive, map => map.Ignore())
-                .ForMember(s => s.UserId, map => map.Ignore())
+                .ForMember(s => s.IsActive, map => map.Ignore())
+                .ForMember(s => s.UserAuthorId, map => map.Ignore())
                 .ForMember(s => s.AdvertId, map => map.Ignore());
 
         }

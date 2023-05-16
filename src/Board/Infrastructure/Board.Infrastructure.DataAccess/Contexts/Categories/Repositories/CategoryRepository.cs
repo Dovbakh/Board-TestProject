@@ -52,7 +52,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
             if (categories == null)
             {
                 categories = await _repository.GetAll()
-                    .Where(c => c.isActive == true)
+                    .Where(c => c.IsActive == true)
                     .ProjectTo<CategorySummary>(_mapper.ConfigurationProvider)
                     .ToListAsync(cancellation);
 
@@ -68,7 +68,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
                  nameof(CategoryRepository), nameof(GetAllFilteredAsync), nameof(CategoryFilterRequest), JsonConvert.SerializeObject(filterRequest));
 
             var query = _repository.GetAll()
-                .Where(c => c.isActive == true);
+                .Where(c => c.IsActive == true);
 
             if (!string.IsNullOrWhiteSpace(filterRequest.Name))
             {
@@ -93,7 +93,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
                  nameof(CategoryRepository), nameof(GetByIdAsync), categoryId);
 
             var category = await _repository.GetAll()
-                .Where(c => c.Id == categoryId && c.isActive == true)
+                .Where(c => c.Id == categoryId && c.IsActive == true)
                 .ProjectTo<CategoryDetails>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellation);
 
@@ -145,6 +145,8 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
             }
 
             await _repository.DeleteAsync(category, cancellation);
+
+            await _cacheRepository.DeleteAsync(_categoryOptions.CategoryListKey, cancellation);
         }
     }
 }

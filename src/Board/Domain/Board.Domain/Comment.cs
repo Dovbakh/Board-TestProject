@@ -31,7 +31,7 @@ namespace Board.Domain
         /// <summary>
         /// Идентификатор пользователя, который оставил отзыв.
         /// </summary>
-        public Guid UserId { get; set; }
+        public Guid UserAuthorId { get; set; }
 
         /// <summary>
         /// Идентификатор обьявления, для которого оставлен отзыв.
@@ -43,6 +43,6 @@ namespace Board.Domain
         /// </summary>
         public Advert Advert { get; set; }
 
-        public bool isActive { get; set; }
+        public bool IsActive { get; set; }
     }
 }

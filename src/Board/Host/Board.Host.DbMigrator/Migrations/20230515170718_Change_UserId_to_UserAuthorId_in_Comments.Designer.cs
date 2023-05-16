@@ -3,6 +3,7 @@ using System;
 using Board.Host.DbMigrator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Board.Host.DbMigrator.Migrations
 {
     [DbContext(typeof(MigrationDbContext))]
-    partial class MigrationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230515170718_Change_UserId_to_UserAuthorId_in_Comments")]
+    partial class Change_UserId_to_UserAuthorId_in_Comments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,9 +45,6 @@ namespace Board.Host.DbMigrator.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -54,6 +54,9 @@ namespace Board.Host.DbMigrator.Migrations
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("isActive")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -96,7 +99,7 @@ namespace Board.Host.DbMigrator.Migrations
                     b.Property<Guid>("ImageId")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("isActive")
                         .HasColumnType("boolean");
 
                     b.HasKey("Id");
@@ -140,15 +143,15 @@ namespace Board.Host.DbMigrator.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("isActive")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -169,9 +172,6 @@ namespace Board.Host.DbMigrator.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
 
@@ -181,6 +181,9 @@ namespace Board.Host.DbMigrator.Migrations
 
                     b.Property<Guid>("UserAuthorId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("isActive")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 

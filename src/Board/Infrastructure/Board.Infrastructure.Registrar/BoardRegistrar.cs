@@ -136,6 +136,9 @@ namespace Board.Infrastructure.Registrar
             services.AddOptions<AdvertOptions>()
                 .BindConfiguration("Adverts")
                 .ValidateOnStart();
+            services.AddOptions<AdvertFavoriteOptions>()
+                .BindConfiguration("AdvertFavorites")
+                .ValidateOnStart();           
             services.AddOptions<CommentOptions>()
                 .BindConfiguration("Comments")
                 .ValidateOnStart();
@@ -167,6 +170,8 @@ namespace Board.Infrastructure.Registrar
                 
             });
 
+            services.AddScoped<ICacheRepository, CacheRepository>();
+
             services.AddSingleton<IDistributedLockFactory, RedLockFactory>(x =>
                 RedLockFactory.Create(new List<RedLockMultiplexer>
                 {
@@ -174,7 +179,7 @@ namespace Board.Infrastructure.Registrar
                 }));
             
 
-            services.AddScoped<ICacheRepository, CacheRepository>();
+            
 
             services.AddMassTransit(mt => mt.AddMassTransit(x => {
                 x.UsingRabbitMq((cntxt, cfg) => {
