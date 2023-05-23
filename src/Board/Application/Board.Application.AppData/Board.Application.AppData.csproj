@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,8 +7,29 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Contexts\Comments\" />
-    <Folder Include="Contexts\Posts\" />
+    <PackageReference Include="FluentValidation" Version="11.5.2" />
+    <PackageReference Include="IdentityModel" Version="4.6.0" />
+    <PackageReference Include="IdentityServer4" Version="4.1.2" />
+    <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
+    <PackageReference Include="MassTransit" Version="8.0.15" />
+    <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="7.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.16" />
+    <PackageReference Include="RedLock.net" Version="2.3.2" />
+    <PackageReference Include="StackExchange.Redis" Version="2.6.104" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\FileStorage\Clients\FileStorage.Clients\FileStorage.Clients.csproj" />
+    <ProjectReference Include="..\..\..\Identity\Clients\Identity.Clients\Identity.Clients.csproj" />
+    <ProjectReference Include="..\..\..\Notifier\Contracts\Notifier.Contracts\Notifier.Contracts.csproj" />
+    <ProjectReference Include="..\..\Contracts\Board.Contracts\Board.Contracts.csproj" />
+    <ProjectReference Include="..\..\Domain\Board.Domain\Board.Domain.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Board.Infrastructure\Board.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

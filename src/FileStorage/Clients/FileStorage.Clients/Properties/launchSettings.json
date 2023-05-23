@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "FileStorage.Clients": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:53801;http://localhost:53811"
+    }
+  }
+}

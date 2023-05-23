@@ -7,8 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Contexts\Comments\" />
-    <Folder Include="Contexts\Posts\" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.3" />
+    <PackageReference Include="RedLock.net" Version="2.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\Board.Application.AppData\Board.Application.AppData.csproj" />
+    <ProjectReference Include="..\..\Domain\Board.Domain\Board.Domain.csproj" />
+    <ProjectReference Include="..\Board.Infrastructure\Board.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

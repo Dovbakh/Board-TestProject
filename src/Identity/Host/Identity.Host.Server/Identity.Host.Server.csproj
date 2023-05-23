@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..\..\..</DockerfileContext>
+    <UserSecretsId>07759c1b-57e6-47fa-ab17-7af8038a4fce</UserSecretsId>
+    <DockerComposeProjectPath>..\..\..\..\docker-compose.dcproj</DockerComposeProjectPath>
+  </PropertyGroup>
+
+  <!--<ItemGroup>
+    <Compile Remove="Quickstart\**" />
+    <Content Remove="Quickstart\**" />
+    <EmbeddedResource Remove="Quickstart\**" />
+    <None Remove="Quickstart\**" />
+  </ItemGroup>-->
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
+    <PackageReference Include="IdentityServer4" Version="4.1.2" />
+    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
+    <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.16" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.16" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.2" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\Identity.Application.AppData\Identity.Application.AppData.csproj" />
+    <ProjectReference Include="..\..\Clients\Identity.Clients\Identity.Clients.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Identity.Infrastructure.DataAccess\Identity.Infrastructure.DataAccess.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Identity.Infrastructure.Migrations\Identity.Infrastructure.Migrations.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\Identity.Infrastructure.Registrar\Identity.Infrastructure.Registrar.csproj" />
+  </ItemGroup>
+
+</Project>
