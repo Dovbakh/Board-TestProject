@@ -155,10 +155,6 @@ namespace Identity.Infrastructure.DataAccess.Contexts.Users.Repositories
             {
                 user.Name = updateRequest.Name;
             }
-            if (!string.IsNullOrEmpty(updateRequest.Phone))
-            {
-                user.PhoneNumber = updateRequest.Phone;
-            }
             if (!string.IsNullOrEmpty(updateRequest.Address))
             {
                 user.Address = updateRequest.Address;

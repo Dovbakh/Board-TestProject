@@ -8,8 +8,14 @@ using System.Threading.Tasks;
 
 namespace Board.Application.AppData.Contexts.Users.Helpers
 {
+    /// <summary>
+    /// Валидатор модели логина пользователя.
+    /// </summary>
     public class UserLoginValidator : AbstractValidator<UserLoginRequest>
     {
+        /// <summary>
+        /// Правила валидации модели логина пользователя.
+        /// </summary>
         public UserLoginValidator() 
         {
             RuleFor(x => x.UserName)

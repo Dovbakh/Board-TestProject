@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Board.Infrastructure.DataAccess
 {
+    /// <summary>
+    /// Контекст для работы с БД.
+    /// </summary>
     public class BoardDbContext : DbContext
     {
         public BoardDbContext(DbContextOptions options) 

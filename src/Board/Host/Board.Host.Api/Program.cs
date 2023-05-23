@@ -12,13 +12,8 @@ var config = builder.Configuration;
 builder.Host.AddCustomLogger(config);
 builder.Services.AddServiceRegistrationModule(config);
 builder.Services.AddHttpClients(config);
-
-//builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerServices();
-//builder.Services.AddAspNetIdentityServices();
-
-builder.Services.AddAuthenticationServices();
+builder.Services.AddAuthenticationServices(config);
 builder.Services.AddAuthorizationServices();
 builder.Services.AddSession();
 
@@ -37,7 +32,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseSession();
-app.UseMiddleware<TokenInjectorMiddleware>();
+//app.UseMiddleware<TokenInjectorMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

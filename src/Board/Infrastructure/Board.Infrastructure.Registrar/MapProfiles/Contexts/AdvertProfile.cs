@@ -10,15 +10,20 @@ using System.Threading.Tasks;
 
 namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
 {
+    /// <summary>
+    /// Профиль AutoMapper для работы с Advert
+    /// </summary>
     public class AdvertProfile : Profile
     {
         public AdvertProfile()
         {
             CreateMap<Advert, AdvertSummary>()
                 .ForMember(a => a.ImagesId, map => map.MapFrom(s => s.AdvertImages.Select(a => a.ImageId)));
+
             CreateMap<Advert, AdvertDetails>()
                 .ForMember(a => a.User, map => map.Ignore())
                 .ForMember(a => a.ImagesId, map => map.MapFrom(s => s.AdvertImages.Select(a => a.ImageId)));
+
             CreateMap<AdvertAddRequest, Advert>()
                 .ForMember(a => a.Id, map => map.Ignore())
                 .ForMember(a => a.CreatedAt, map => map.MapFrom(d => DateTime.UtcNow))
@@ -27,6 +32,7 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
                 .ForMember(a => a.AdvertViews, map => map.Ignore())
                 .ForMember(a => a.AdvertImages, map => map.Ignore())
                 .ForMember(s => s.IsActive, map => map.MapFrom(a => true));
+
             CreateMap<AdvertUpdateRequest, Advert>()
                 .ForMember(a => a.Id, map => map.Ignore())
                 .ForMember(a => a.CreatedAt, map => map.Ignore())
@@ -36,7 +42,6 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
                 .ForMember(a => a.AdvertViews, map => map.Ignore())
                 .ForMember(a => a.AdvertImages, map => map.Ignore())
                 .ForMember(s => s.IsActive, map => map.Ignore());
-
         }
     }
 }

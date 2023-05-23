@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Adverts
 {
+    /// <summary>
+    /// Модель изменения обьявления.
+    /// </summary>
     public class AdvertUpdateRequest
     {
         /// <summary>
@@ -35,12 +38,12 @@ namespace Board.Contracts.Contexts.Adverts
         public Guid CategoryId { get; set; }
 
         /// <summary>
-        /// Коллекция изображений обьявления.
+        /// Список идентификаторов с добавленными изображениями.
         /// </summary>
         public ICollection<Guid> NewImagesId { get; set; }
 
         /// <summary>
-        /// Коллекция изображений обьявления.
+        /// Список идентификаторов с удаленными изображениями.
         /// </summary>
         public ICollection<Guid> RemovedImagesId { get; set; }
     }

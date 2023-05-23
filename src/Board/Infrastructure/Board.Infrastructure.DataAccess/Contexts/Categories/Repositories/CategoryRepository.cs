@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 
 namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
 {
+    /// <inheritdoc />
     public class CategoryRepository : ICategoryRepository
     {
         private readonly IRepository<Category> _repository;
@@ -42,6 +43,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
             _categoryOptions = categoryOptionsAccessor.Value;
         }
 
+        /// <inheritdoc />
         public async Task<IReadOnlyCollection<CategorySummary>> GetAllAsync(CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение всех категорий.",
@@ -62,6 +64,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
             return categories;
         }
 
+        /// <inheritdoc />
         public async Task<IReadOnlyCollection<CategorySummary>> GetAllFilteredAsync(CategoryFilterRequest filterRequest, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение всех категорий по фильтру {2}: {3}",
@@ -87,6 +90,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
             return categories;
         }
 
+        /// <inheritdoc />
         public async Task<CategoryDetails> GetByIdAsync(Guid categoryId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение категории с ID: {2}",
@@ -100,6 +104,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
             return category;
         }
 
+        /// <inheritdoc />
         public async Task<Guid> AddAsync(CategoryAddRequest createRequest, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Создание категории из модели {2}: {3}",
@@ -113,6 +118,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
             return newCategory.Id;
         }
 
+        /// <inheritdoc />
         public async Task<CategoryDetails> UpdateAsync(Guid categoryId, CategoryUpdateRequest updateRequest, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Обновление категории c ID: {2} из модели {3}: {4}",
@@ -133,6 +139,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Repositories
             return updatedCategoryDto;
         }
 
+        /// <inheritdoc />
         public async Task DeleteAsync(Guid categoryId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Удаление категории с ID: {2}",

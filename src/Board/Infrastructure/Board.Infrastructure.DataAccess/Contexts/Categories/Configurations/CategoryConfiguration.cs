@@ -21,7 +21,6 @@ namespace Board.Infrastructure.DataAccess.Contexts.Categories.Configurations
             builder.HasKey(c => c.Id);
             builder.Property(c => c.Id)
                 .ValueGeneratedOnAdd();
-            //builder.Property(c => c.Par
 
 
             builder.Property(c => c.Name).HasMaxLength(100);

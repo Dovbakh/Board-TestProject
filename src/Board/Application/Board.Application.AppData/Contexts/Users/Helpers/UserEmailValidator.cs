@@ -8,8 +8,14 @@ using System.Threading.Tasks;
 
 namespace Board.Application.AppData.Contexts.Users.Helpers
 {
+    /// <summary>
+    /// Валидатор модели почты пользователя.
+    /// </summary>
     public class UserEmailValidator : AbstractValidator<UserEmail>
     {
+        /// <summary>
+        /// Правила валидации модели почты пользователя.
+        /// </summary>
         public UserEmailValidator() 
         {
             RuleFor(x => x.Value).NotEmpty().WithMessage("Электронная почта обязательна для заполнения.")

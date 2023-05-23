@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Board.Domain
 {
+    /// <summary>
+    /// Обьявление.
+    /// </summary>
     public class Advert
     {
         /// <summary>
@@ -53,20 +56,24 @@ namespace Board.Domain
         /// </summary>
         public Category Category { get; set; }
 
-        ///// <summary>
-        ///// Пользователь-автор обьявления.
-        ///// </summary>
-        //public User User { get; set; }
-
         /// <summary>
         /// Коллекция изображений обьявления.
         /// </summary>
         public ICollection<AdvertImage> AdvertImages { get; set; }
 
+        /// <summary>
+        /// Коллекция избранных обьявлений.
+        /// </summary>
         public ICollection<AdvertFavorite> AdvertFavorites { get; set; }
 
+        /// <summary>
+        /// Коллекция просмотров обьявления.
+        /// </summary>
         public ICollection<AdvertView> AdvertViews { get; set; }
 
+        /// <summary>
+        /// Статус обьявления.
+        /// </summary>
         public bool IsActive { get; set; }
 
     }

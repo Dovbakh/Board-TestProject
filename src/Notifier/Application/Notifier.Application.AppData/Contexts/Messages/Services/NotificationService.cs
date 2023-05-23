@@ -30,7 +30,8 @@ namespace Notifier.Application.AppData.Contexts.Messages.Services
         public async Task SendAsync(NotificationDetails message, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Отправление сообщения из указанной модели: {2}",
-                nameof(NotificationService), nameof(SendAsync), JsonConvert.SerializeObject(message));
+                nameof(NotificationService), nameof(SendAsync), message);
+            
             
             var email = new MailMessage(_smtpOptions.Email, message.Receiver, message.Subject, message.Body);
             email.IsBodyHtml = true;

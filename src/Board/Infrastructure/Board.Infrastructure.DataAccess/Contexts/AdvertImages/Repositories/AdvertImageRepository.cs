@@ -44,13 +44,13 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertImages.Repositories
         }
 
         /// <inheritdoc />
-        public async Task<AdvertImageDto> GetByIdAsync(Guid id, CancellationToken cancellation)
+        public async Task<AdvertImageDto> GetByIdAsync(Guid advertImageId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение записи с указанием картинки обьявления по ID: {2} ",
-                nameof(AdvertImageRepository), nameof(GetByIdAsync), id);
+                nameof(AdvertImageRepository), nameof(GetByIdAsync), advertImageId);
 
             var advert = await _repository.GetAll()
-                .Where(a => a.Id == id)
+                .Where(a => a.Id == advertImageId)
                 .ProjectTo<AdvertImageDto>(_mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync(cancellation);
 
@@ -82,34 +82,34 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertImages.Repositories
         }
 
         /// <inheritdoc />
-        public async Task DeleteAsync(Guid id, CancellationToken cancellation)
+        public async Task DeleteAsync(Guid advertImageId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Удаление записи с указанием картинки обьявления с ID: {2}",
-                nameof(AdvertImageRepository), nameof(DeleteAsync), id);
+                nameof(AdvertImageRepository), nameof(DeleteAsync), advertImageId);
 
-            var existingEntity = await _repository.GetByIdAsync(id, cancellation);
+            var existingEntity = await _repository.GetByIdAsync(advertImageId, cancellation);
             if(existingEntity == null) 
             {
-                throw new KeyNotFoundException($"Не найдена запись с указанием картинки обьявления с ID: {id}");
+                throw new KeyNotFoundException($"Не найдена запись с указанием картинки обьявления с ID: {advertImageId}");
             }
 
             await _repository.DeleteAsync(existingEntity, cancellation);
         }
 
         /// <inheritdoc />
-        public async Task DeleteByFileIdAsync(Guid fileId, CancellationToken cancellation)
+        public async Task DeleteByFileIdAsync(Guid imageId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Удаление записи с указанием картинки обьявления с ID картинки: {2}",
-                nameof(AdvertImageRepository), nameof(DeleteByFileIdAsync), fileId);
+                nameof(AdvertImageRepository), nameof(DeleteByFileIdAsync), imageId);
 
             var existingEntity = await _repository.GetAll()
-                .Where(a => a.ImageId == fileId)
-                .FirstOrDefaultAsync(cancellation);        
-            
-            //if (existingEntity == null)
-            //{
-            //    throw new KeyNotFoundException($"Не найдена запись с указанием картинки обьявления с ID картинки: {fileId}");
-            //}
+                .Where(a => a.ImageId == imageId)
+                .FirstOrDefaultAsync(cancellation);
+
+            if (existingEntity == null)
+            {
+                throw new KeyNotFoundException($"Не найдена запись с указанием картинки обьявления с ID картинки: {imageId}");
+            }
 
             await _repository.DeleteAsync(existingEntity, cancellation);
         }

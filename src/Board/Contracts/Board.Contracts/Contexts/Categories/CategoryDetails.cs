@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Categories
 {
+    /// <summary>
+    /// Модель с детальной информацией о категории.
+    /// </summary>
     public class CategoryDetails
     {
         /// <summary>

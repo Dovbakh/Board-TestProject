@@ -5,6 +5,9 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace Board.Host.Api.Middlewares
 {
+    /// <summary>
+    /// Middleware для инжектирования токена из сессионных куков в Authorization Header.
+    /// </summary>
     public class TokenInjectorMiddleware
     {
         private readonly RequestDelegate _next;

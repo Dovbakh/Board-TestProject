@@ -8,8 +8,14 @@ using System.Threading.Tasks;
 
 namespace Board.Application.AppData.Contexts.Users.Helpers
 {
+    /// <summary>
+    /// Валидатор модели генерации токена подтверждения почты пользователя.
+    /// </summary>
     public class UserGenerateEmailConfirmationTokenValidator : AbstractValidator<UserGenerateEmailConfirmationTokenRequest>
     {
+        /// <summary>
+        /// Правила валидации модели генерации токена подтверждения пользователя.
+        /// </summary>
         public UserGenerateEmailConfirmationTokenValidator()
         {
             RuleFor(x => x.Email)

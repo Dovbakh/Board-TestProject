@@ -71,7 +71,7 @@ namespace FileStorage.Infrastructure.ObjectStorage
             var found = await _minioClient.BucketExistsAsync(bktExistArgs, cancellation);
             if (!found)
             {
-                throw new KeyNotFoundException($"Обьект с именем {objectName} не найден.");
+                return null;
             }
 
             var args = new StatObjectArgs()

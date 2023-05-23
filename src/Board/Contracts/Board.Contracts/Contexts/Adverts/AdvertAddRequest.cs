@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Adverts
 {
+    /// <summary>
+    /// Модель добавления обьявления.
+    /// </summary>
     public class AdvertAddRequest
     {
         /// <summary>
@@ -29,7 +32,6 @@ namespace Board.Contracts.Contexts.Adverts
         /// Адрес, указанный в обьявлении.
         /// </summary>
         public string Address { get; set; }
-
 
         /// <summary>
         /// Идентификатор категории обьявления.

@@ -8,8 +8,14 @@ using System.Threading.Tasks;
 
 namespace Board.Application.AppData.Contexts.Users.Helpers
 {
+    /// <summary>
+    /// Валидатор модели изменения почты пользователя.
+    /// </summary>
     public class UserChangeEmailValidator : AbstractValidator<UserChangeEmailRequest>
     {
+        /// <summary>
+        /// Правила валидации модели изменения почты пользователя.
+        /// </summary>
         public UserChangeEmailValidator() 
         {
             RuleFor(x => x.CurrentEmail)

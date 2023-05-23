@@ -9,8 +9,14 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Board.Application.AppData.Contexts.Adverts.Helpers
 {
+    /// <summary>
+    /// Валидатор модели изменения обьявления.
+    /// </summary>
     public class AdvertUpdateValidator : AbstractValidator<AdvertUpdateRequest>
     {
+        /// <summary>
+        /// Правила валидации модели изменения обьявления.
+        /// </summary>
         public AdvertUpdateValidator()
         {
             RuleFor(x => x.Name)
@@ -25,10 +31,6 @@ namespace Board.Application.AppData.Contexts.Adverts.Helpers
 
             RuleFor(x => x.Price)
                 .GreaterThanOrEqualTo(0).WithMessage("Цена не может быть отрицательной.");
-
-            //RuleFor(x => x.UserName)
-            //    .NotEmpty().WithMessage("Имя обязательно для заполнения.")
-            //    .Matches(@"([А-Я]{1}[а-яё]{1,23})").WithMessage("Неправильный формат имени");
 
             RuleFor(x => x.CategoryId)
                 .NotEmpty().WithMessage("Категория обязательна к выбору.");

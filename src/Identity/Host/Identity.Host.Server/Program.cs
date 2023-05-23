@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.EntityFramework.Options;
 using IdentityServer4.AccessTokenValidation;
+using Identity.Host.Middlewares;
 
 var seed = args.Contains("/seed");
 if (seed)
@@ -31,22 +32,22 @@ if (seed)
 builder.Services.AddServiceRegistrationModule(config);
 builder.Services.AddAspNetIdentityServices();
 builder.Services.AddIdentityServerServices(config);
-builder.Services.AddAuthenticationServices();
+builder.Services.AddAuthenticationServices(config);
 
 
 
-//builder.Services.AddAuthorization();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-app.UseStaticFiles(); //delete?
+app.UseStaticFiles();
 app.UseRouting();
 
 app.UseIdentityServer();
-app.UseAuthentication(); //
+app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();//.RequireAuthorization("ApiScope");
+app.UseMiddleware<ErrorHandlerMiddleware>();
+app.MapControllers();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapDefaultControllerRoute();

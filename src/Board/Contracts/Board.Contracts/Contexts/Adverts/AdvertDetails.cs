@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Adverts
 {
+    /// <summary>
+    /// Модель с детальной информацией обьявления.
+    /// </summary>
     public class AdvertDetails
     {
         /// <summary>
@@ -51,6 +54,9 @@ namespace Board.Contracts.Contexts.Adverts
         /// </summary>
         public Guid UserId { get; set; }
 
+        /// <summary>
+        /// Пользователь-автор обьявления.
+        /// </summary>
         public UserDetails User { get; set; }
 
         /// <summary>

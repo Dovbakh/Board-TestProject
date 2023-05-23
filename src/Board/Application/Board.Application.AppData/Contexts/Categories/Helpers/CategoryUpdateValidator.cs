@@ -9,8 +9,14 @@ using System.Threading.Tasks;
 
 namespace Board.Application.AppData.Contexts.Categories.Helpers
 {
+    /// <summary>
+    /// Валидатор модели изменения категории.
+    /// </summary>
     public class CategoryUpdateValidator : AbstractValidator<CategoryUpdateRequest>
     {
+        /// <summary>
+        /// Правила валидации модели изменения категории.
+        /// </summary>
         public CategoryUpdateValidator()
         {
             RuleFor(x => x.Name)

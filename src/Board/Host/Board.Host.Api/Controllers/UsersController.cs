@@ -14,7 +14,7 @@ using System.Net;
 namespace Board.Host.Api.Controllers
 {
     /// <summary>
-    /// Работа с пользователями.
+    /// Контроллер для работы с пользователями.
     /// </summary>
     [ApiController]
     [Route("v2/[controller]")]
@@ -25,7 +25,7 @@ namespace Board.Host.Api.Controllers
         private readonly IUserService _userService;
 
         /// <summary>
-        /// Работа с пользователями.
+        /// Конструктор контроллера для работы с пользователями.
         /// </summary>
         /// <param name="userService">Сервис для работы с пользователями.</param>
         public UsersController(IUserService userService)
@@ -34,71 +34,71 @@ namespace Board.Host.Api.Controllers
         }
 
         /// <summary>
-        /// Получить список всех пользователей с пагинацией.
+        /// Получить список всех пользователей с пагинацией. [admin only]
         /// </summary>
-        /// <param name="take">Количество получаемых пользователей.</param>
-        /// <param name="skip">Количество пропускаемых пользователей.</param>
+        /// <param name="limit">Количество получаемых пользователей.</param>
+        /// <param name="offset">Количество пропускаемых пользователей.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Коллекция элементов <see cref="UserSummary"/>.</returns>
+        /// <returns>Список пользователей.</returns>
         [HttpGet]
         [Authorize(Policy = "AdminOnly")]
-        public async Task<ActionResult<IReadOnlyCollection<UserSummary>>> GetAll(int? offset, int? count, CancellationToken cancellation)
+        public async Task<ActionResult<IReadOnlyCollection<UserSummary>>> GetAll(int? offset, int? limit, CancellationToken cancellation)
         {
-            var users = await _userService.GetAllAsync(offset, count, cancellation);
+            var users = await _userService.GetAllAsync(offset, limit, cancellation);
 
             return Ok(users);
         }
 
         /// <summary>
-        /// Получить пользователя по идентификатору.
+        /// Получить пользователя по идентификатору. [anonymous]
         /// </summary>
-        /// <param name="id">Идентификатор пользователя.</param>
+        /// <param name="userId">Идентификатор пользователя.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Элемент <see cref="UserDto"/>.</returns>
-        [HttpGet("{id:Guid}")]
+        /// <returns>Пользователь с детальной информацией.</returns>
+        [HttpGet("{userId:Guid}")]
         [AllowAnonymous]
-        public async Task<ActionResult<UserDetails>> GetById(Guid id, CancellationToken cancellation)
+        public async Task<ActionResult<UserDetails>> GetById(Guid userId, CancellationToken cancellation)
         {
-            var user = await _userService.GetByIdAsync(id, cancellation);
+            var user = await _userService.GetByIdAsync(userId, cancellation);
 
             return Ok(user);
         }
 
         /// <summary>
-        /// Получить обьявления пользователя с идентификатором.
+        /// Получить обьявления пользователя по идентификатору с пагинацией. [anonymous]
         /// </summary>
-        /// <param name="id">Идентификатор пользователя.</param>
+        /// <param name="userId">Идентификатор пользователя.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Элемент <see cref="UserDto"/>.</returns>
-        [HttpGet("{id:Guid}/adverts")]
+        /// <returns>Список обьявлений.</returns>
+        [HttpGet("{userId:Guid}/adverts")]
         [AllowAnonymous]
-        public async Task<ActionResult<IReadOnlyCollection<AdvertSummary>>> GetAdvertsByUserId(Guid id, int? offset, int? limit, CancellationToken cancellation)
+        public async Task<ActionResult<IReadOnlyCollection<AdvertSummary>>> GetAdvertsByUserId(Guid userId, int? offset, int? limit, CancellationToken cancellation)
         {
-            var adverts = await _userService.GetAdvertsByUserIdAsync(id, offset, limit, cancellation);
+            var adverts = await _userService.GetAdvertsByUserIdAsync(userId, offset, limit, cancellation);
 
             return Ok(adverts);
         }
 
         /// <summary>
-        /// Получить обьявления пользователя с идентификатором.
+        /// Получить отзывы, оставленные пользователю по идентификатору с пагинацией. [anonymous]
         /// </summary>
-        /// <param name="id">Идентификатор пользователя.</param>
+        /// <param name="userId">Идентификатор пользователя.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Элемент <see cref="UserDto"/>.</returns>
-        [HttpGet("{id:Guid}/comments")]
+        /// <returns>Список отзывов.</returns>
+        [HttpGet("{userId:Guid}/comments")]
         [AllowAnonymous]
-        public async Task<ActionResult<IReadOnlyCollection<CommentDetails>>> GetCommentsByReceiverUserId(Guid id, int? offset, int? limit, CancellationToken cancellation)
+        public async Task<ActionResult<IReadOnlyCollection<CommentDetails>>> GetCommentsByReceiverUserId(Guid userId, int? offset, int? limit, CancellationToken cancellation)
         {
-            var adverts = await _userService.GetCommentsByReceiverUserIdAsync(id, offset, limit, cancellation);
+            var adverts = await _userService.GetCommentsByReceiverUserIdAsync(userId, offset, limit, cancellation);
 
             return Ok(adverts);
         }
 
         /// <summary>
-        /// Получить текущего пользователя.
+        /// Получить текущего пользователя. [authorize]
         /// </summary>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Элемент <see cref="UserDto"/>.</returns>
+        /// <returns>Пользователь с детальной информацией.</returns>
         [HttpGet("current")]
         public async Task<ActionResult<UserDetails>> GetCurrent(CancellationToken cancellation)
         {
@@ -108,27 +108,26 @@ namespace Board.Host.Api.Controllers
         }
 
         /// <summary>
-        /// Изменить пользователя по идентификатору.
+        /// Изменить текущего пользователя. [authorize]
         /// </summary>
-        /// <param name="id">Идентификатор пользователя.</param>
+        /// <param name="updateRequest">Модель изменения пользователя.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        [HttpPut("{id:Guid}")]
-        public async Task<ActionResult<UserDetails>> Update(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellation)
+        /// <returns>Измененный пользователь с детальной информацией.</returns>
+        [HttpPut]
+        public async Task<ActionResult<UserDetails>> UpdateCurrent(UserUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            var updatedUser = await _userService.UpdateAsync(id, updateRequest, cancellation);
+            var updatedUser = await _userService.UpdateCurrentAsync(updateRequest, cancellation);
 
             return Ok(updatedUser);
         }
 
         /// <summary>
-        /// Изменить пользователя по идентификатору.
+        /// Изменить почту. [authorize]
         /// </summary>
-        /// <param name="newEmail">Новая электронная почта пользователя.</param>
-        /// <param name="token">Сгенерированный токен для изменения почты пользователя.</param>
+        /// <param name="newEmail">Новая электронная почта.</param>
+        /// <param name="token">Токен для изменения почты.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        [HttpPost("change-email")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpGet("change-email")]
         public async Task<IActionResult> ChangeEmail([FromQuery] string newEmail, string token, CancellationToken cancellation)
         {
             await _userService.ChangeEmailAsync(newEmail, token, cancellation);
@@ -137,34 +136,28 @@ namespace Board.Host.Api.Controllers
         }
 
         /// <summary>
-        /// Изменить пользователя по идентификатору.
+        /// Отправить токен для изменения почты. [authorize]
         /// </summary>
-        /// <param name="request">Элемент <see cref="UserChangeEmailDto"/>.</param>
+        /// <param name="request">Модель генерации и отправки токена для изменения почты.</param>
         /// <param name="cancellation">Токен отмены.</param>
         [HttpPost("send-email-change-token")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> SendEmailTokenAsync([FromBody] UserGenerateEmailTokenRequest request, CancellationToken cancellation)
         {
             var changeLink = Url.Action(nameof(ChangeEmail), "User", new { newEmail = request.NewEmail, token = "tokenValue" }, Request.Scheme);
-
             await _userService.SendEmailTokenAsync(request, changeLink, cancellation);
 
             return Ok();
         }
 
         /// <summary>
-        /// Изменить пользователя по идентификатору.
+        /// Отправить токен для подтверждения почты. [authorize]
         /// </summary>
-        /// <param name="request">Элемент <see cref="UserChangeEmailDto"/>.</param>
+        /// <param name="request">Модель генерации и отправки токена для подтверждения почты.</param>
         /// <param name="cancellation">Токен отмены.</param>
         [HttpPost("send-email-confirmation-token")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> SendEmailConfirmationTokenAsync([FromBody] UserGenerateEmailConfirmationTokenRequest request, CancellationToken cancellation)
         {
-            var confirmLink = Url.Action(nameof(ConfirmEmail), "User", new { email = request.Email, token = "tokenValue" }, Request.Scheme);
-
+            var confirmLink = Url.Action(nameof(ConfirmEmail), this.ControllerContext.RouteData.Values["controller"].ToString(), new { email = request.Email, token = "tokenValue" }, Request.Scheme);
             await _userService.SendEmailConfirmationTokenAsync(request, confirmLink, cancellation);
 
             return Ok();
@@ -172,14 +165,13 @@ namespace Board.Host.Api.Controllers
 
 
         /// <summary>
-        /// Изменить пользователя по идентификатору.
+        /// Подтвердить почту. [anonymous]
         /// </summary>
-        /// <param name="newEmail">Новая электронная почта пользователя.</param>
-        /// <param name="token">Сгенерированный токен для изменения почты пользователя.</param>
+        /// <param name="email">Почта пользователя.</param>
+        /// <param name="token">Токен для подтверждения почты пользователя.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        [HttpPost("confirm-email")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpGet("confirm-email")]
+        [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail([FromQuery] string email, string token, CancellationToken cancellation)
         {
             await _userService.ConfirmEmailAsync(email, token, cancellation);
@@ -188,17 +180,15 @@ namespace Board.Host.Api.Controllers
         }
 
         /// <summary>
-        /// Удалить пользователя по идентификатору.
+        /// Удалить пользователя по идентификатору. [authorize]
         /// </summary>
-        /// <param name="id">Идентификатор пользователя.</param>
+        /// <param name="userId">Идентификатор пользователя.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        [HttpDelete("{id:Guid}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpDelete("{userId:Guid}")]
         [Authorize(Policy = "AdminOnly")]
-        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellation)
+        public async Task<IActionResult> Delete(Guid userId, CancellationToken cancellation)
         {
-            await _userService.DeleteAsync(id, cancellation);
+            await _userService.DeleteAsync(userId, cancellation);
 
             return NoContent();
         }
@@ -206,26 +196,24 @@ namespace Board.Host.Api.Controllers
 
 
         /// <summary>
-        /// Зарегистрировать пользователя.
+        /// Зарегистрировать пользователя. [anonymous]
         /// </summary>
-        /// <param name="userRegisterDto">Элемент <see cref="UserRegisterDto"/>.</param>
+        /// <param name="registerRequest">Модель регистрации пользователя.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор нового пользователя.</returns>
         [HttpPost("register")]
         [AllowAnonymous]
         public async Task<ActionResult<Guid>> Register(UserRegisterRequest registerRequest, CancellationToken cancellation)
         {
-            var confirmLink = Url.Action(nameof(ConfirmEmail), "User", new { email = registerRequest.Email, token = "tokenValue" }, Request.Scheme);
-
             var userId = await _userService.RegisterAsync(registerRequest, cancellation);
 
-            return Ok(userId);
+            return CreatedAtAction(nameof(Register), userId);
         }
 
         /// <summary>
-        /// Залогинить пользователя.
+        /// Залогинить пользователя. [anonymous]
         /// </summary>
-        /// <param name="userLoginDto">Элемент <see cref="UserLoginDto"/>.</param>
+        /// <param name="loginRequest">Модель логина с почтой и паролем.</param>
         /// <param name="cancellation"></param>
         /// <returns>Токен аутентификации.</returns>
         [HttpPost("login")]
@@ -237,25 +225,11 @@ namespace Board.Host.Api.Controllers
             return Ok(token.Json);
         }
 
-        /// <summary>
-        /// Залогинить пользователя.
-        /// </summary>
-        /// <param name="userLoginDto">Элемент <see cref="UserLoginDto"/>.</param>
-        /// <param name="cancellation"></param>
-        /// <returns>Токен аутентификации.</returns>
-        [HttpPost("logout")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Logout(CancellationToken cancellation)
-        {
-            await _userService.LogoutAsync(cancellation);
-
-            return Ok();
-        }
 
         /// <summary>
-        /// Залогинить пользователя.
+        /// Залогинить пользователя c рефреш токеном.
         /// </summary>
-        /// <param name="userLoginDto">Элемент <see cref="UserLoginDto"/>.</param>
+        /// <param name="loginRefreshRequest">Модель логина с рефреш токеном.</param>
         /// <param name="cancellation"></param>
         /// <returns>Токен аутентификации.</returns>
         [HttpPost("login-refresh")]
@@ -263,9 +237,23 @@ namespace Board.Host.Api.Controllers
         public async Task<ActionResult<TokenResponse>> Login([FromForm] UserLoginRefreshRequest loginRefreshRequest, CancellationToken cancellation)
         {
             var token = await _userService.LoginAsync(loginRefreshRequest, cancellation);
-            
+
             return Ok(token.Json);
         }
+
+        /// <summary>
+        /// Разлогинить текущего пользователя. [authorize]
+        /// </summary>
+        /// <param name="cancellation"></param>
+        /// <returns>Токен аутентификации.</returns>
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout(CancellationToken cancellation)
+        {
+            await _userService.LogoutAsync(cancellation);
+
+            return Ok();
+        }
+
     }
 
 }

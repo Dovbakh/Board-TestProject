@@ -13,11 +13,27 @@ namespace Notifier.Infrastructure.Registrar
     {
         public static IServiceCollection AddServiceRegistrationModule (this IServiceCollection services)
         {
-            services.AddScoped<INotificationService, NotificationService>();
+            //services.AddScoped<INotificationService, NotificationService>();
 
-            services.AddOptions<SmtpOptions>()
-                .BindConfiguration("SmtpServer")
-                .ValidateOnStart();
+            //services.AddMassTransit(mt => mt.AddMassTransit(x => {
+
+            //    x.AddConsumer<MassTransitConsumer>();
+
+            //    x.UsingRabbitMq((context, cfg) =>
+            //    {
+            //        cfg.Host("localhost", "/", c =>
+            //        {
+            //            c.Username("guest");
+            //            c.Password("guest");
+            //        });
+            //        cfg.ConfigureEndpoints(context);
+
+            //    });
+            //}));
+
+            //services.AddOptions<SmtpOptions>()
+            //    .BindConfiguration("SmtpServer")
+            //    .ValidateOnStart();
 
             return services;
         }

@@ -14,11 +14,6 @@ namespace Identity.Contracts.Contexts.Users
         public string? Name { get; set; }
 
         /// <summary>
-        /// Номер телефона пользователя.
-        /// </summary>
-        public string? Phone { get; set; }
-
-        /// <summary>
         /// Адрес пользователя.
         /// </summary>
         public string? Address { get; set; }

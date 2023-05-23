@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Images
 {
+    /// <summary>
+    /// Модель с краткой информацией об изображении.
+    /// </summary>
     public class ImageShortInfo
     {
         /// <summary>

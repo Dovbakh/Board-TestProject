@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace Board.Infrastructure.DataAccess.Contexts.AdvertViews.Repositories
 {
+    /// <inheritdoc />
     public class AdvertViewRepository : IAdvertViewRepository
     {
         private readonly IRepository<AdvertView> _repository;
@@ -27,6 +28,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertViews.Repositories
             _logger = logger;
         }
 
+        /// <inheritdoc />
         public async Task<int> GetCountAsync(Guid advertId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение количества просмотров обьявления с ID: {2}",
@@ -39,6 +41,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertViews.Repositories
             return viewCount;
         }
 
+        /// <inheritdoc />
         public async Task<Guid> AddIfNotExistsAsync(Guid advertId, Guid visitorId, bool isRegistered, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Создание записи о просмотре обьявления с ID: {2} посетителем с ID: {3}",

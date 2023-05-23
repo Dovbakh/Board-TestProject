@@ -13,7 +13,7 @@ using Board.Contracts.Contexts.Comments;
 namespace Board.Host.Api.Controllers
 {
     /// <summary>
-    /// Работа с обьявлениями.
+    /// Контроллер для работы с обьявлениями.
     /// </summary>
     [ApiController]
     [Route("v2/[controller]")]
@@ -25,7 +25,7 @@ namespace Board.Host.Api.Controllers
         private readonly ILogger<AdvertsController> _logger;
 
         /// <summary>
-        /// Работа с обьявлениями.
+        /// Конструктор контроллера работы с обьявлениями.
         /// </summary>
         /// <param name="advertisementService">Сервис для работы с обьявлениями.</param>
         /// <param name="logger">Логгер.</param>
@@ -36,12 +36,12 @@ namespace Board.Host.Api.Controllers
         }
 
         /// <summary>
-        /// Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+        /// Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией. [anonymous]
         /// </summary>
-        /// <param name="page">Номер страницы.</param>
+        /// <param name="offset">Количество пропускаемых обьявлений.</param>
+        /// <param name="limit">Количество получаемых обьявлений.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
-        /// <response code="200">Запрос выполнен успешно.</response>
+        /// <returns>Список обьявлений.</returns>
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<IReadOnlyCollection<AdvertSummary>>> GetAll(int? offset, int? limit, CancellationToken cancellation)
@@ -52,12 +52,13 @@ namespace Board.Host.Api.Controllers
         }
 
         /// <summary>
-        /// Получить все обьявления по фильтру и с пагинацией.
+        /// Получить все обьявления по фильтру и с пагинацией. [anonymous]
         /// </summary>
-        /// <param name="filter"></param>
-        /// <param name="page"></param>
+        /// <param name="filter">Модель фильтрации обьявлений.</param>
+        /// <param name="offset">Количество пропускаемых обьявлений.</param>
+        /// <param name="limit">Количество получаемых обьявлений.</param>
         /// <param name="cancellation"></param>
-        /// <returns>Элемент <see cref="AdvertSummary"/>.</returns>
+        /// <returns>Список обьявлений.</returns>
         [HttpGet("by-filter")]
         [AllowAnonymous]
         public async Task<ActionResult<IReadOnlyCollection<AdvertSummary>>> GetAllFiltered([FromQuery] AdvertFilterRequest filter, int? offset, int? limit, 
@@ -69,12 +70,13 @@ namespace Board.Host.Api.Controllers
         }
 
         /// <summary>
-        /// Получить все обьявления по фильтру и с пагинацией.
+        /// Получить все обьявления по фильтру и с пагинацией. [anonymous]
         /// </summary>
-        /// <param name="filter"></param>
-        /// <param name="page"></param>
+        /// <param name="filter">Модель фильтрации обьявлений.</param>
+        /// <param name="offset">Количество пропускаемых обьявлений.</param>
+        /// <param name="limit">Количество получаемых обьявлений.</param>
         /// <param name="cancellation"></param>
-        /// <returns>Элемент <see cref="AdvertSummary"/>.</returns>
+        /// <returns>Список обьявлений.</returns>
         [HttpPost("by-filter")]
         [AllowAnonymous]
         public async Task<ActionResult<IReadOnlyCollection<AdvertSummary>>> GetAllFilteredBody([FromBody] AdvertFilterRequest filter, int? offset, int? limit,
@@ -89,37 +91,57 @@ namespace Board.Host.Api.Controllers
         /// <summary>
         /// Получить обьявление по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор обьявления.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены</param>
         /// <returns>Элемент <see cref="AdvertDetails"/>.</returns>
-        [HttpGet("{id:Guid}")]
+        [HttpGet("{advertId:Guid}")]
         [AllowAnonymous]
-        public async Task<ActionResult<AdvertDetails>> GetById(Guid id, CancellationToken cancellation)
+        public async Task<ActionResult<AdvertDetails>> GetById(Guid advertId, CancellationToken cancellation)
         {
-            var result = await _advertService.GetByIdAsync(id, cancellation);
+            var result = await _advertService.GetByIdAsync(advertId, cancellation);
 
             return Ok(result);
         }
 
         /// <summary>
-        /// Получить комментарии для обьявления с идентификатором.
+        /// Получить отзывы для обьявления по идентификатору с пагинацией. [anonymous]
         /// </summary>
-        /// <param name="id">Идентификатор обьявления.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
+        /// <param name="offset">Количество пропускаемых отзывов.</param>
+        /// <param name="limit">Количество получаемых отзывов.</param>
         /// <param name="cancellation">Токен отмены</param>
-        /// <returns>Элемент <see cref="AdvertDetails"/>.</returns>
-        [HttpGet("{id:Guid}/comments")]
+        /// <returns>Список отзывов.</returns>
+        [HttpGet("{advertId:Guid}/comments")]
         [AllowAnonymous]
-        public async Task<ActionResult<IReadOnlyCollection<CommentDetails>>> GetCommentsByAdvertId(Guid id, int? offset, int? limit, CancellationToken cancellation)
+        public async Task<ActionResult<IReadOnlyCollection<CommentDetails>>> GetCommentsByAdvertId(Guid advertId, int? offset, int? limit, CancellationToken cancellation)
         {
-            var result = await _advertService.GetCommentsByAdvertIdAsync(id, offset, limit, cancellation);
+            var result = await _advertService.GetCommentsByAdvertIdAsync(advertId, offset, limit, cancellation);
 
             return Ok(result);
         }
 
         /// <summary>
-        /// Добавить новое обьявление.
+        /// Получить отзывы для обьявления по идентификатору с пагинацией и фильтрацией. [anonymous]
         /// </summary>
-        /// <param name="addRequest">Элемент <see cref="AdvertAddRequest"/>.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
+        /// <param name="filterRequest">Модель фильтрации обьявлений.</param>
+        /// <param name="offset">Количество пропускаемых отзывов.</param>
+        /// <param name="limit">Количество получаемых отзывов.</param>
+        /// <param name="cancellation">Токен отмены</param>
+        /// <returns>Список отзывов.</returns>
+        [HttpPost("{advertId:Guid}/comments/by-filter")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IReadOnlyCollection<CommentDetails>>> GetFilteredCommentsByAdvertId(Guid advertId, [FromBody]CommentFilterRequest filterRequest, int? offset, int? limit, CancellationToken cancellation)
+        {
+            var result = await _advertService.GetFilteredCommentsByAdvertIdAsync(advertId, filterRequest, offset, limit, cancellation);
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Добавить новое обьявление. [authorize]
+        /// </summary>
+        /// <param name="addRequest">Модель добавления обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор нового обьявления.</returns>
         [HttpPost]
@@ -131,47 +153,45 @@ namespace Board.Host.Api.Controllers
         }
 
         /// <summary>
-        /// Изменить обьявление.
+        /// Изменить обьявление. [authorize]
         /// </summary>
-        /// <param name="id">Идентификатор обьявления.</param>
-        /// <param name="updateRequest">Элемент <see cref="AdvertUpdateRequest"/>.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
+        /// <param name="updateRequest">Модель изменения обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        [HttpPut("{id:Guid}")]
-        public async Task<ActionResult<AdvertDetails>> Update(Guid id, [FromBody] AdvertUpdateRequest updateRequest, CancellationToken cancellation)
+        [HttpPut("{advertId:Guid}")]
+        public async Task<ActionResult<AdvertDetails>> Update(Guid advertId, [FromBody] AdvertUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            var result = await _advertService.UpdateAsync(id, updateRequest, cancellation);
+            var result = await _advertService.UpdateAsync(advertId, updateRequest, cancellation);
 
             return Ok(result);
         }
 
         /// <summary>
-        /// Удалить обьявление.
+        /// Удалить обьявление, сделав его неактивным. [authorize]
         /// </summary>
-        /// <param name="id">Идентификатор обьявления.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        [HttpDelete("soft/{id:Guid}")]
-        public async Task<IActionResult> SoftDeleteById(Guid id, CancellationToken cancellation)
+        [HttpDelete("soft/{advertId:Guid}")]
+        public async Task<IActionResult> SoftDeleteById(Guid advertId, CancellationToken cancellation)
         {
-            await _advertService.SoftDeleteAsync(id, cancellation);
+            await _advertService.SoftDeleteAsync(advertId, cancellation);
 
             return NoContent();
         }
 
         /// <summary>
-        /// Удалить обьявление.
+        /// Удалить обьявление. [admin]
         /// </summary>
-        /// <param name="id">Идентификатор обьявления.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        [HttpDelete("{id:Guid}")]
+        [HttpDelete("{advertId:Guid}")]
         [Authorize(Policy = "AdminOnly")]
-        public async Task<IActionResult> DeleteById(Guid id, CancellationToken cancellation)
+        public async Task<IActionResult> DeleteById(Guid advertId, CancellationToken cancellation)
         {
-            await _advertService.DeleteAsync(id, cancellation);
+            await _advertService.DeleteAsync(advertId, cancellation);
 
             return NoContent();
         }
-
-
     }
 
 }

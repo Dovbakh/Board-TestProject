@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 
 namespace Identity.Application.AppData.Services
 {
+    /// <inheritdoc />
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
@@ -57,7 +58,7 @@ namespace Identity.Application.AppData.Services
             _userConfirmEmailValidator = userConfirmEmailValidator;
             _userOptions = userOptionsAccessor.Value;
         }
-
+        /// <inheritdoc />
         public Task<IReadOnlyCollection<UserSummary>> GetAllAsync(int? offset, int? count, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение списка пользователей с параметрами: {2} = {3}, {4} = {5}",
@@ -70,7 +71,7 @@ namespace Identity.Application.AppData.Services
 
             return _userRepository.GetAllAsync(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
         }
-
+        /// <inheritdoc />
         public Task<UserDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение пользователя с ID: {2}",
@@ -78,7 +79,7 @@ namespace Identity.Application.AppData.Services
 
             return _userRepository.GetByIdAsync(id, cancellation);
         }
-
+        /// <inheritdoc />
         public async Task<Guid> RegisterAsync(UserRegisterRequest registerRequest, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Регистрация пользователя со следующим email: {2}",
@@ -94,7 +95,7 @@ namespace Identity.Application.AppData.Services
 
             return newUserId;
         }
-
+        /// <inheritdoc />
         public Task<UserDetails> UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Обновление информации о пользователе с ID: {2} со следующей моделью обновления {3}: {4}",
@@ -108,7 +109,7 @@ namespace Identity.Application.AppData.Services
 
             return _userRepository.UpdateAsync(id, updateRequest, cancellation);
         }
-
+        /// <inheritdoc />
         public async Task DeleteAsync(Guid id, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Удаление пользователя с ID: {2}",
@@ -116,7 +117,7 @@ namespace Identity.Application.AppData.Services
 
             await _userRepository.DeleteAsync(id, cancellation);
         }
-
+        /// <inheritdoc />
         public Task<bool> IsInRoleAsync(Guid userId, string role, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение информации имеет ли пользователь с ID: {2} роль {3}",
@@ -124,7 +125,7 @@ namespace Identity.Application.AppData.Services
 
             return _userRepository.IsInRoleAsync(userId, role, cancellation);
         }
-
+        /// <inheritdoc />
         public async Task<EmailChangeToken> GenerateEmailTokenAsync(UserGenerateEmailTokenRequest request, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Генерация токена изменения email с {2} на {3}",
@@ -146,7 +147,7 @@ namespace Identity.Application.AppData.Services
 
             return token;
         }
-
+        /// <inheritdoc />
         public async Task<EmailConfirmationToken> GenerateEmailConfirmationTokenAsync(UserGenerateEmailConfirmationTokenRequest request, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Генерация токена подтверждения email: {2}",
@@ -162,8 +163,8 @@ namespace Identity.Application.AppData.Services
 
             return token;
         }
-       
 
+        /// <inheritdoc />
         public async Task ChangeEmailAsync(UserChangeEmailRequest request, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Изменение email пользователя с {2} на {3}",
@@ -179,7 +180,7 @@ namespace Identity.Application.AppData.Services
             await _userRepository.ChangeEmailAsync(request.CurrentEmail, request.NewEmail, request.Token, cancellation);
 
         }
-
+        /// <inheritdoc />
         public async Task ConfirmEmailAsync(UserConfirmEmailRequest request, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Подтверждение email пользователя: {2}",

@@ -51,18 +51,19 @@ namespace FileStorage.Application.AppData.Contexts.Images.Services
             return imageInfo;
         }
 
+        /// <inheritdoc />
         public async Task<bool> IsImageExists(Guid id, CancellationToken cancellation)
         {
             _logger.LogInformation("{0} -> Получение информации о файле с ID: {1}",
                 nameof(GetInfoAsync), id);
 
-            var imageInfo = await _fileRepository.GetInfoAsync(id, cancellation);
-            if (imageInfo == null)
+            var isExists = await _fileRepository.IsExists(id, cancellation);
+            if (isExists)
             {
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         /// <inheritdoc />

@@ -7,10 +7,13 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.AdvertImages
 {
+    /// <summary>
+    /// Модель записи отношения изображения к обьявлению.
+    /// </summary>
     public class AdvertImageDto
     {
         /// <summary>
-        /// Идентификатор изображения.
+        /// Идентификатор записи.
         /// </summary>
         public Guid Id { get; set; }
 
@@ -20,12 +23,12 @@ namespace Board.Contracts.Contexts.AdvertImages
         public Guid AdvertId { get; set; }
 
         /// <summary>
-        /// Идентификатор обьявления.
+        /// Идентификатор изображения.
         /// </summary>
         public Guid ImageId { get; set; }
 
         /// <summary>
-        /// Дата загрузки изображения.
+        /// Дата создания записи.
         /// </summary>
         public DateTime CreatedAt { get; set; }
 

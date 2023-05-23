@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 namespace Board.Application.AppData.Contexts.AdvertImages.Repositories
 {
     /// <summary>
-    /// Репозиторий для чтения\записи изображений из обьявления.
+    /// Репозиторий для работы изображений из обьявления.
     /// </summary>
     public interface IAdvertImageRepository
     {
         /// <summary>
         /// Получить все изображения по идентификатору обьявления.
         /// </summary>
-        /// <param name="postId">Идентификатор обьявления.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Коллекция элементов <see cref="AdvertImageDto"/>.</returns>
         Task<IReadOnlyCollection<AdvertImageDto>> GetAllByAdvertIdAsync(Guid advertId, CancellationToken cancellation);
@@ -24,10 +24,10 @@ namespace Board.Application.AppData.Contexts.AdvertImages.Repositories
         /// <summary>
         /// Получить изображение по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор.</param>
+        /// <param name="imageId">Идентификатор.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Элемент <see cref="AdvertImageDto"/>.</returns>
-        Task<AdvertImageDto> GetByIdAsync(Guid id, CancellationToken cancellation);
+        Task<AdvertImageDto> GetByIdAsync(Guid imageId, CancellationToken cancellation);
 
 
         /// <summary>
@@ -35,18 +35,30 @@ namespace Board.Application.AppData.Contexts.AdvertImages.Repositories
         /// </summary>
         /// <param name="addRequest">Элемент <see cref="AdvertImageAddRequest"/></param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns></returns>
+        /// <returns>Идентификатор записи.</returns>
         Task<Guid> AddAsync(AdvertImageAddRequest addRequest, CancellationToken cancellation);
 
+        /// <summary>
+        /// Проверка наличия записи об отношении изображения к обьявлению.
+        /// </summary>
+        /// <param name="advertId">Идентификатор обьявления.</param>
+        /// <param name="imageId">Идентификатор изображения.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        /// <returns>Индикатор наличия записи об отношении изображения к обьявлению</returns>
         Task<bool> IsExists(Guid advertId, Guid imageId, CancellationToken cancellation);
 
         /// <summary>
-        /// Удалить изображение.
+        /// Удалить запись.
         /// </summary>
-        /// <param name="id">Идентификатор изображения.</param>
+        /// <param name="advertImageId">Идентификатор изображения.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        Task DeleteAsync(Guid id, CancellationToken cancellation);
+        Task DeleteAsync(Guid advertImageId, CancellationToken cancellation);
 
-        Task DeleteByFileIdAsync(Guid fileId, CancellationToken cancellation);
+        /// <summary>
+        /// Удалить запись по идентификатору изображения.
+        /// </summary>
+        /// <param name="imageId">Идентификатор изображения.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        Task DeleteByFileIdAsync(Guid imageId, CancellationToken cancellation);
     }
 }

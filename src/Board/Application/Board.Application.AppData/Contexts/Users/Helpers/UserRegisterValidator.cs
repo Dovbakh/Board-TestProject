@@ -8,8 +8,14 @@ using System.Threading.Tasks;
 
 namespace Board.Application.AppData.Contexts.Users.Helpers
 {
+    /// <summary>
+    /// Валидатор модели регистрации пользователя.
+    /// </summary>
     public class UserRegisterValidator : AbstractValidator<UserRegisterRequest>
     {
+        /// <summary>
+        /// Правила валидации модели регистрации пользователя.
+        /// </summary>
         public UserRegisterValidator()
         {
             RuleFor(x => x.Email)

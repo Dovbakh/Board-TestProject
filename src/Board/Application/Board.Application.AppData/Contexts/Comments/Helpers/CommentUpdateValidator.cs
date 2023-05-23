@@ -8,12 +8,18 @@ using System.Threading.Tasks;
 
 namespace Board.Application.AppData.Contexts.Comments.Helpers
 {
+    /// <summary>
+    /// Валидатор модели изменения отзыва.
+    /// </summary>
     public class CommentUpdateValidator : AbstractValidator<CommentUpdateRequest>
     {
+        /// <summary>
+        /// Правила валидации модели изменения отзыва.
+        /// </summary>
         public CommentUpdateValidator() 
         {
             RuleFor(c => c.Text)
-                .NotEmpty().WithMessage("Введите текст комментария к отзыву.")
+                .NotEmpty().WithMessage("Введите текст отзыва к отзыву.")
                 .MaximumLength(1000).WithMessage("Размер текста не должен превышать 1000 символов.");
             RuleFor(c => c.Rating)
                 .NotEmpty().WithMessage("Укажите оценку к отзыву.")

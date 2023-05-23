@@ -62,8 +62,6 @@ namespace Board.Application.AppData.Contexts.AdvertFavorites.Services
 
             return adverts;
 
-
-            //await _advertRepository.GetByListIdAsync()
         }
 
         /// <inheritdoc />

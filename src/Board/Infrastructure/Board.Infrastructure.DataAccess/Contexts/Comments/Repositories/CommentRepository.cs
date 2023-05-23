@@ -136,6 +136,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
             return rating;                
         }
 
+        /// <inheritdoc />
         public async Task<Guid> GetUserIdAsync(Guid commentId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение ID пользователя, создавшего комментарий с ID: {2}",
@@ -146,7 +147,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Comments.Repositories
                 .Select(c => c.UserAuthorId)
                 .FirstOrDefaultAsync(cancellation);
 
-            if(userId == null)
+            if(userId == Guid.Empty)
             {
                 throw new KeyNotFoundException($"Не найден комментарий с ID: {commentId}");
             }

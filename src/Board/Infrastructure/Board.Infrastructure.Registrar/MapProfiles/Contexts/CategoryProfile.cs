@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
 {
+    /// <summary>
+    /// Профиль AutoMapper для работы с Category
+    /// </summary>
     public class CategoryProfile : Profile
     {
         public CategoryProfile()
@@ -32,8 +35,6 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
             CreateMap<Category, CategorySummary>();
 
             CreateMap<Category, CategoryDetails>();
-
-
         }
     }
 }

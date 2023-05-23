@@ -7,10 +7,13 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Adverts
 {
+    /// <summary>
+    /// Модель с краткой информацией обьявления.
+    /// </summary>
     public class AdvertSummary
     {
         /// <summary>
-        /// Идентификатор избранного обьявления.
+        /// Идентификатор обьявления.
         /// </summary>
         public Guid Id { get; set; }
 

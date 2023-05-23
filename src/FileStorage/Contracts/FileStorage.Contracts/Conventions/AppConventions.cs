@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FileStorage.Contracts;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using System;
@@ -12,7 +13,6 @@ namespace FileStorage.Contracts.Conventions
 {
     public static class AppConventions
     {
-        /// <response code="200">Запрос выполнен успешно.</response>
         [ApiConventionNameMatch(ApiConventionNameMatchBehavior.Prefix)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status404NotFound)]
@@ -33,6 +33,7 @@ namespace FileStorage.Contracts.Conventions
 
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status500InternalServerError)]
         public static void Create([ApiConventionTypeMatch(ApiConventionTypeMatchBehavior.Any)] params object[] p)
@@ -42,6 +43,17 @@ namespace FileStorage.Contracts.Conventions
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status500InternalServerError)]
+        public static void Add([ApiConventionTypeMatch(ApiConventionTypeMatchBehavior.Any)] params object[] p)
+        {
+
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status422UnprocessableEntity)]
@@ -50,24 +62,23 @@ namespace FileStorage.Contracts.Conventions
         {
         }
 
-
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status500InternalServerError)]
-        public static void Patch([ApiConventionTypeMatch(ApiConventionTypeMatchBehavior.Any)] params object[] p)
+        public static void DeleteForCurrentUser([ApiConventionTypeMatch(ApiConventionTypeMatchBehavior.Any)] params object[] p)
         {
         }
 
+        [ApiConventionNameMatch(ApiConventionNameMatchBehavior.Suffix)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status500InternalServerError)]
         public static void Delete([ApiConventionTypeMatch(ApiConventionTypeMatchBehavior.Any)] params object[] p)
         {
         }
+
 
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status400BadRequest)]
@@ -79,6 +90,7 @@ namespace FileStorage.Contracts.Conventions
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status500InternalServerError)]
         public static void Login([ApiConventionTypeMatch(ApiConventionTypeMatchBehavior.Any)] params object[] p)
@@ -87,18 +99,10 @@ namespace FileStorage.Contracts.Conventions
         }
 
         [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status411LengthRequired)]
-        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status415UnsupportedMediaType)]
+        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status500InternalServerError)]
         public static void Upload([ApiConventionTypeMatch(ApiConventionTypeMatchBehavior.Any)] params object[] p)
-        {
-
-        }
-
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status500InternalServerError)]
-        public static void Download([ApiConventionTypeMatch(ApiConventionTypeMatchBehavior.Any)] params object[] p)
         {
 
         }

@@ -6,11 +6,18 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Users
 {
+    /// <summary>
+    /// Модель генерации изменения почты.
+    /// </summary>
     public class UserGenerateEmailTokenRequest
     {
-        public string CurrentEmail { get; set; }
         /// <summary>
-        /// Новая почта пользователя.
+        /// Текущая почта.
+        /// </summary>
+        public string CurrentEmail { get; set; }
+
+        /// <summary>
+        /// Новая почта.
         /// </summary>
         public string NewEmail { get; set; }
 

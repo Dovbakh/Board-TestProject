@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Board.Host.Api.Controllers
 {
     /// <summary>
-    /// Работа с пользователями.
+    /// Контроллер для работы с изображениями.
     /// </summary>
     [ApiController]
     [Route("v2/[controller]")]
@@ -16,79 +16,74 @@ namespace Board.Host.Api.Controllers
     [ApiConventionType(typeof(AppConventions))]
     public class ImagesController : ControllerBase
     {
-        private readonly IImageService _fileService;
+        private readonly IImageService _imageService;
         private readonly ILogger<ImagesController> _logger;
 
         /// <summary>
-        /// Работа с обьявлениями.
+        /// Конструктор для контроллера работы с изображениями.
         /// </summary>
-        /// <param name="advertisementService">Сервис для работы с обьявлениями.</param>
+        /// <param name="imageService">Сервис для работы с изображениями.</param>
         /// <param name="logger">Логгер.</param>
-        public ImagesController(IImageService fileService, ILogger<ImagesController> logger)
+        public ImagesController(IImageService imageService, ILogger<ImagesController> logger)
         {
-            _fileService = fileService;
+            _imageService = imageService;
             _logger = logger;
         }
 
         /// <summary>
-        /// Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+        /// Получить краткую информацию об изображении. [anonymous]
         /// </summary>
-        /// <param name="page">Номер страницы.</param>
+        /// <param name="imageId">Идентификатор изоюражения.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
-        /// <response code="200">Запрос выполнен успешно.</response>
-        [HttpGet("info/{id:Guid}")]
+        /// <returns>Краткая информация об изображении.</returns>
+        [HttpGet("info/{imageId:Guid}")]
         [AllowAnonymous]
-        public async Task<ActionResult<ImageShortInfo>> GetInfo(Guid id, CancellationToken cancellation)
+        public async Task<ActionResult<ImageShortInfo>> GetInfo(Guid imageId, CancellationToken cancellation)
         {
-            var result = await _fileService.GetInfoAsync(id, cancellation);
+            var result = await _imageService.GetInfoAsync(imageId, cancellation);
 
             return Ok(result);
         }
 
         /// <summary>
-        /// Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+        /// Загрузить изображение на сервер. [authorize]
         /// </summary>
-        /// <param name="page">Номер страницы.</param>
+        /// <param name="file">Файл с изображением.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
-        /// <response code="200">Запрос выполнен успешно.</response>
+        /// <returns>Идентификатор изображения.</returns>
         [HttpPost]
         public async Task<ActionResult<Guid>> Upload(IFormFile file, CancellationToken cancellation)
         {
-            var fileName = await _fileService.UploadAsync(file, cancellation);
+            var fileName = await _imageService.UploadAsync(file, cancellation);
 
-            return Ok(fileName);
+            return CreatedAtAction(nameof(Upload), fileName);
         }
 
         /// <summary>
-        /// Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+        /// Скачать изображение по идентификатору. [anonymous]
         /// </summary>
-        /// <param name="page">Номер страницы.</param>
+        /// <param name="imageId">Идентификатор изображения.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
-        /// <response code="200">Запрос выполнен успешно.</response>
-        [HttpGet("{id:Guid}")]
+        /// <returns>Изображение.</returns>
+        [HttpGet("{imageId:Guid}")]
         [AllowAnonymous]
-        public async Task<ActionResult> Download(Guid id, CancellationToken cancellation)
+        public async Task<FileResult> Download(Guid imageId, CancellationToken cancellation)
         {
-            var result = await _fileService.DownloadAsync(id, cancellation);
+            var result = await _imageService.DownloadAsync(imageId, cancellation);
 
             return File(result.Content, result.ContentType, result.Name, true);
         }
 
         /// <summary>
-        /// Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+        /// Удалить изображение. [admin only]
         /// </summary>
-        /// <param name="page">Номер страницы.</param>
+        /// <param name="imageId">Идентификатор изображения.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
-        /// <response code="200">Запрос выполнен успешно.</response>
-        [HttpDelete("{id:Guid}")]
+        [HttpDelete("{imageId:Guid}")]
         [Authorize(Policy = "AdminOnly")]
-        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellation)
+        public async Task<IActionResult> Delete(Guid imageId, CancellationToken cancellation)
         {
-            await _fileService.DeleteAsync(id, cancellation);
+            await _imageService.DeleteAsync(imageId, cancellation);
 
             return NoContent();
         }

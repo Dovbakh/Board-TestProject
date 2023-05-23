@@ -1,3 +1,4 @@
+using FileStorage.Host.Middlewares;
 using FileStorage.Infrastructure.Registrar;
 using IdentityServer4.AccessTokenValidation;
 using Serilog;
@@ -9,15 +10,14 @@ builder.Host.UseSerilog((context, services, configuration) =>
                 configuration.ReadFrom.Configuration(context.Configuration)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
-                .WriteTo.Seq("http://localhost:5345"));
+                .WriteTo.Seq(builder.Configuration["Seq:Address"]));
 
 builder.Services.AddServiceRegistrationModule();
 builder.Services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(options =>
                 {
-                    options.Authority = "https://localhost:7157";
+                    options.Authority = builder.Configuration["IdentityServer:Address"];
                     options.RequireHttpsMetadata = false;
-
                 });
 
 builder.Services.AddAuthorization(options =>
@@ -47,7 +47,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseMiddleware<ErrorHandlerMiddleware>();
 app.MapControllers().RequireAuthorization("ApiScope");
 
 app.Run();

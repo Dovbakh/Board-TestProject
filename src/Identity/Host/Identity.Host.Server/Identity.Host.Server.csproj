@@ -10,6 +10,13 @@
     <DockerComposeProjectPath>..\..\..\..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 
+  <!--<ItemGroup>
+    <Compile Remove="Quickstart\**" />
+    <Content Remove="Quickstart\**" />
+    <EmbeddedResource Remove="Quickstart\**" />
+    <None Remove="Quickstart\**" />
+  </ItemGroup>-->
+
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="IdentityServer4" Version="4.1.2" />

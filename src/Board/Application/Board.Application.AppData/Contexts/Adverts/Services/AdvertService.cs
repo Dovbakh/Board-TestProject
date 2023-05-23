@@ -94,21 +94,21 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         }
 
         /// <inheritdoc />
-        public async Task<AdvertDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
+        public async Task<AdvertDetails> GetByIdAsync(Guid advertId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение обьявления по ID: {2} ",
-                nameof(AdvertService), nameof(GetByIdAsync), id);
+                nameof(AdvertService), nameof(GetByIdAsync), advertId);
 
-            var advert = await _advertRepository.GetByIdAsync(id, cancellation);
+            var advert = await _advertRepository.GetByIdAsync(advertId, cancellation);
             if (advert == null)
             {
-                throw new KeyNotFoundException($"Не найдено обьявление с ID: {id}");
+                throw new KeyNotFoundException($"Не найдено обьявление с ID: {advertId}");
             }
 
             var user = await _userService.GetByIdAsync(advert.UserId, cancellation);
             if (user == null)
             {
-                throw new KeyNotFoundException($"Не найден пользователь с ID: {advert.UserId}, указанный в обьявлении с ID: {id}"); ;
+                throw new KeyNotFoundException($"Не найден пользователь с ID: {advert.UserId}, указанный в обьявлении с ID: {advertId}"); ;
             }
             advert.User = user;
 
@@ -116,17 +116,35 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         }
 
         /// <inheritdoc />
-        public async Task<IReadOnlyCollection<CommentDetails>> GetCommentsByAdvertIdAsync(Guid id, int? offset, int? limit, CancellationToken cancellation)
+        public async Task<IReadOnlyCollection<CommentDetails>> GetCommentsByAdvertIdAsync(Guid advertId, int? offset, int? limit, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0}:{1} -> Получение всех комментариев для обьявления с ID: {2} с параметрами {3}: {4}, {5}: {6} ",
-                nameof(AdvertService), nameof(GetByIdAsync), id, nameof(offset), offset, nameof(limit), limit);
+            _logger.LogInformation("{0}:{1} -> Получение всех отзывов для обьявления с ID: {2} с параметрами {3}: {4}, {5}: {6} ",
+                nameof(AdvertService), nameof(GetByIdAsync), advertId, nameof(offset), offset, nameof(limit), limit);
 
             if(!limit.HasValue)
             {
                 limit = _advertOptions.CommentListDefaultCount;
             }
 
-            var filterRequest = new CommentFilterRequest { AdvertId = id };
+            var filterRequest = new CommentFilterRequest { AdvertId = advertId };
+            var comments = await _commentRepository.GetAllFilteredAsync(filterRequest, offset.GetValueOrDefault(), limit.GetValueOrDefault(), cancellation);
+
+            return comments;
+        }
+
+        /// <inheritdoc />
+        public async Task<IReadOnlyCollection<CommentDetails>> GetFilteredCommentsByAdvertIdAsync(Guid advertId, CommentFilterRequest filterRequest, int? offset, int? limit, 
+            CancellationToken cancellation)
+        {
+            _logger.LogInformation("{0}:{1} -> Получение всех отзывов для обьявления с ID: {2} с параметрами {3}: {4}, {5}: {6}, {7}: {8} ",
+                nameof(AdvertService), nameof(GetByIdAsync), advertId, nameof(offset), offset, nameof(limit), limit, typeof(CommentFilterRequest), filterRequest);
+
+            if (!limit.HasValue)
+            {
+                limit = _advertOptions.CommentListDefaultCount;
+            }
+
+            filterRequest.AdvertId = advertId;
             var comments = await _commentRepository.GetAllFilteredAsync(filterRequest, offset.GetValueOrDefault(), limit.GetValueOrDefault(), cancellation);
 
             return comments;
@@ -154,16 +172,16 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         }
 
         /// <inheritdoc />
-        public async Task<AdvertDetails> UpdateAsync(Guid id, AdvertUpdateRequest updateRequest, CancellationToken cancellation)
+        public async Task<AdvertDetails> UpdateAsync(Guid advertId, AdvertUpdateRequest updateRequest, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Обновление обьявления c ID: {2} из модели {3}: {4}",
-                nameof(AdvertService), nameof(UpdateAsync), id, nameof(AdvertUpdateRequest), JsonConvert.SerializeObject(updateRequest));
+                nameof(AdvertService), nameof(UpdateAsync), advertId, nameof(AdvertUpdateRequest), JsonConvert.SerializeObject(updateRequest));
 
 
             await _advertUpdateValidator.ValidateAndThrowAsync(updateRequest, cancellation);
 
 
-            var advertUserId = await _advertRepository.GetUserIdAsync(id, cancellation);
+            var advertUserId = await _advertRepository.GetUserIdAsync(advertId, cancellation);
             var currentUserId = _userService.GetCurrentId(cancellation);
             if (advertUserId != currentUserId)
             {
@@ -171,11 +189,11 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
             }
 
             await CheckImagesUploaded(updateRequest.NewImagesId, cancellation);
-            await AddImagesToAdvert(updateRequest.NewImagesId, id, cancellation);
+            await AddImagesToAdvert(updateRequest.NewImagesId, advertId, cancellation);
             await RemoveImages(updateRequest.RemovedImagesId, cancellation);
 
 
-            var updatedAdvert = await _advertRepository.UpdateAsync(id, updateRequest, cancellation);
+            var updatedAdvert = await _advertRepository.UpdateAsync(advertId, updateRequest, cancellation);
             updatedAdvert.User = await _userService.GetByIdAsync(updatedAdvert.UserId, cancellation);
 
 
@@ -183,60 +201,33 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         }
 
         /// <inheritdoc />
-        public async Task SoftDeleteAsync(Guid id, CancellationToken cancellation)
+        public async Task SoftDeleteAsync(Guid advertId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Мягкое удаление обьявления с ID: {2}",
-                nameof(AdvertService), nameof(SoftDeleteAsync), id);
+                nameof(AdvertService), nameof(SoftDeleteAsync), advertId);
 
-            var advertUserId = await _advertRepository.GetUserIdAsync(id, cancellation);
+            var advertUserId = await _advertRepository.GetUserIdAsync(advertId, cancellation);
             var currentUserId = _userService.GetCurrentId(cancellation);
             if (advertUserId != currentUserId)
             {
                 throw new ForbiddenException($"Нет доступа для удаления данного обьявления.");
             }
 
-            await _advertRepository.SoftDeleteAsync(id, cancellation);
+            await _advertRepository.SoftDeleteAsync(advertId, cancellation);
         }
 
         /// <inheritdoc />
-        public async Task DeleteAsync(Guid id, CancellationToken cancellation)
+        public async Task DeleteAsync(Guid advertId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Удаление обьявления с ID: {2}",
-                nameof(AdvertService), nameof(DeleteAsync), id);
+                nameof(AdvertService), nameof(DeleteAsync), advertId);
 
-            await _advertRepository.DeleteAsync(id, cancellation);
+            await _advertRepository.DeleteAsync(advertId, cancellation);
         }
+     
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="advertId"></param>
-        /// <param name="newImageIds"></param>
-        /// <param name="removedImageIds"></param>
-        /// <param name="cancellation"></param>
-        /// <returns></returns>
-        /// <exception cref="KeyNotFoundException"></exception>
-        private async Task UpdateImageCollection(Guid advertId, ICollection<Guid> newImageIds, ICollection<Guid> removedImageIds, CancellationToken cancellation)
-        {
-            foreach (var imageId in newImageIds)
-            {
-                var isImageExists = await _imageService.IsImageExists(imageId, cancellation);
-                if (!isImageExists)
-                {
-                    throw new KeyNotFoundException($"На файловом сервисе не найдено изображение с ID: {imageId}, указанное в модели обновления обьявления.");
-                }
-
-                var imageAddRequest = new AdvertImageAddRequest { AdvertId = advertId, ImageId = imageId };
-                await _advertImageRepository.AddAsync(imageAddRequest, cancellation);
-            }
-            foreach (var imageId in removedImageIds)
-            {
-                await _advertImageRepository.DeleteByFileIdAsync(imageId, cancellation);
-            }
-        }
-
-        /// <summary>
-        /// 
+        /// Проверить загружены ли изображения с указанными идентификаторами на файловом сервере.
         /// </summary>
         /// <param name="imageIds"></param>
         /// <param name="cancellation"></param>
@@ -255,7 +246,7 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         }
 
         /// <summary>
-        /// 
+        /// Добавить запись об отношении изображений к обьявлению.
         /// </summary>
         /// <param name="imageIds"></param>
         /// <param name="advertId"></param>
@@ -277,12 +268,12 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         }
 
         /// <summary>
-        /// 
+        /// Удалить изображения и их отношения к обьявлению.
         /// </summary>
         /// <param name="imageIds"></param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        private async Task RemoveImages(ICollection<Guid> imageIds,CancellationToken cancellation)
+        private async Task RemoveImages(ICollection<Guid> imageIds, CancellationToken cancellation)
         {
             foreach (var imageId in imageIds)
             {

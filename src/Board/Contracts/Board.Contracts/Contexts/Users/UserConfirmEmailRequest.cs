@@ -6,9 +6,19 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Users
 {
+    /// <summary>
+    /// Модель подтверждения почты.
+    /// </summary>
     public class UserConfirmEmailRequest
     {
+        /// <summary>
+        /// Почта.
+        /// </summary>
         public string Email { get; set; }
+
+        /// <summary>
+        /// Токен подтверждения почты.
+        /// </summary>
         public string Token { get; set; }
     }
 }

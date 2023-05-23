@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Users
 {
+    /// <summary>
+    /// Модель логина пользователя.
+    /// </summary>
     public class UserLoginRequest
     {
         /// <summary>

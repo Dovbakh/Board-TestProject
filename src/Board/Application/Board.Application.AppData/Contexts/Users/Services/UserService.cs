@@ -115,19 +115,19 @@ namespace Board.Application.AppData.Contexts.Users.Services
         }
 
         /// <inheritdoc />
-        public async Task<UserDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
+        public async Task<UserDetails> GetByIdAsync(Guid userId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение пользователя с ID: {2}",
-                nameof(UserService), nameof(GetByIdAsync), id);
+                nameof(UserService), nameof(GetByIdAsync), userId);
 
-            var clientResponse = await _userClient.GetByIdAsync(id, cancellation);
+            var clientResponse = await _userClient.GetByIdAsync(userId, cancellation);
             var user = _mapper.Map<UserDetailsClientResponse, UserDetails>(clientResponse);
             if(user == null)
             {
-                throw new KeyNotFoundException($"Не найден пользователь с ID: {id}");
+                throw new KeyNotFoundException($"Не найден пользователь с ID: {userId}");
             }
 
-            var rating = await _commentRepository.GetUserRatingAsync(id, cancellation);
+            var rating = await _commentRepository.GetUserRatingAsync(userId, cancellation);
             user.Rating = rating;
 
             return user;
@@ -135,34 +135,34 @@ namespace Board.Application.AppData.Contexts.Users.Services
         
 
         /// <inheritdoc />
-        public async Task<IReadOnlyCollection<AdvertSummary>> GetAdvertsByUserIdAsync(Guid id, int? offset, int? limit, CancellationToken cancellation)
+        public async Task<IReadOnlyCollection<AdvertSummary>> GetAdvertsByUserIdAsync(Guid userId, int? offset, int? limit, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение списка обьявлений для пользователя с ID: {2} с параметрами {3}: {4}, {5}: {6}",
-                nameof(UserService), nameof(GetAdvertsByUserIdAsync), id, nameof(offset), offset, nameof(limit), limit);
+                nameof(UserService), nameof(GetAdvertsByUserIdAsync), userId, nameof(offset), offset, nameof(limit), limit);
 
             if(!limit.HasValue)
             {
                 limit = _userOptions.AdvertListDefaultCount;
             }
 
-            var filterRequest = new AdvertFilterRequest { UserId = id };
+            var filterRequest = new AdvertFilterRequest { UserId = userId };
             var adverts = await _advertRepository.GetAllFilteredAsync(filterRequest, offset.GetValueOrDefault(), limit.GetValueOrDefault(), cancellation);
 
             return adverts;
         }
 
         /// <inheritdoc />
-        public async Task<IReadOnlyCollection<CommentDetails>> GetCommentsByReceiverUserIdAsync(Guid id, int? offset, int? limit, CancellationToken cancellation)
+        public async Task<IReadOnlyCollection<CommentDetails>> GetCommentsByReceiverUserIdAsync(Guid userId, int? offset, int? limit, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение списка отзывов, оставленных пользователю с ID: {2} с параметрами {3}: {4}, {5}: {6}",
-                nameof(UserService), nameof(GetCommentsByReceiverUserIdAsync), id, nameof(offset), offset, nameof(limit), limit);
+                nameof(UserService), nameof(GetCommentsByReceiverUserIdAsync), userId, nameof(offset), offset, nameof(limit), limit);
 
             if (!limit.HasValue)
             {
                 limit = _userOptions.CommentListDefaultCount;
             }
 
-            var filterRequest = new CommentFilterRequest { UserReceiverId = id };
+            var filterRequest = new CommentFilterRequest { UserReceiverId = userId };
             var comments = await _commentRepository.GetAllFilteredAsync(filterRequest, offset.GetValueOrDefault(), limit.GetValueOrDefault(), cancellation);
 
             return comments;
@@ -407,18 +407,14 @@ namespace Board.Application.AppData.Contexts.Users.Services
         }
 
         /// <inheritdoc />
-        public async Task<UserDetails> UpdateAsync(Guid id, UserUpdateRequest updateRequest, CancellationToken cancellation)
+        public async Task<UserDetails> UpdateCurrentAsync(UserUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0}:{1} -> Обновление информации о пользователе с ID: {2} со следующей моделью обновления {3}: {4}",
-                nameof(UserService), nameof(UpdateAsync), id, nameof(UserUpdateRequest), JsonConvert.SerializeObject(updateRequest));
+            _logger.LogInformation("{0}:{1} -> Обновление информации о пользователе со следующей моделью обновления {3}: {4}",
+                nameof(UserService), nameof(UpdateCurrentAsync), nameof(UserUpdateRequest), JsonConvert.SerializeObject(updateRequest));
 
             await _userUpdateValidator.ValidateAndThrowAsync(updateRequest, cancellation);
 
-            var currentUserId = GetCurrentId(cancellation);
-            if (id != currentUserId)
-            {
-                throw new ForbiddenException($"Нет доступа для обновления данного пользователя.");
-            }
+            var currentUserId = GetCurrentId(cancellation).Value;
 
             if (updateRequest.PhotoId.HasValue)
             {
@@ -430,19 +426,19 @@ namespace Board.Application.AppData.Contexts.Users.Services
             }
 
             var updateClientRequest = _mapper.Map<UserUpdateRequest, UserUpdateClientRequest>(updateRequest);
-            var clientResponse = await _userClient.UpdateAsync(id, updateClientRequest, cancellation);
+            var clientResponse = await _userClient.UpdateAsync(currentUserId, updateClientRequest, cancellation);
             var updatedUser = _mapper.Map<UserDetailsClientResponse, UserDetails>(clientResponse);
 
             return updatedUser;
         }
 
         /// <inheritdoc />
-        public async Task DeleteAsync(Guid id, CancellationToken cancellation)
+        public async Task DeleteAsync(Guid userId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Удаление пользователя с ID: {2}",
-                nameof(UserService), nameof(DeleteAsync), id);
+                nameof(UserService), nameof(DeleteAsync), userId);
 
-            await _userClient.DeleteAsync(id, cancellation);
+            await _userClient.DeleteAsync(userId, cancellation);
         }
 
         /// <inheritdoc />
@@ -512,8 +508,6 @@ namespace Board.Application.AppData.Contexts.Users.Services
 
             await _userEmailValidator.ValidateAndThrowAsync(new UserEmail { Value = email }, cancellation);
 
-
-            var currentUser = await GetCurrentAsync(cancellation);
 
             var clientRequest = new UserEmailConfirmClientRequest { Email = email, Token = token };
             await _userClient.ConfirmEmailAsync(clientRequest, cancellation);

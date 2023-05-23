@@ -62,28 +62,29 @@ using Board.Contracts.Options;
 
 namespace Board.Infrastructure.Registrar
 {
+    /// <summary>
+    /// Регистратор сервисов для микросервиса Board
+    /// </summary>
     public static class BoardRegistrar
     {
+        /// <summary>
+        /// Регистрация application-сервисов, репозиториев и вспомогательных сервисов.
+        /// </summary>
         public static IServiceCollection AddServiceRegistrationModule(this IServiceCollection services, IConfiguration configuration)
         {
-            // Регистрация сервисов работы с БД
+            #region Регистрация сервисов работы с БД
             services.AddSingleton<IDbContextOptionsConfigurator<BoardDbContext>, BoardDbContextConfiguration>();
             services.AddDbContext<BoardDbContext>((Action<IServiceProvider, DbContextOptionsBuilder>)
                 ((sp, dbOptions) => sp.GetRequiredService<IDbContextOptionsConfigurator<BoardDbContext>>()
                    .Configure((DbContextOptionsBuilder<BoardDbContext>)dbOptions)));
             services.AddScoped((Func<IServiceProvider, DbContext>)(sp => sp.GetRequiredService<BoardDbContext>()));
-
-
-            //// Регистрация сервисов работы с обьектным хранилищем
-            //services.AddScoped<IObjectStorage, MinioStorage>();
+            #endregion
 
             #region Регистрация репозиториев
-            // Регистрация репозиториев
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            //services.AddScoped(typeof(ICachedRepository<>), typeof(CachedRepository<>));
+            services.AddScoped<ICacheRepository, CacheRepository>();
             services.AddScoped<IAdvertRepository, AdvertRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
-            //services.AddScoped<IFileRepository, FileRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IAdvertImageRepository, AdvertImageRepository>();
             services.AddScoped<IAdvertViewRepository, AdvertViewRepository>();
@@ -91,42 +92,43 @@ namespace Board.Infrastructure.Registrar
 
             #endregion
 
-            //// Регистрация application-сервисов
+            #region Регистрация application-сервисов
             services.AddScoped<IAdvertService, AdvertService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IUserService, UserService>();
-            //services.AddScoped<IFileService, FileService>();
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IAdvertViewService, AdvertViewService>();
             services.AddScoped<IAdvertFavoriteService, AdvertFavoriteService>();
-            //services.AddScoped<INotifierService, EmailService>();
-
-            //// Регистрация вспомогательных сервисов
-            //services.AddSingleton<IDateTimeService, DateTimeService>();
-            //services.AddTransient(typeof(IPasswordHasher<>), typeof(PasswordHasher<>));
-            //services.AddScoped<IClaimsAccessor, HttpContextClaimsAccessor>();
-            //services.AddTransient<IValidator<UserRegisterDto>, UserRegisterValidator>();
-            //services.AddTransient<IValidator<UserLoginDto>, UserLoginValidator>();
-            //services.AddTransient<IValidator<UserChangePasswordDto>, UserChangePasswordValidator>();
-            //services.AddTransient<IValidator<UserChangeEmailDto>, UserChangeEmailValidator>();
-            //services.AddTransient<IValidator<UserUpdateRequestDto>, UserUpdateValidator>();
-            //services.AddTransient<IValidator<UserEmailDto>, UserEmailValidator>();
-            //services.AddTransient<IValidator<UserResetPasswordDto>, UserResetPasswordValidator>();
-            //services.AddTransient<IValidator<AdvertisementRequestDto>, AdvertisementValidator>();
-            //services.AddTransient<IValidator<AdvertisementUpdateRequestDto>, AdvertisementUpdateValidator>();
-            //services.AddTransient<IValidator<CommentRequestDto>, CommentValidator>();
-            //services.AddTransient<IValidator<CommentUpdateRequestDto>, CommentUpdateValidator>();
-
             services.AddScoped<IImageService, ImageService>();
+            #endregion
 
-            //services.AddSingleton<IMapper>(new Mapper(new MapperConfiguration
-            //    (a =>
-            //    {
-            //        a.AddMaps(Assembly.GetExecutingAssembly());
-            //    })));
+            #region Регистрация вспомогательных сервисов
+            services.AddHttpContextAccessor();
+            services.AddSingleton<IMapper>(new Mapper(GetMapperConfiguration()));
+            services.AddValidatorsFromAssembly(typeof(UserLoginValidator).Assembly);
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = configuration.GetSection("RedisCache").GetRequiredSection("Host").Value;
+                options.InstanceName = configuration.GetSection("RedisCache").GetRequiredSection("InstanceName").Value;
 
+            });
+            services.AddSingleton<IDistributedLockFactory, RedLockFactory>(x =>
+                RedLockFactory.Create(new List<RedLockMultiplexer>
+                {
+                    ConnectionMultiplexer.Connect(configuration["RedisCache:HostPort"])
+                }));
+            services.AddMassTransit(mt => mt.AddMassTransit(x => {
+                x.UsingRabbitMq((cntxt, cfg) => {
+                    cfg.Host(configuration["RabbitMQ:Address"], "/", c => {
+                        c.Username(configuration["RabbitMQ:Username"]);
+                        c.Password(configuration["RabbitMQ:Password"]);
+                    });
+                });
+            }));
+            #endregion
 
+            #region Регистрация опций
             services.AddOptions<CommentAddLockOptions>()
                 .BindConfiguration("RedLock:CommentAddLockOptions")
                 .ValidateOnStart();
@@ -154,77 +156,31 @@ namespace Board.Infrastructure.Registrar
             services.AddOptions<IdentityClientOptions>()
                 .BindConfiguration("IdentityServer")
                 .ValidateOnStart();
+            #endregion
 
-
-            services.AddHttpContextAccessor();
-
-            services.AddSingleton<IMapper>(new Mapper(GetMapperConfiguration()));
-
-            services.AddValidatorsFromAssembly(typeof(UserLoginValidator).Assembly);
-
-
-            services.AddStackExchangeRedisCache(options =>
-            {
-                options.Configuration = configuration.GetSection("RedisCache").GetRequiredSection("Host").Value;
-                options.InstanceName = configuration.GetSection("RedisCache").GetRequiredSection("InstanceName").Value;
-                
-            });
-
-            services.AddScoped<ICacheRepository, CacheRepository>();
-
-            services.AddSingleton<IDistributedLockFactory, RedLockFactory>(x =>
-                RedLockFactory.Create(new List<RedLockMultiplexer>
-                {
-                    ConnectionMultiplexer.Connect("localhost:6379")
-                }));
-            
-
-            
-
-            services.AddMassTransit(mt => mt.AddMassTransit(x => {
-                x.UsingRabbitMq((cntxt, cfg) => {
-                    cfg.Host("localhost", "/", c => {
-                        c.Username("guest");
-                        c.Password("guest");
-                    });
-                });
-            }));
-
+           
             return services;
         }
 
-        public static IServiceCollection AddAuthenticationServices(this IServiceCollection services)
+        /// <summary>
+        /// Регистрация сервисов для работы с аутентификацией.
+        /// </summary>
+        public static IServiceCollection AddAuthenticationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(options =>
                 {
-                    options.Authority = "https://localhost:7157";
+                    options.Authority = configuration["IdentityServer:Address"];
                     options.RequireHttpsMetadata = false;
                     
                 });
 
-
-            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-            //    {
-            //        var secretKey = configuration["AuthToken:SecretKey"];
-
-            //        options.SaveToken = true;
-            //        options.RequireHttpsMetadata = false;
-            //        options.TokenValidationParameters = new TokenValidationParameters()
-            //        {
-            //            ValidateActor = false,
-            //            ValidateAudience = false,
-            //            ValidateLifetime = true,
-            //            ValidateIssuerSigningKey = true,
-            //            ValidateIssuer = false,
-            //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
-            //        };
-            //    });
-
             return services;
         }
 
+        /// <summary>
+        /// Регистрация сервисов для работы с авторизацией.
+        /// </summary>
         public static IServiceCollection AddAuthorizationServices(this IServiceCollection services)
         {
             services.AddAuthorization(options =>
@@ -238,51 +194,15 @@ namespace Board.Infrastructure.Registrar
                 {
                     policy.RequireRole("admin");
                 });
-                //options.AddPolicy("ApiScope", policy =>
-                //{
-                //    policy.RequireAuthenticatedUser();
-                //    policy.RequireClaim("scope", "Board.Host.Api");
-                //});
+
             });
 
             return services;
         }
 
-
-        //    public static IServiceCollection AddAspNetIdentityServices(this IServiceCollection services)
-        //{
-        //    services.AddIdentityCore<User>()
-        //        .AddRoles<Role>()
-        //        .AddUserManager<UserManager<User>>()
-        //        .AddRoleManager<RoleManager<Role>>()
-        //        .AddEntityFrameworkStores<BoardDbContext>()
-        //        .AddDefaultTokenProviders();
-
-        //    services.Configure<IdentityOptions>(options =>
-        //    {
-        //        options.Password.RequireDigit = true;
-        //        options.Password.RequireLowercase = true;
-        //        options.Password.RequireNonAlphanumeric = false;
-        //        options.Password.RequireUppercase = true;
-        //        options.Password.RequiredLength = 8;
-        //        options.Password.RequiredUniqueChars = 1;
-
-        //        options.User.AllowedUserNameCharacters =
-        //                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ ";
-        //        options.User.RequireUniqueEmail = true;
-
-        //        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
-        //        options.Lockout.MaxFailedAccessAttempts = 5;
-        //        options.Lockout.AllowedForNewUsers = true;
-
-        //        options.SignIn.RequireConfirmedEmail = false;
-        //        options.SignIn.RequireConfirmedPhoneNumber = false;
-        //    });
-
-        //    return services;
-        //}
-
-
+        /// <summary>
+        /// Регистрация сервисов для работы с Redis.
+        /// </summary>
         public static IServiceCollection AddRedisServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddStackExchangeRedisCache(options =>
@@ -294,15 +214,15 @@ namespace Board.Infrastructure.Registrar
             return services;
         }
 
-
+        /// <summary>
+        /// Регистрация сервисов для работы со Swagger.
+        /// </summary>
         public static IServiceCollection AddSwaggerServices(this IServiceCollection services)
         {
             services.AddSwaggerGen(options =>
             {
                 options.CustomSchemaIds(type => type.FullName.Replace("+", "_"));
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "Solarvito Api", Version = "V1" });
-                //options.IncludeXmlComments(Path.Combine(Path.Combine(AppContext.BaseDirectory,
-                //    $"{typeof(AdvertisementResponseDto).Assembly.GetName().Name}.xml")));
                 options.IncludeXmlComments(Path.Combine(Path.Combine(AppContext.BaseDirectory, "Documentation.xml")));
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -336,14 +256,11 @@ namespace Board.Infrastructure.Registrar
             return services;
         }
 
+        /// <summary>
+        /// Регистрация сервисов для работы с HTTP-клиентами.
+        /// </summary>
         public static IServiceCollection AddHttpClients(this IServiceCollection services, ConfigurationManager configuration)
         {
-            //services.Configure<UserClientOptions>(configuration.GetSection("UserApiClientOptions"));
-            //services.Configure<FileClientOptions>(configuration.GetSection("FileApiClientOptions"));
-
-            //services.AddHttpClient<IUserClient, UserClient>(client => client.BaseAddress = new Uri("https://localhost:7157/"));
-            //services.AddHttpClient<IImageClient, ImageClient>(ConfigureFileHttpClient);
-
             services.AddScoped<IUserClient, UserClient>();
             services.AddScoped<IImageClient, ImageClient>();   
 
@@ -372,32 +289,23 @@ namespace Board.Infrastructure.Registrar
             return services;
         }
 
-
-        //static void ConfigureUserHttpClient(IServiceProvider serviceProvider, HttpClient client)
-        //{
-        //    var options = serviceProvider.GetRequiredService<IOptions<UserClientOptions>>().Value;
-
-        //    client.BaseAddress = new Uri(options.BasePath);
-        //}
-
-        //static void ConfigureFileHttpClient(IServiceProvider serviceProvider, HttpClient client)
-        //{
-        //    var options = serviceProvider.GetRequiredService<IOptions<FileClientOptions>>().Value;
-
-        //    client.BaseAddress = new Uri(options.BasePath);
-        //}
-
+        /// <summary>
+        /// Регистрация сервисов для работы с логгером.
+        /// </summary>
         public static ConfigureHostBuilder AddCustomLogger(this ConfigureHostBuilder hostBuilder, ConfigurationManager configuration)
         {
-            hostBuilder.UseSerilog((context, services, configuration) =>
-                configuration.ReadFrom.Configuration(context.Configuration)
+            hostBuilder.UseSerilog((context, services, cfg) =>
+                cfg.ReadFrom.Configuration(context.Configuration)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
-                .WriteTo.Seq("http://localhost:5345"));
+                .WriteTo.Seq(configuration["Seq:Address"]));
 
             return hostBuilder;
         }
 
+        /// <summary>
+        /// Получить конфигурацию AutoMapper.
+        /// </summary>
         private static MapperConfiguration GetMapperConfiguration()
         {
             var configuration = new MapperConfiguration(cfg =>

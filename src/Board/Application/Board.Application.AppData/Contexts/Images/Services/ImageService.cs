@@ -31,64 +31,61 @@ namespace Board.Application.AppData.Contexts.Images.Services
         }
 
         /// <inheritdoc />
-        public async Task<ImageData> DownloadAsync(Guid id, CancellationToken cancellation)
+        public async Task<ImageData> DownloadAsync(Guid imageId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0} -> Скачивание файла с ID: {1}",
-                nameof(DownloadAsync), id);
+                nameof(DownloadAsync), imageId);
 
-            var clientResponse = await _imageClient.DownloadAsync(id, cancellation);
+            var clientResponse = await _imageClient.DownloadAsync(imageId, cancellation);
             var imageData = _mapper.Map<ImageDataClientResponse, ImageData>(clientResponse);
 
             return imageData;
         }
 
         /// <inheritdoc />
-        public async Task<ImageShortInfo> GetInfoAsync(Guid id, CancellationToken cancellation)
+        public async Task<ImageShortInfo> GetInfoAsync(Guid imageId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0} -> Получение информации о файле с ID: {1}",
-                nameof(GetInfoAsync), id);
+                nameof(GetInfoAsync), imageId);
 
-            var clientResponse = await _imageClient.GetInfoAsync(id, cancellation);
+            var clientResponse = await _imageClient.GetInfoAsync(imageId, cancellation);
             var imageInfo = _mapper.Map<ImageShortInfoClientResponse, ImageShortInfo>(clientResponse);
 
             return imageInfo;
         }
 
         /// <inheritdoc />
-        public async Task<bool> IsImageExists(Guid id, CancellationToken cancellation)
+        public async Task<bool> IsImageExists(Guid imageId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0} -> Получение информации о файле с ID: {1}",
-                nameof(GetInfoAsync), id);
+                nameof(GetInfoAsync), imageId);
 
-            var isImageExists = await _imageClient.IsImageExists(id, cancellation);
+            var isImageExists = await _imageClient.IsImageExists(imageId, cancellation);
 
             return isImageExists;
         }
 
         /// <inheritdoc />
-        public async Task<Guid> UploadAsync(IFormFile file, CancellationToken cancellation)
+        public async Task<Guid> UploadAsync(IFormFile image, CancellationToken cancellation)
         {
             _logger.LogInformation("{0} -> Загрузка файла с содержимым: {1}",
-                nameof(UploadAsync), JsonConvert.SerializeObject(file));
+                nameof(UploadAsync), JsonConvert.SerializeObject(image));
 
-            var validationResult = _imageUploadValidator.Validate(file);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException($"Загружаемый файл не прошел валидацию. Ошибки: {JsonConvert.SerializeObject(validationResult)}");
-            }
+            await _imageUploadValidator.ValidateAndThrowAsync(image, cancellation);
 
-            var newImageId = await _imageClient.UploadAsync(file, cancellation);
+
+            var newImageId = await _imageClient.UploadAsync(image, cancellation);
 
             return newImageId;
         }
 
         /// <inheritdoc />
-        public Task DeleteAsync(Guid id, CancellationToken cancellation)
+        public Task DeleteAsync(Guid imageId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0} -> Удаление файла с ID: {1}",
-                nameof(DeleteAsync), id);
+                nameof(DeleteAsync), imageId);
 
-            return _imageClient.DeleteAsync(id, cancellation);
+            return _imageClient.DeleteAsync(imageId, cancellation);
         }
     }
 }

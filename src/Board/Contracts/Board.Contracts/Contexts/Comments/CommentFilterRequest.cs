@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Comments
 {
+    /// <summary>
+    /// Модель фильтрации отзывов.
+    /// </summary>
     public class CommentFilterRequest
     {
         /// <summary>
@@ -15,17 +18,12 @@ namespace Board.Contracts.Contexts.Comments
         public string? Text { get; set; }
 
         /// <summary>
-        /// Дата отзыва.
-        /// </summary>
-        public DateTime? CreatedAt { get; set; }
-
-        /// <summary>
-        /// Идентификатор пользователя, который оставил отзыв.
+        /// Идентификатор пользователя, которому оставили отзыв.
         /// </summary>
         public Guid? UserReceiverId { get; set; }
 
         /// <summary>
-        /// Идентификатор пользователя, которому оставлен отзыв.
+        /// Идентификатор пользователя, который оставил отзыв.
         /// </summary>
         public Guid? UserAuthorId { get; set; }
 

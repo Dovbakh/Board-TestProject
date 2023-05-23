@@ -2,6 +2,8 @@ using MassTransit;
 using Notifier.Application.AppData.Contexts.Messages.Services;
 using Notifier.Host.Consumer;
 using Serilog;
+using Notifier.Infrastructure.Registrar;
+using Notifier.Contracts.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +11,7 @@ builder.Host.UseSerilog((context, services, configuration) =>
                 configuration.ReadFrom.Configuration(context.Configuration)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
-                .WriteTo.Seq("http://localhost:5345"));
+                .WriteTo.Seq(builder.Configuration["Seq:Address"]));
 
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
@@ -19,15 +21,20 @@ builder.Services.AddMassTransit(mt => mt.AddMassTransit(x => {
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host("localhost", "/", c =>
+        cfg.Host(builder.Configuration["RabbitMQ:Address"], "/", c =>
         {
-            c.Username("guest");
-            c.Password("guest");
+            c.Username(builder.Configuration["RabbitMQ:Username"]);
+            c.Password(builder.Configuration["RabbitMQ:Password"]);
         });
         cfg.ConfigureEndpoints(context);
 
     });
-    }));
+}));
+
+builder.Services.AddOptions<SmtpOptions>()
+    .BindConfiguration("SmtpServer")
+    .ValidateOnStart();
+
 
 
 

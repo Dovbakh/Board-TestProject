@@ -1,6 +1,5 @@
 ﻿using AutoMapper.Internal;
-using Board.Contracts;
-using Board.Contracts.Exceptions;
+using FileStorage.Contracts;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -9,11 +8,8 @@ using System;
 using System.Net;
 using System.Text.Json;
 
-namespace Board.Host.Middlewares
+namespace FileStorage.Host.Middlewares
 {
-    /// <summary>
-    /// Middleware для отслеживания Exception.
-    /// </summary>
     public class ErrorHandlerMiddleware
     {
         private readonly RequestDelegate _next;
@@ -56,9 +52,6 @@ namespace Board.Host.Middlewares
                         break;
                     case UnauthorizedAccessException e:
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                        break;
-                    case ForbiddenException e:
-                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
                         break;
                     default:
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;

@@ -4,160 +4,212 @@
         <name>Board.Host.Api</name>
     </assembly>
     <members>
+        <member name="T:Board.Host.Api.Controllers.AdvertFavoritesController">
+            <summary>
+            Контроллер для работы с избранным обьявлений.
+            </summary>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertFavoritesController.GetAdvertsForCurrentUserId(System.Nullable{System.Int32},System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Получить обьявления из избранного текущего пользователя. [anonymous]
+            </summary>
+            <param name="offset">Количество пропускаемых обьявлений.</param>
+            <param name="limit">Количество получаемых обьявлений.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Спиисок обьявлений.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertFavoritesController.DeleteForCurrentUser(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Удалить обьявление из избранного текущего пользователя. [anonymous]
+            </summary>
+            <param name="advertId">Идентификатор обьявления.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertFavoritesController.AddForCurrentUser(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Добавить обьявление в избранное текущего пользователя. [anonymous]
+            </summary>
+            <param name="advertId">Идентификатор обьявления.</param>
+            <param name="cancellation">Токен отмены.</param>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertFavoritesController.GetIdsForCurrentUserId(System.Threading.CancellationToken)">
+            <summary>
+            Получить идентификаторы обьявлений из избранного текущего пользователя. [anonymous]
+            </summary>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Список идентификаторов.</returns>
+        </member>
         <member name="T:Board.Host.Api.Controllers.AdvertsController">
             <summary>
-            Работа с обьявлениями.
+            Контроллер для работы с обьявлениями.
             </summary>
         </member>
         <member name="M:Board.Host.Api.Controllers.AdvertsController.#ctor(Board.Application.AppData.Contexts.Adverts.Services.IAdvertService,Microsoft.Extensions.Logging.ILogger{Board.Host.Api.Controllers.AdvertsController})">
             <summary>
-            Работа с обьявлениями.
+            Конструктор контроллера работы с обьявлениями.
             </summary>
             <param name="advertisementService">Сервис для работы с обьявлениями.</param>
             <param name="logger">Логгер.</param>
         </member>
         <member name="M:Board.Host.Api.Controllers.AdvertsController.GetAll(System.Nullable{System.Int32},System.Nullable{System.Int32},System.Threading.CancellationToken)">
             <summary>
-            Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+            Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией. [anonymous]
             </summary>
-            <param name="page">Номер страницы.</param>
+            <param name="offset">Количество пропускаемых обьявлений.</param>
+            <param name="limit">Количество получаемых обьявлений.</param>
             <param name="cancellation">Токен отмены.</param>
-            <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Adverts.AdvertSummary"/>.</returns>
-            <response code="200">Запрос выполнен успешно.</response>
+            <returns>Список обьявлений.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.AdvertsController.GetAllFiltered(Board.Contracts.Contexts.Adverts.AdvertFilterRequest,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Threading.CancellationToken)">
             <summary>
-            Получить все обьявления по фильтру и с пагинацией.
+            Получить все обьявления по фильтру и с пагинацией. [anonymous]
             </summary>
-            <param name="filter"></param>
-            <param name="page"></param>
+            <param name="filter">Модель фильтрации обьявлений.</param>
+            <param name="offset">Количество пропускаемых обьявлений.</param>
+            <param name="limit">Количество получаемых обьявлений.</param>
             <param name="cancellation"></param>
-            <returns>Элемент <see cref="T:Board.Contracts.Contexts.Adverts.AdvertSummary"/>.</returns>
+            <returns>Список обьявлений.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.AdvertsController.GetAllFilteredBody(Board.Contracts.Contexts.Adverts.AdvertFilterRequest,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Threading.CancellationToken)">
             <summary>
-            Получить все обьявления по фильтру и с пагинацией.
+            Получить все обьявления по фильтру и с пагинацией. [anonymous]
             </summary>
-            <param name="filter"></param>
-            <param name="page"></param>
+            <param name="filter">Модель фильтрации обьявлений.</param>
+            <param name="offset">Количество пропускаемых обьявлений.</param>
+            <param name="limit">Количество получаемых обьявлений.</param>
             <param name="cancellation"></param>
-            <returns>Элемент <see cref="T:Board.Contracts.Contexts.Adverts.AdvertSummary"/>.</returns>
+            <returns>Список обьявлений.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.AdvertsController.GetById(System.Guid,System.Threading.CancellationToken)">
             <summary>
             Получить обьявление по идентификатору.
             </summary>
-            <param name="id">Идентификатор обьявления.</param>
+            <param name="advertId">Идентификатор обьявления.</param>
             <param name="cancellation">Токен отмены</param>
             <returns>Элемент <see cref="T:Board.Contracts.Contexts.Adverts.AdvertDetails"/>.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.AdvertsController.GetCommentsByAdvertId(System.Guid,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Threading.CancellationToken)">
             <summary>
-            Получить комментарии для обьявления с идентификатором.
+            Получить отзывы для обьявления по идентификатору с пагинацией. [anonymous]
             </summary>
-            <param name="id">Идентификатор обьявления.</param>
+            <param name="advertId">Идентификатор обьявления.</param>
+            <param name="offset">Количество пропускаемых отзывов.</param>
+            <param name="limit">Количество получаемых отзывов.</param>
             <param name="cancellation">Токен отмены</param>
-            <returns>Элемент <see cref="T:Board.Contracts.Contexts.Adverts.AdvertDetails"/>.</returns>
+            <returns>Список отзывов.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertsController.GetFilteredCommentsByAdvertId(System.Guid,Board.Contracts.Contexts.Comments.CommentFilterRequest,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Получить отзывы для обьявления по идентификатору с пагинацией и фильтрацией. [anonymous]
+            </summary>
+            <param name="advertId">Идентификатор обьявления.</param>
+            <param name="filterRequest">Модель фильтрации обьявлений.</param>
+            <param name="offset">Количество пропускаемых отзывов.</param>
+            <param name="limit">Количество получаемых отзывов.</param>
+            <param name="cancellation">Токен отмены</param>
+            <returns>Список отзывов.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.AdvertsController.Create(Board.Contracts.Contexts.Adverts.AdvertAddRequest,System.Threading.CancellationToken)">
             <summary>
-            Добавить новое обьявление.
+            Добавить новое обьявление. [authorize]
             </summary>
-            <param name="addRequest">Элемент <see cref="T:Board.Contracts.Contexts.Adverts.AdvertAddRequest"/>.</param>
+            <param name="addRequest">Модель добавления обьявления.</param>
             <param name="cancellation">Токен отмены.</param>
             <returns>Идентификатор нового обьявления.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.AdvertsController.Update(System.Guid,Board.Contracts.Contexts.Adverts.AdvertUpdateRequest,System.Threading.CancellationToken)">
             <summary>
-            Изменить обьявление.
+            Изменить обьявление. [authorize]
             </summary>
-            <param name="id">Идентификатор обьявления.</param>
-            <param name="updateRequest">Элемент <see cref="T:Board.Contracts.Contexts.Adverts.AdvertUpdateRequest"/>.</param>
+            <param name="advertId">Идентификатор обьявления.</param>
+            <param name="updateRequest">Модель изменения обьявления.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
         <member name="M:Board.Host.Api.Controllers.AdvertsController.SoftDeleteById(System.Guid,System.Threading.CancellationToken)">
             <summary>
-            Удалить обьявление.
+            Удалить обьявление, сделав его неактивным. [authorize]
             </summary>
-            <param name="id">Идентификатор обьявления.</param>
+            <param name="advertId">Идентификатор обьявления.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
         <member name="M:Board.Host.Api.Controllers.AdvertsController.DeleteById(System.Guid,System.Threading.CancellationToken)">
             <summary>
-            Удалить обьявление.
+            Удалить обьявление. [admin]
             </summary>
-            <param name="id">Идентификатор обьявления.</param>
+            <param name="advertId">Идентификатор обьявления.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
         <member name="T:Board.Host.Api.Controllers.AdvertViewsController">
             <summary>
-            Работа с обьявлениями.
+            Контроллер для работы с просмотрами обьявлений.
             </summary>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertViewsController.GetCount(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Получить количество просмотров обьявления. [anonymous]
+            </summary>
+            <param name="advertId">Идентификатор обьявления.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Количество просмотров.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.AdvertViewsController.AddIfNotExists(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Добавить просмотр обьявления, если еще не просмотрено. [anonymous]
+            </summary>
+            <param name="advertId">Идентификатор обьявления.</param>
+            <param name="cancellation">Токен отмены.</param>
+            <returns>Идентификатор просмотра.</returns>
         </member>
         <member name="T:Board.Host.Api.Controllers.CategoriesController">
             <summary>
             Контроллер для работы с категориями.
             </summary>
-            <response code="500">Произошла внутренняя ошибка.</response>
         </member>
         <member name="M:Board.Host.Api.Controllers.CategoriesController.#ctor(Board.Application.AppData.Contexts.Categories.Services.ICategoryService)">
             <summary>
-            Работа с категориями.
+            Конструктор для контроллеры работы с категориями.
             </summary>
             <param name="categoryService">Сервис категорий.</param>
         </member>
         <member name="M:Board.Host.Api.Controllers.CategoriesController.GetAll(System.Threading.CancellationToken)">
             <summary>
-            Получить список всех категорий.
+            Получить список всех категорий. [anonymous]
             </summary>
             <param name="cancellation">Токен отмены.</param>
-            <response code="200">Запрос выполнен успешно.</response>
-            <returns>Список моделей категорий <see cref="T:Board.Contracts.Contexts.Categories.CategorySummary"/>.</returns>
+            <returns>Список категорий.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.CategoriesController.GetById(System.Guid,System.Threading.CancellationToken)">
             <summary>
-            Получить категорию по идентификатору.
+            Получить категорию по идентификатору. [anonymous]
             </summary>
-            <param name="id">Идентификатор.</param>
+            <param name="categoryId">Идентификатор.</param>
             <param name="cancellation">Токен отмены.</param>
-            <response code="200">Запрос выполнен успешно.</response>
-            <response code="404">Категория с указанным идентификатором не найдена.</response>
-            <returns>Модель категории <see cref="T:Board.Contracts.Contexts.Categories.CategoryDetails"/>.</returns>
+            <returns>Категория.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.CategoriesController.Create(Board.Contracts.Contexts.Categories.CategoryAddRequest,System.Threading.CancellationToken)">
             <summary>
-            Создать новую категорию.
+            Создать новую категорию. [admin]
             </summary>
             <param name="createRequest">Модель запроса создания категории <see cref="T:Board.Contracts.Contexts.Categories.CategoryAddRequest"/>.</param>
             <param name="cancellation">Токен отмены.</param>
-            <response code="201">Категория успешно создана.</response>
-            <response code="400">Модель данных запроса невалидна.</response>
-            <response code="422">Произошёл конфликт бизнес-логики.</response>
             <returns>Идентификатор новой категории.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.CategoriesController.Update(System.Guid,Board.Contracts.Contexts.Categories.CategoryUpdateRequest,System.Threading.CancellationToken)">
             <summary>
-            Обновить категорию.
+            Обновить категорию. [admin]
             </summary>
-            <param name="id">Идентификатор.</param>
-            <param name="updateRequest">Модель запроса обновления категории <see cref="T:Board.Contracts.Contexts.Categories.CategoryUpdateRequest"/>.</param>
+            <param name="categoryId">Идентификатор.</param>
+            <param name="updateRequest">Модель запроса обновления категории.</param>
             <param name="cancellation">Токен отмены.</param>
-            <response code="200">Запрос выполнен успешно.</response>
-            <response code="400">Модель данных запроса невалидна.</response>
-            <response code="403">Доступ запрещён.</response>
-            <response code="404">Категория с указанным идентификатором не найдена.</response>
-            <response code="422">Произошёл конфликт бизнес-логики.</response>
-            <returns>Модель обновленной категории <see cref="T:Board.Contracts.Contexts.Categories.CategoryDetails"/>.</returns>
+            <returns>Обновленная категория.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.CategoriesController.DeleteById(System.Guid,System.Threading.CancellationToken)">
             <summary>
-            Удалить категорию по идентификатору.
+            Удалить категорию по идентификатору. [admin]
             </summary>
-            <param name="id">Идентификатор.</param>
+            <param name="categoryId">Идентификатор.</param>
             <param name="cancellation">Токен отмены.</param>
-            <response code="204">Запрос выполнен успешно.</response>
-            <response code="403">Доступ запрещён.</response>
-            <response code="404">Категория с указанным идентификатором не найдена.</response>
         </member>
         <member name="T:Board.Host.Api.Controllers.CommentsController">
             <summary>
@@ -226,178 +278,183 @@
         </member>
         <member name="T:Board.Host.Api.Controllers.ImagesController">
             <summary>
-            Работа с пользователями.
+            Контроллер для работы с изображениями.
             </summary>
         </member>
         <member name="M:Board.Host.Api.Controllers.ImagesController.#ctor(Board.Application.AppData.Contexts.Images.Services.IImageService,Microsoft.Extensions.Logging.ILogger{Board.Host.Api.Controllers.ImagesController})">
             <summary>
-            Работа с обьявлениями.
+            Конструктор для контроллера работы с изображениями.
             </summary>
-            <param name="advertisementService">Сервис для работы с обьявлениями.</param>
+            <param name="imageService">Сервис для работы с изображениями.</param>
             <param name="logger">Логгер.</param>
         </member>
         <member name="M:Board.Host.Api.Controllers.ImagesController.GetInfo(System.Guid,System.Threading.CancellationToken)">
             <summary>
-            Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+            Получить краткую информацию об изображении. [anonymous]
             </summary>
-            <param name="page">Номер страницы.</param>
+            <param name="imageId">Идентификатор изоюражения.</param>
             <param name="cancellation">Токен отмены.</param>
-            <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Adverts.AdvertSummary"/>.</returns>
-            <response code="200">Запрос выполнен успешно.</response>
+            <returns>Краткая информация об изображении.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.ImagesController.Upload(Microsoft.AspNetCore.Http.IFormFile,System.Threading.CancellationToken)">
             <summary>
-            Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+            Загрузить изображение на сервер. [authorize]
             </summary>
-            <param name="page">Номер страницы.</param>
+            <param name="file">Файл с изображением.</param>
             <param name="cancellation">Токен отмены.</param>
-            <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Adverts.AdvertSummary"/>.</returns>
-            <response code="200">Запрос выполнен успешно.</response>
+            <returns>Идентификатор изображения.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.ImagesController.Download(System.Guid,System.Threading.CancellationToken)">
             <summary>
-            Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+            Скачать изображение по идентификатору. [anonymous]
             </summary>
-            <param name="page">Номер страницы.</param>
+            <param name="imageId">Идентификатор изображения.</param>
             <param name="cancellation">Токен отмены.</param>
-            <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Adverts.AdvertSummary"/>.</returns>
-            <response code="200">Запрос выполнен успешно.</response>
+            <returns>Изображение.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.ImagesController.Delete(System.Guid,System.Threading.CancellationToken)">
             <summary>
-            Получить все обьявления отсортированные по дате добавления по убыванию и с пагинацией.
+            Удалить изображение. [admin only]
             </summary>
-            <param name="page">Номер страницы.</param>
+            <param name="imageId">Идентификатор изображения.</param>
             <param name="cancellation">Токен отмены.</param>
-            <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Adverts.AdvertSummary"/>.</returns>
-            <response code="200">Запрос выполнен успешно.</response>
         </member>
         <member name="T:Board.Host.Api.Controllers.UsersController">
             <summary>
-            Работа с пользователями.
+            Контроллер для работы с пользователями.
             </summary>
         </member>
         <member name="M:Board.Host.Api.Controllers.UsersController.#ctor(Board.Application.AppData.Contexts.Users.Services.IUserService)">
             <summary>
-            Работа с пользователями.
+            Конструктор контроллера для работы с пользователями.
             </summary>
             <param name="userService">Сервис для работы с пользователями.</param>
         </member>
         <member name="M:Board.Host.Api.Controllers.UsersController.GetAll(System.Nullable{System.Int32},System.Nullable{System.Int32},System.Threading.CancellationToken)">
             <summary>
-            Получить список всех пользователей с пагинацией.
+            Получить список всех пользователей с пагинацией. [admin only]
             </summary>
-            <param name="take">Количество получаемых пользователей.</param>
-            <param name="skip">Количество пропускаемых пользователей.</param>
+            <param name="limit">Количество получаемых пользователей.</param>
+            <param name="offset">Количество пропускаемых пользователей.</param>
             <param name="cancellation">Токен отмены.</param>
-            <returns>Коллекция элементов <see cref="T:Board.Contracts.Contexts.Users.UserSummary"/>.</returns>
+            <returns>Список пользователей.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.UsersController.GetById(System.Guid,System.Threading.CancellationToken)">
             <summary>
-            Получить пользователя по идентификатору.
+            Получить пользователя по идентификатору. [anonymous]
             </summary>
-            <param name="id">Идентификатор пользователя.</param>
+            <param name="userId">Идентификатор пользователя.</param>
             <param name="cancellation">Токен отмены.</param>
-            <returns>Элемент <see cref="!:UserDto"/>.</returns>
+            <returns>Пользователь с детальной информацией.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.UsersController.GetAdvertsByUserId(System.Guid,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Threading.CancellationToken)">
             <summary>
-            Получить обьявления пользователя с идентификатором.
+            Получить обьявления пользователя по идентификатору с пагинацией. [anonymous]
             </summary>
-            <param name="id">Идентификатор пользователя.</param>
+            <param name="userId">Идентификатор пользователя.</param>
             <param name="cancellation">Токен отмены.</param>
-            <returns>Элемент <see cref="!:UserDto"/>.</returns>
+            <returns>Список обьявлений.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.UsersController.GetCommentsByReceiverUserId(System.Guid,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Threading.CancellationToken)">
             <summary>
-            Получить обьявления пользователя с идентификатором.
+            Получить отзывы, оставленные пользователю по идентификатору с пагинацией. [anonymous]
             </summary>
-            <param name="id">Идентификатор пользователя.</param>
+            <param name="userId">Идентификатор пользователя.</param>
             <param name="cancellation">Токен отмены.</param>
-            <returns>Элемент <see cref="!:UserDto"/>.</returns>
+            <returns>Список отзывов.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.UsersController.GetCurrent(System.Threading.CancellationToken)">
             <summary>
-            Получить текущего пользователя.
+            Получить текущего пользователя. [authorize]
             </summary>
             <param name="cancellation">Токен отмены.</param>
-            <returns>Элемент <see cref="!:UserDto"/>.</returns>
+            <returns>Пользователь с детальной информацией.</returns>
         </member>
-        <member name="M:Board.Host.Api.Controllers.UsersController.Update(System.Guid,Board.Contracts.Contexts.Users.UserUpdateRequest,System.Threading.CancellationToken)">
+        <member name="M:Board.Host.Api.Controllers.UsersController.UpdateCurrent(Board.Contracts.Contexts.Users.UserUpdateRequest,System.Threading.CancellationToken)">
             <summary>
-            Изменить пользователя по идентификатору.
+            Изменить текущего пользователя. [authorize]
             </summary>
-            <param name="id">Идентификатор пользователя.</param>
+            <param name="updateRequest">Модель изменения пользователя.</param>
             <param name="cancellation">Токен отмены.</param>
+            <returns>Измененный пользователь с детальной информацией.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.UsersController.ChangeEmail(System.String,System.String,System.Threading.CancellationToken)">
             <summary>
-            Изменить пользователя по идентификатору.
+            Изменить почту. [authorize]
             </summary>
-            <param name="newEmail">Новая электронная почта пользователя.</param>
-            <param name="token">Сгенерированный токен для изменения почты пользователя.</param>
+            <param name="newEmail">Новая электронная почта.</param>
+            <param name="token">Токен для изменения почты.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
         <member name="M:Board.Host.Api.Controllers.UsersController.SendEmailTokenAsync(Board.Contracts.Contexts.Users.UserGenerateEmailTokenRequest,System.Threading.CancellationToken)">
             <summary>
-            Изменить пользователя по идентификатору.
+            Отправить токен для изменения почты. [authorize]
             </summary>
-            <param name="request">Элемент <see cref="!:UserChangeEmailDto"/>.</param>
+            <param name="request">Модель генерации и отправки токена для изменения почты.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
         <member name="M:Board.Host.Api.Controllers.UsersController.SendEmailConfirmationTokenAsync(Board.Contracts.Contexts.Users.UserGenerateEmailConfirmationTokenRequest,System.Threading.CancellationToken)">
             <summary>
-            Изменить пользователя по идентификатору.
+            Отправить токен для подтверждения почты. [authorize]
             </summary>
-            <param name="request">Элемент <see cref="!:UserChangeEmailDto"/>.</param>
+            <param name="request">Модель генерации и отправки токена для подтверждения почты.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
         <member name="M:Board.Host.Api.Controllers.UsersController.ConfirmEmail(System.String,System.String,System.Threading.CancellationToken)">
             <summary>
-            Изменить пользователя по идентификатору.
+            Подтвердить почту. [anonymous]
             </summary>
-            <param name="newEmail">Новая электронная почта пользователя.</param>
-            <param name="token">Сгенерированный токен для изменения почты пользователя.</param>
+            <param name="email">Почта пользователя.</param>
+            <param name="token">Токен для подтверждения почты пользователя.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
         <member name="M:Board.Host.Api.Controllers.UsersController.Delete(System.Guid,System.Threading.CancellationToken)">
             <summary>
-            Удалить пользователя по идентификатору.
+            Удалить пользователя по идентификатору. [authorize]
             </summary>
-            <param name="id">Идентификатор пользователя.</param>
+            <param name="userId">Идентификатор пользователя.</param>
             <param name="cancellation">Токен отмены.</param>
         </member>
         <member name="M:Board.Host.Api.Controllers.UsersController.Register(Board.Contracts.Contexts.Users.UserRegisterRequest,System.Threading.CancellationToken)">
             <summary>
-            Зарегистрировать пользователя.
+            Зарегистрировать пользователя. [anonymous]
             </summary>
-            <param name="userRegisterDto">Элемент <see cref="!:UserRegisterDto"/>.</param>
+            <param name="registerRequest">Модель регистрации пользователя.</param>
             <param name="cancellation">Токен отмены.</param>
             <returns>Идентификатор нового пользователя.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.UsersController.Login(Board.Contracts.Contexts.Users.UserLoginRequest,System.Threading.CancellationToken)">
             <summary>
-            Залогинить пользователя.
+            Залогинить пользователя. [anonymous]
             </summary>
-            <param name="userLoginDto">Элемент <see cref="!:UserLoginDto"/>.</param>
-            <param name="cancellation"></param>
-            <returns>Токен аутентификации.</returns>
-        </member>
-        <member name="M:Board.Host.Api.Controllers.UsersController.Logout(System.Threading.CancellationToken)">
-            <summary>
-            Залогинить пользователя.
-            </summary>
-            <param name="userLoginDto">Элемент <see cref="!:UserLoginDto"/>.</param>
+            <param name="loginRequest">Модель логина с почтой и паролем.</param>
             <param name="cancellation"></param>
             <returns>Токен аутентификации.</returns>
         </member>
         <member name="M:Board.Host.Api.Controllers.UsersController.Login(Board.Contracts.Contexts.Users.UserLoginRefreshRequest,System.Threading.CancellationToken)">
             <summary>
-            Залогинить пользователя.
+            Залогинить пользователя c рефреш токеном.
             </summary>
-            <param name="userLoginDto">Элемент <see cref="!:UserLoginDto"/>.</param>
+            <param name="loginRefreshRequest">Модель логина с рефреш токеном.</param>
             <param name="cancellation"></param>
             <returns>Токен аутентификации.</returns>
+        </member>
+        <member name="M:Board.Host.Api.Controllers.UsersController.Logout(System.Threading.CancellationToken)">
+            <summary>
+            Разлогинить текущего пользователя. [authorize]
+            </summary>
+            <param name="cancellation"></param>
+            <returns>Токен аутентификации.</returns>
+        </member>
+        <member name="T:Board.Host.Api.Middlewares.TokenInjectorMiddleware">
+            <summary>
+            Middleware для инжектирования токена из сессионных куков в Authorization Header.
+            </summary>
+        </member>
+        <member name="T:Board.Host.Middlewares.ErrorHandlerMiddleware">
+            <summary>
+            Middleware для отслеживания Exception.
+            </summary>
         </member>
     </members>
 </doc>

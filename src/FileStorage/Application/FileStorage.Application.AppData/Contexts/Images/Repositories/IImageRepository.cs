@@ -14,5 +14,7 @@ namespace FileStorage.Application.AppData.Contexts.Images.Repositories
         public Task<Guid> UploadAsync(string contentType, byte[] bytes, CancellationToken cancellation);
         public Task<ImageData> DownloadAsync(Guid id, CancellationToken cancellation);
         public Task DeleteAsync(Guid id, CancellationToken cancellation);
+
+        Task<bool> IsExists(Guid id, CancellationToken cancellation);
     }
 }

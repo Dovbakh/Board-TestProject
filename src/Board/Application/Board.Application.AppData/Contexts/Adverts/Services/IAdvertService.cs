@@ -17,34 +17,56 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         /// <summary>
         /// Получить все обьявления с пагинацией.
         /// </summary>
-        /// <param name="page">Номер страницы.</param>
+        /// <param name="offset">Количество пропускаемых обьявлений.</param>
+        /// <param name="limit">Количество получаемых обьявлений.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
-        Task<IReadOnlyCollection<AdvertSummary>> GetAllAsync(int? offset, int? count, CancellationToken cancellation);
+        /// <returns>Список обьявлений с краткой информацией.</returns>
+        Task<IReadOnlyCollection<AdvertSummary>> GetAllAsync(int? offset, int? limit, CancellationToken cancellation);
 
         /// <summary>
-        /// Получить все обьявления по фильтру и с пагинацией.
+        /// Получить все обьявления с пагинацией и фильтрацией.
         /// </summary>
-        /// <param name="request">Фильтр <see cref="AdvertFilterRequest"/> для поиска.</param>
+        /// <param name="request">Модель фильтрации обьявлений.</param>
+        /// <param name="offset">Количество пропускаемых обьявлений.</param>
+        /// <param name="limit">Количество получаемых обьявлений.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <param name="page">Номер страницы.</param>
-        /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
-        Task<IReadOnlyCollection<AdvertSummary>> GetAllFilteredAsync(AdvertFilterRequest request, int? offset, int? count, CancellationToken cancellation);
+        /// <returns>Список обьявлений с краткой информацией.</returns>
+        Task<IReadOnlyCollection<AdvertSummary>> GetAllFilteredAsync(AdvertFilterRequest request, int? offset, int? limit, CancellationToken cancellation);
 
         /// <summary>
         /// Получить обьявление по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор обьявления.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Элемент <see cref="AdvertDetails"/>.</returns>
-        Task<AdvertDetails> GetByIdAsync(Guid id, CancellationToken cancellation);
+        /// <returns>Обьявление с детальной информацией.</returns>
+        Task<AdvertDetails> GetByIdAsync(Guid advertId, CancellationToken cancellation);
 
-        Task<IReadOnlyCollection<CommentDetails>> GetCommentsByAdvertIdAsync(Guid id, int? offset, int? limit, CancellationToken cancellation);
+        /// <summary>
+        /// Получить отзывы, оставленные к обьявлению с пагинацией.
+        /// </summary>
+        /// <param name="advertId">Идентификатор обьявления.</param>
+        /// <param name="offset">Количество пропускаемых отзывов.</param>
+        /// <param name="limit">Количество получаемых отзывов.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        /// <returns>Список отзывов.</returns>
+        Task<IReadOnlyCollection<CommentDetails>> GetCommentsByAdvertIdAsync(Guid advertId, int? offset, int? limit, CancellationToken cancellation);
+
+        /// <summary>
+        /// Получить отзывы, оставленные к обьявлению с пагинацией и фильтрацией.
+        /// </summary>
+        /// <param name="filterRequest">Модель фильтрации отзывов.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
+        /// <param name="offset">Количество пропускаемых отзывов.</param>
+        /// <param name="limit">Количество получаемых отзывов.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        /// <returns>Список отзывов.</returns>
+        Task<IReadOnlyCollection<CommentDetails>> GetFilteredCommentsByAdvertIdAsync(Guid advertId, CommentFilterRequest filterRequest, int? offset, int? limit,
+            CancellationToken cancellation);
 
         /// <summary>
         /// Добавить новое обьявление.
         /// </summary>
-        /// <param name="addRequest">Элемент <see cref="AdvertAddRequest"/>.</param>
+        /// <param name="addRequest">Модель добавления нового обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор нового обьявления.</returns>
         Task<Guid> CreateAsync(AdvertAddRequest addRequest, CancellationToken cancellation);
@@ -52,19 +74,25 @@ namespace Board.Application.AppData.Contexts.Adverts.Services
         /// <summary>
         /// Изменить обьявление.
         /// </summary>
-        /// <param name="id">Идентификатор обьявления.</param>
-        /// <param name="updateRequest">Элемент <see cref="AdvertUpdateRequest"/>.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
+        /// <param name="updateRequest">Модель изменения обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        Task<AdvertDetails> UpdateAsync(Guid id, AdvertUpdateRequest updateRequest, CancellationToken cancellation);
+        /// <returns>Измененное обьявление с детальной информацией.</returns>
+        Task<AdvertDetails> UpdateAsync(Guid advertId, AdvertUpdateRequest updateRequest, CancellationToken cancellation);
 
         /// <summary>
         /// Удалить обьявление.
         /// </summary>
-        /// <param name="id">Идентификатор обьявления.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        Task DeleteAsync(Guid id, CancellationToken cancellation);
+        Task DeleteAsync(Guid advertId, CancellationToken cancellation);
 
-        Task SoftDeleteAsync(Guid id, CancellationToken cancellation);
+        /// <summary>
+        /// Удалить обьявление, сделав его неактивным.
+        /// </summary>
+        /// <param name="advertId">Идентификатор обьявления.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        Task SoftDeleteAsync(Guid advertId, CancellationToken cancellation);
     }
 
 }

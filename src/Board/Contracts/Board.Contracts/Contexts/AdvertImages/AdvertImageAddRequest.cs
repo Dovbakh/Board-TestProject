@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.AdvertImages
 {
+    /// <summary>
+    /// Модель добавления записи отношения изображения к обьявлению.
+    /// </summary>
     public class AdvertImageAddRequest
     {
         /// <summary>
@@ -14,7 +17,7 @@ namespace Board.Contracts.Contexts.AdvertImages
         public Guid AdvertId { get; set; }
 
         /// <summary>
-        /// Идентификатор обьявления.
+        /// Идентификатор изображения.
         /// </summary>
         public Guid ImageId { get; set; }
     }

@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
 {
+    /// <summary>
+    /// Профиль AutoMapper для работы с AdvertImage
+    /// </summary>
     public class AdvertImageProfile : Profile
     {
         public AdvertImageProfile()
@@ -18,6 +21,7 @@ namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
                 .ForMember(a => a.IsActive, map => map.MapFrom(s => true))
                 .ForMember(a => a.CreatedAt, map => map.MapFrom(s => DateTime.UtcNow))
                 .ForMember(a => a.Advert, map => map.Ignore());
+
             CreateMap<AdvertImage, AdvertImageDto>();
         }
     }

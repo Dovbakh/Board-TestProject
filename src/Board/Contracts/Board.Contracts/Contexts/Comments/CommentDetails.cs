@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Comments
 {
+    /// <summary>
+    /// Модель отзыва.
+    /// </summary>
     public class CommentDetails
     {
         /// <summary>

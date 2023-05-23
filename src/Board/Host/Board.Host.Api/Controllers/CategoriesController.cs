@@ -11,7 +11,6 @@ namespace Board.Host.Api.Controllers
     /// <summary>
     /// Контроллер для работы с категориями.
     /// </summary>
-    /// <response code="500">Произошла внутренняя ошибка.</response>
     [ApiController]
     [Route("v2/[controller]")]
     [Produces("application/json")]
@@ -21,7 +20,7 @@ namespace Board.Host.Api.Controllers
         private readonly ICategoryService _categoryService;
 
         /// <summary>
-        /// Работа с категориями.
+        /// Конструктор для контроллеры работы с категориями.
         /// </summary>
         /// <param name="categoryService">Сервис категорий.</param>
         public CategoriesController(ICategoryService categoryService)
@@ -30,11 +29,10 @@ namespace Board.Host.Api.Controllers
         }
 
         /// <summary>
-        /// Получить список всех категорий.
+        /// Получить список всех категорий. [anonymous]
         /// </summary>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <response code="200">Запрос выполнен успешно.</response>
-        /// <returns>Список моделей категорий <see cref="CategorySummary"/>.</returns>
+        /// <returns>Список категорий.</returns>
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<IReadOnlyCollection<CategorySummary>>> GetAll(CancellationToken cancellation)
@@ -45,31 +43,26 @@ namespace Board.Host.Api.Controllers
         }
 
         /// <summary>
-        /// Получить категорию по идентификатору.
+        /// Получить категорию по идентификатору. [anonymous]
         /// </summary>
-        /// <param name="id">Идентификатор.</param>
+        /// <param name="categoryId">Идентификатор.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <response code="200">Запрос выполнен успешно.</response>
-        /// <response code="404">Категория с указанным идентификатором не найдена.</response>
-        /// <returns>Модель категории <see cref="CategoryDetails"/>.</returns>
-        [HttpGet("{id:Guid}")]
+        /// <returns>Категория.</returns>
+        [HttpGet("{categoryId:Guid}")]
         [AllowAnonymous]
-        public async Task<ActionResult<CategoryDetails>> GetById(Guid id, CancellationToken cancellation)
+        public async Task<ActionResult<CategoryDetails>> GetById(Guid categoryId, CancellationToken cancellation)
         {
-            var result = await _categoryService.GetByIdAsync(id, cancellation);
+            var result = await _categoryService.GetByIdAsync(categoryId, cancellation);
 
             return Ok(result);
         }
 
 
         /// <summary>
-        /// Создать новую категорию.
+        /// Создать новую категорию. [admin]
         /// </summary>
         /// <param name="createRequest">Модель запроса создания категории <see cref="CategoryAddRequest"/>.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <response code="201">Категория успешно создана.</response>
-        /// <response code="400">Модель данных запроса невалидна.</response>
-        /// <response code="422">Произошёл конфликт бизнес-логики.</response>
         /// <returns>Идентификатор новой категории.</returns>
         [HttpPost]
         [Authorize(Policy = "AdminOnly")]
@@ -81,39 +74,31 @@ namespace Board.Host.Api.Controllers
         }
 
         /// <summary>
-        /// Обновить категорию.
+        /// Обновить категорию. [admin]
         /// </summary>
-        /// <param name="id">Идентификатор.</param>
-        /// <param name="updateRequest">Модель запроса обновления категории <see cref="CategoryUpdateRequest"/>.</param>
+        /// <param name="categoryId">Идентификатор.</param>
+        /// <param name="updateRequest">Модель запроса обновления категории.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <response code="200">Запрос выполнен успешно.</response>
-        /// <response code="400">Модель данных запроса невалидна.</response>
-        /// <response code="403">Доступ запрещён.</response>
-        /// <response code="404">Категория с указанным идентификатором не найдена.</response>
-        /// <response code="422">Произошёл конфликт бизнес-логики.</response>
-        /// <returns>Модель обновленной категории <see cref="CategoryDetails"/>.</returns>
-        [HttpPut("{id:Guid}")]
+        /// <returns>Обновленная категория.</returns>
+        [HttpPut("{categoryId:Guid}")]
         [Authorize(Policy = "AdminOnly")]
-        public async Task<ActionResult<CategoryDetails>> Update(Guid id, [FromBody] CategoryUpdateRequest updateRequest, CancellationToken cancellation)
+        public async Task<ActionResult<CategoryDetails>> Update(Guid categoryId, [FromBody] CategoryUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            var result = await _categoryService.UpdateAsync(id, updateRequest, cancellation);
+            var result = await _categoryService.UpdateAsync(categoryId, updateRequest, cancellation);
 
             return Ok(result);
         }
 
         /// <summary>
-        /// Удалить категорию по идентификатору.
+        /// Удалить категорию по идентификатору. [admin]
         /// </summary>
-        /// <param name="id">Идентификатор.</param>
+        /// <param name="categoryId">Идентификатор.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <response code="204">Запрос выполнен успешно.</response>
-        /// <response code="403">Доступ запрещён.</response>
-        /// <response code="404">Категория с указанным идентификатором не найдена.</response>
-        [HttpDelete("{id:Guid}")]
+        [HttpDelete("{categoryId:Guid}")]
         [Authorize(Policy = "AdminOnly")]
-        public async Task<IActionResult> DeleteById(Guid id, CancellationToken cancellation)
+        public async Task<IActionResult> DeleteById(Guid categoryId, CancellationToken cancellation)
         {
-            await _categoryService.DeleteAsync(id, cancellation);
+            await _categoryService.DeleteAsync(categoryId, cancellation);
 
             return NoContent();
         }

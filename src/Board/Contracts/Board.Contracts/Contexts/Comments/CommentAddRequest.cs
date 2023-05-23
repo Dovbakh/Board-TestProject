@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Comments
 {
+    /// <summary>
+    /// Модель добавления отзыва.
+    /// </summary>
     public class CommentAddRequest
     {
         /// <summary>

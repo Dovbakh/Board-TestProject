@@ -58,30 +58,6 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertFavorites.Repositories
                 .ToListAsync(cancellation);
         }
 
-        /// <inheritdoc />
-        //public async Task<IReadOnlyCollection<AdvertSummary>> GetAdvertsByUserIdAsync(Guid userId, int limit, int offset, CancellationToken cancellation)
-        //{
-        //    _logger.LogInformation("{0}:{1} -> Получение списка избранных обьявлений пользователя с ID: {2}",
-        //        nameof(AdvertFavoriteRepository), nameof(GetIdsByUserIdAsync), userId);
-
-        //    var adverts = await _repository.GetAll()
-        //        .Where(a => a.UserId == userId)
-        //        .Include(a => a.Advert)
-        //        .Select(a => a.AdvertId)
-        //        .ToListAsync(cancellation);
-
-
-        //    var adverts = await _repository.GetAll()
-        //        .Where(a => a.UserId == userId)
-        //        .OrderByDescending(a => a.CreatedAt)
-        //        .Skip(offset)
-        //        .Take(limit)
-        //        .Include(a => a.AdvertImages)
-        //        .ProjectTo<AdvertSummary>(_mapper.ConfigurationProvider)
-        //        .ToListAsync(cancellation);
-
-        //    return adverts;
-        //}
 
         /// <inheritdoc />
         public async Task<Guid> AddIfNotExistsAsync(Guid advertId, Guid userId, CancellationToken cancellation)
@@ -135,7 +111,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertFavorites.Repositories
             await _repository.DeleteAsync(advertFavorite, cancellation);
         }
 
-
+        /// <inheritdoc />
         public void AddToCookieIfNotExists(Guid advertId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Добавление обьявления c ID: {2} в избранное в cookie анонимного пользователя.",
@@ -160,6 +136,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertFavorites.Repositories
             _contextAccessor.HttpContext.Response.Cookies.Append(_cookieOptions.AnonymousFavoriteKey, JsonConvert.SerializeObject(advertFavoriteIds));
         }
 
+        /// <inheritdoc />
         public void DeleteFromCookie(Guid advertId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Удаление обьявления с ID: {2} из cookie из избранного анонимного пользователя.",
@@ -179,6 +156,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.AdvertFavorites.Repositories
             _contextAccessor.HttpContext.Response.Cookies.Append(_cookieOptions.AnonymousFavoriteKey, JsonConvert.SerializeObject(advertFavoriteIds));
         }
 
+        /// <inheritdoc />
         public List<Guid> GetIdsFromCookie(CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение списка избранных обьявлений из cookie анонимного пользователя.",

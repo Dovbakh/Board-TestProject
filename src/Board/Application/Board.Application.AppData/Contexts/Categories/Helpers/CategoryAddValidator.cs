@@ -8,8 +8,14 @@ using System.Threading.Tasks;
 
 namespace Board.Application.AppData.Contexts.Categories.Helpers
 {
+    /// <summary>
+    /// Валидатор модели добавления категории.
+    /// </summary>
     public class CategoryAddValidator : AbstractValidator<CategoryAddRequest>
     {
+        /// <summary>
+        /// Правила валидации модели добавления категории.
+        /// </summary>
         public CategoryAddValidator()
         {
             RuleFor(x => x.Name)

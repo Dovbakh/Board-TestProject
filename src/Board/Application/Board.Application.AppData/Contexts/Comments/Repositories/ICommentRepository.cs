@@ -8,59 +8,78 @@ using System.Threading.Tasks;
 namespace Board.Application.AppData.Contexts.Comments.Repositories
 {
     /// <summary>
-    /// Репозиторий чтения/записи для работы с категориями.
+    /// Репозиторий для работы с отзывами.
     /// </summary>
     public interface ICommentRepository
     {
         /// <summary>
-        /// Получить комментарий по идентификатору.
+        /// Получить отзыв по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор комментария.</param>
+        /// <param name="commentId">Идентификатор отзыва.</param>
         /// <param name="cancellation">Токен отмены</param>
-        /// <returns>Элемент <see cref="CommentDetails"/>.</returns>
-        Task<CommentDetails> GetByIdAsync(Guid id, CancellationToken cancellation);
+        /// <returns>Отзыв.</returns>
+        Task<CommentDetails> GetByIdAsync(Guid commentId, CancellationToken cancellation);
 
         /// <summary>
-        /// Получить все комментарии c пагинацией.
+        /// Получить все отзывы c пагинацией.
         /// </summary>
-        /// <param name="filterRequest">Фильтр для поиска.</param>
+        /// <param name="offset">Количество пропускаемых отзывов.</param>
+        /// <param name="limit">Количество получаемых отзывов.</param>
         /// <param name="cancellation">Токен отмены</param>
-        /// <returns>Элемент <see cref="CommentDetails"/>.</returns>
+        /// <returns>Список отзывов.</returns>
         Task<IReadOnlyCollection<CommentDetails>> GetAllAsync(int offset, int limit, CancellationToken cancellation);
 
         /// <summary>
-        /// Получить все комментарии по фильтру с пагинацией.
+        /// Получить все отзывы c пагинацией и фильтрацией.
         /// </summary>
-        /// <param name="filterRequest">Фильтр для поиска.</param>
+        /// <param name="filterRequest">Модель фильтрации отзывов.</param>
+        /// <param name="offset">Количество пропускаемых отзывов.</param>
+        /// <param name="limit">Количество получаемых отзывов.</param>
         /// <param name="cancellation">Токен отмены</param>
-        /// <returns>Элемент <see cref="CommentDetails"/>.</returns>
+        /// <returns>Список отзывов.</returns>
         Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int offset, int limit, CancellationToken cancellation);
 
+        /// <summary>
+        /// Получить средний рейтинг отзывов, оставленных пользователю.
+        /// </summary>
+        /// <param name="userId">Идентификатор пользователя.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        /// <returns>Средний рейтинг отзывов.</returns>
         Task<float> GetUserRatingAsync(Guid userId, CancellationToken cancellation);
 
+        /// <summary>
+        /// Получить идентификатор пользователя, оставившего отзыв.
+        /// </summary>
+        /// <param name="commentId"></param>
+        /// <param name="cancellation"></param>
+        /// <returns>Идентификатор пользователя.</returns>
         Task<Guid> GetUserIdAsync(Guid commentId, CancellationToken cancellation);
 
         /// <summary>
-        /// Добавить новую комментарий.
+        /// Добавить новый отзыв.
         /// </summary>
-        /// <param name="addRequest">Элемент <see cref="CommentAddRequest"/>.</param>
+        /// <param name="addRequest">Модель добавления отзыва.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Идентификатор новой комментария.</returns>
+        /// <returns>Идентификатор нового отзыва.</returns>
         Task<Guid> AddIfNotExistsAsync(CommentAddRequest addRequest, CancellationToken cancellation);
 
         /// <summary>
-        /// Изменить комментарий.
+        /// Изменить отзыв.
         /// </summary>
-        /// <param name="id">Идентификатор комментария.</param>
-        /// <param name="updateRequest">Элемент <see cref="CommentUpdateRequest"/>.</param>
-        Task<CommentDetails> UpdateAsync(Guid id, CommentUpdateRequest updateRequest, CancellationToken cancellation);
+        /// <param name="commentId">Идентификатор отзыва.</param>
+        /// <param name="updateRequest">Модель изменения отзыва.</param>
+        Task<CommentDetails> UpdateAsync(Guid commentId, CommentUpdateRequest updateRequest, CancellationToken cancellation);
 
         /// <summary>
-        /// Удалить комментарий.
+        /// Удалить отзыв.
         /// </summary>
-        /// <param name="id">Идентификатор комментария.</param>
-        Task DeleteAsync(Guid id, CancellationToken cancellation);
+        /// <param name="commentId">Идентификатор отзыва.</param>
+        Task DeleteAsync(Guid commentId, CancellationToken cancellation);
 
+        /// <summary>
+        /// Удалить отзыв, сделав его неактивным.
+        /// </summary>
+        /// <param name="commentId">Идентификатор отзыва.</param>
         Task SoftDeleteAsync(Guid commentId, CancellationToken cancellation);
     }
 }

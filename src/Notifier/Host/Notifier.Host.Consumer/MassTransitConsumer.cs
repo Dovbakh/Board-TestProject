@@ -7,18 +7,18 @@ namespace Notifier.Host.Consumer
 {
     public class MassTransitConsumer : IConsumer<NotificationDetails>
     {
-        private readonly INotificationService _messageService;
+        private readonly INotificationService _notificationService;
 
-        public MassTransitConsumer(INotificationService messageService)
+        public MassTransitConsumer(INotificationService notificationService)
         {
-            _messageService = messageService;
+            _notificationService = notificationService;
         }
 
         public async Task Consume(ConsumeContext<NotificationDetails> context)
         {
             var message = context.Message;
             await Console.Out.WriteLineAsync($"Message from Producer : {message.Body}, {message.Receiver}");
-            await _messageService.SendAsync(context.Message, context.CancellationToken);        
+            await _notificationService.SendAsync(context.Message, context.CancellationToken);        
         }
     }
 }

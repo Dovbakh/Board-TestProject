@@ -9,6 +9,9 @@ using System.Xml.Linq;
 
 namespace Board.Contracts.Contexts.Adverts
 {
+    /// <summary>
+    /// Модель фильтрации обьявления.
+    /// </summary>
     public class AdvertFilterRequest
     {
         /// <summary>

@@ -7,12 +7,24 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Users
 {
+    /// <summary>
+    /// Модель с детальной информацией о пользователе.
+    /// </summary>
     public class UserDetails
     {
+        /// <summary>
+        /// Идентификатор пользователя.
+        /// </summary>
         public Guid? Id { get; set; }
 
+        /// <summary>
+        /// Почта пользователя.
+        /// </summary>
         public string? UserName { get; set; }
 
+        /// <summary>
+        /// Рейтинг пользователя.
+        /// </summary>
         public float Rating { get; set; }
 
         // <summary>
@@ -30,6 +42,9 @@ namespace Board.Contracts.Contexts.Users
         /// </summary>
         public DateTime CreatedAt { get; set; }
 
+        /// <summary>
+        /// Фото пользователя.
+        /// </summary>
         public Guid? PhotoId { get; set; }
 
     }

@@ -59,9 +59,9 @@ namespace Board.Application.AppData.Contexts.Comments.Services
 
 
         /// <inheritdoc />
-        public Task<IReadOnlyCollection<CommentDetails>> GetAllAsync(int? offset, int? count, CancellationToken cancellation)
+        public async Task<IReadOnlyCollection<CommentDetails>> GetAllAsync(int? offset, int? count, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0}:{1} -> Получение всех комментариев c параметрами {2}: {3}, {4}: {5}", 
+            _logger.LogInformation("{0}:{1} -> Получение всех отзывов c параметрами {2}: {3}, {4}: {5}", 
                 nameof(CommentService), nameof(GetAllAsync), nameof(offset), offset, nameof(count), count);
 
             if (!count.HasValue)
@@ -69,15 +69,15 @@ namespace Board.Application.AppData.Contexts.Comments.Services
                 count = _commentOptions.ListDefaultCount;
             }
 
-            var comments = _commentRepository.GetAllAsync(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
+            var comments = await _commentRepository.GetAllAsync(offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
 
             return comments;
         }
 
         /// <inheritdoc />
-        public Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int? offset, int? count, CancellationToken cancellation)
+        public async Task<IReadOnlyCollection<CommentDetails>> GetAllFilteredAsync(CommentFilterRequest filterRequest, int? offset, int? count, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0}:{1} -> Получение всех комментариев по фильтру c параметрами {2}: {3}, {4}: {5}, {6}: {7}.",
+            _logger.LogInformation("{0}:{1} -> Получение всех отзывов по фильтру c параметрами {2}: {3}, {4}: {5}, {6}: {7}.",
                 nameof(CommentService), nameof(GetAllFilteredAsync), nameof(offset), offset, nameof(count), count, nameof(CommentFilterRequest), 
                 JsonConvert.SerializeObject(filterRequest));
 
@@ -86,21 +86,21 @@ namespace Board.Application.AppData.Contexts.Comments.Services
                 count = _commentOptions.ListDefaultCount;
             }
 
-            var comments =  _commentRepository.GetAllFilteredAsync(filterRequest, offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
+            var comments =  await _commentRepository.GetAllFilteredAsync(filterRequest, offset.GetValueOrDefault(), count.GetValueOrDefault(), cancellation);
 
             return comments;
         }
 
         /// <inheritdoc />
-        public Task<CommentDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
+        public async Task<CommentDetails> GetByIdAsync(Guid commentId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0}:{1} -> Получение комментария с ID: {2}",
-                nameof(CommentService), nameof(GetByIdAsync), id);
+            _logger.LogInformation("{0}:{1} -> Получение отзыва с ID: {2}",
+                nameof(CommentService), nameof(GetByIdAsync), commentId);
 
-            var comment = _commentRepository.GetByIdAsync(id, cancellation);
+            var comment = await _commentRepository.GetByIdAsync(commentId, cancellation);
             if (comment == null)
             {
-                throw new KeyNotFoundException($"Не найден комментарий с ID: {id} ");
+                throw new KeyNotFoundException($"Не найден отзыв с ID: {commentId} ");
             }
 
             return comment;
@@ -109,7 +109,7 @@ namespace Board.Application.AppData.Contexts.Comments.Services
         /// <inheritdoc />
         public async Task<Guid> CreateAsync(CommentAddRequest addRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0}:{1} -> Создание комментария из модели {2}: {3}",
+            _logger.LogInformation("{0}:{1} -> Создание отзыва из модели {2}: {3}",
                 nameof(CommentService), nameof(CreateAsync), nameof(CategoryAddRequest), JsonConvert.SerializeObject(addRequest));
 
             await _commentAddValidator.ValidateAndThrowAsync(addRequest, cancellation);
@@ -134,49 +134,49 @@ namespace Board.Application.AppData.Contexts.Comments.Services
         }
 
         /// <inheritdoc />
-        public async Task<CommentDetails> UpdateAsync(Guid id, CommentUpdateRequest updateRequest, CancellationToken cancellation)
+        public async Task<CommentDetails> UpdateAsync(Guid commentId, CommentUpdateRequest updateRequest, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0}:{1} -> Обновление комментария c ID: {2} из модели {3}: {4}",
-                nameof(CommentService), nameof(UpdateAsync), id, nameof(CategoryUpdateRequest), JsonConvert.SerializeObject(updateRequest));
+            _logger.LogInformation("{0}:{1} -> Обновление отзыва c ID: {2} из модели {3}: {4}",
+                nameof(CommentService), nameof(UpdateAsync), commentId, nameof(CategoryUpdateRequest), JsonConvert.SerializeObject(updateRequest));
 
             await _commentUpdateValidator.ValidateAndThrowAsync(updateRequest, cancellation);
 
 
-            var commentUserId = await _commentRepository.GetUserIdAsync(id, cancellation);
+            var commentUserId = await _commentRepository.GetUserIdAsync(commentId, cancellation);
             var currentUserId = _userService.GetCurrentId(cancellation);
             if (commentUserId != currentUserId)
             {
-                throw new ForbiddenException($"Нет доступа для обновления данного комментария.");
+                throw new ForbiddenException($"Нет доступа для обновления данного отзыва.");
             }
 
-            var updatedComment = await _commentRepository.UpdateAsync(id, updateRequest, cancellation);
+            var updatedComment = await _commentRepository.UpdateAsync(commentId, updateRequest, cancellation);
 
             return updatedComment;
         }
 
         /// <inheritdoc />
-        public async Task SoftDeleteAsync(Guid id, CancellationToken cancellation)
+        public async Task SoftDeleteAsync(Guid commentId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0}:{1} -> Мягкое удаление комментария с ID: {2}",
-                nameof(CommentService), nameof(SoftDeleteAsync), id);
+            _logger.LogInformation("{0}:{1} -> Мягкое удаление отзыва с ID: {2}",
+                nameof(CommentService), nameof(SoftDeleteAsync), commentId);
 
-            var commentUserId = await _commentRepository.GetUserIdAsync(id, cancellation);
+            var commentUserId = await _commentRepository.GetUserIdAsync(commentId, cancellation);
             var currentUserId = _userService.GetCurrentId(cancellation);
             if (commentUserId != currentUserId)
             {
-                throw new ForbiddenException($"Нет доступа для удаления данного комментария.");
+                throw new ForbiddenException($"Нет доступа для удаления данного отзыва.");
             }
 
-            await _commentRepository.SoftDeleteAsync(id, cancellation);
+            await _commentRepository.SoftDeleteAsync(commentId, cancellation);
         }
 
         /// <inheritdoc />
-        public async Task DeleteAsync(Guid id, CancellationToken cancellation)
+        public async Task DeleteAsync(Guid commentId, CancellationToken cancellation)
         {
-            _logger.LogInformation("{0}:{1} -> Удаление комментария с ID: {2}",
-                nameof(CommentService), nameof(SoftDeleteAsync), id);
+            _logger.LogInformation("{0}:{1} -> Удаление отзыва с ID: {2}",
+                nameof(CommentService), nameof(SoftDeleteAsync), commentId);
 
-            await _commentRepository.DeleteAsync(id, cancellation);
+            await _commentRepository.DeleteAsync(commentId, cancellation);
         }
     }
 }

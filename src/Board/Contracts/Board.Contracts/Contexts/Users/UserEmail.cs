@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Users
 {
+    /// <summary>
+    /// Модель с почтой пользователя.
+    /// </summary>
     public class UserEmail
     {
+        /// <summary>
+        /// Почта.
+        /// </summary>
         public string Value { get; set; }
     }
 }

@@ -57,15 +57,15 @@ namespace Board.Application.AppData.Contexts.Categories.Services
         }
 
         /// <inheritdoc />
-        public async Task<CategoryDetails> GetByIdAsync(Guid id, CancellationToken cancellation)
+        public async Task<CategoryDetails> GetByIdAsync(Guid categoryId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение категории по ID: {2} ",
-                nameof(CategoryService), nameof(GetByIdAsync), id);
+                nameof(CategoryService), nameof(GetByIdAsync), categoryId);
 
-            var category = await _categoryRepository.GetByIdAsync(id, cancellation);
+            var category = await _categoryRepository.GetByIdAsync(categoryId, cancellation);
             if(category == null) 
             {
-                throw new KeyNotFoundException($"Не найдена категория с ID: {id} ");
+                throw new KeyNotFoundException($"Не найдена категория с ID: {categoryId} ");
             }
 
             return category;

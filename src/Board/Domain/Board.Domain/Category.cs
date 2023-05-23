@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Board.Domain
 {
+    /// <summary>
+    /// Категория.
+    /// </summary>
     public class Category
     {
         /// <summary>
@@ -38,8 +41,14 @@ namespace Board.Domain
         /// </summary>
         public ICollection<Advert> Adverts { get; set; }
 
+        /// <summary>
+        /// Статус категории.
+        /// </summary>
         public bool IsActive { get; set; }
 
+        /// <summary>
+        /// Дата создания категории.
+        /// </summary>
         public DateTime CreatedAt { get; set; }
     }
 }

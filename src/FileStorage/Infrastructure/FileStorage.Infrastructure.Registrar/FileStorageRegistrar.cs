@@ -24,27 +24,18 @@ namespace FileStorage.Infrastructure.Registrar
         public static IServiceCollection AddServiceRegistrationModule(this IServiceCollection services)
         {
             services.AddScoped<IImageRepository, ImageRepository>();
-
             services.AddScoped<IImageService, ImageService>();
 
-            services.AddScoped<IObjectStorage, MinioStorage>();
-
+            
             services.AddSingleton<IMapper>(new Mapper(GetMapperConfiguration()));
-
             services.AddValidatorsFromAssembly(typeof(ImageUploadValidator).Assembly);
 
 
-            //services.AddScoped<IObjectStorage, MinioStorage>(services =>
-            //{
-            //    return services.GetRequiredService<MinioStorageConfiguration>().Configure();
-            //});
-
+            services.AddScoped<IObjectStorage, MinioStorage>();
             services.AddScoped<MinioClientConfiguration>();
-
             services.AddOptions<MinioClientOptions>()
                 .BindConfiguration("MinioServer")
                 .ValidateOnStart();
-
             services.AddScoped<MinioClient>(services =>
             {
                 return services.GetRequiredService<MinioClientConfiguration>().Configure();
@@ -54,16 +45,6 @@ namespace FileStorage.Infrastructure.Registrar
             return services;
         }
 
-        //public static ConfigureHostBuilder AddCustomLogger(this ConfigureHostBuilder hostBuilder, ConfigurationManager configuration)
-        //{
-        //    hostBuilder.UseSerilog((context, services, configuration) =>
-        //        configuration.ReadFrom.Configuration(context.Configuration)
-        //        .Enrich.FromLogContext()
-        //        .WriteTo.Console()
-        //        .WriteTo.Seq("http://localhost:5345"));
-
-        //    return hostBuilder;
-        //}
 
         private static MapperConfiguration GetMapperConfiguration()
         {

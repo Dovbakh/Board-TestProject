@@ -61,7 +61,7 @@ namespace Identity.Infrastructure.Registrar
 
             services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = configuration.GetSection("RedisCache").GetRequiredSection("Host").Value;
+                options.Configuration = configuration.GetSection("RedisCache").GetRequiredSection("HostParams").Value;
                 options.InstanceName = configuration.GetSection("RedisCache").GetRequiredSection("InstanceName").Value;
 
             });
@@ -71,7 +71,7 @@ namespace Identity.Infrastructure.Registrar
             services.AddSingleton<IDistributedLockFactory, RedLockFactory>(x =>
                 RedLockFactory.Create(new List<RedLockMultiplexer>
                 {
-                    ConnectionMultiplexer.Connect("localhost:6379")
+                    ConnectionMultiplexer.Connect(configuration["RedisCache:HostPort"])
                 }));
 
 
@@ -116,20 +116,20 @@ namespace Identity.Infrastructure.Registrar
             return services;
         }
 
-        public static IServiceCollection AddAuthenticationServices(this IServiceCollection services)
+        public static IServiceCollection AddAuthenticationServices(this IServiceCollection services, ConfigurationManager configuration)
         {
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)            
                 .AddIdentityServerAuthentication(options =>
                 {
-                    options.Authority = "https://localhost:7157";
+                    options.Authority = configuration["IdentityServer:Address"];
                     options.RequireHttpsMetadata = false;
 
                 })
                 .AddGoogle(options =>
                 {
                     options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
-                    options.ClientId = "914154221715-a1cbcguiqj50g0kaminlqarpcj5uru3i.apps.googleusercontent.com";
-                    options.ClientSecret = "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";
+                    options.ClientId = configuration["GoogleAuth:ClientId"];
+                    options.ClientSecret = configuration["GoogleAuth:ClientSecret"];
                 }); 
 
             services.AddAuthorization(options =>
@@ -145,11 +145,11 @@ namespace Identity.Infrastructure.Registrar
         }
         public static ConfigureHostBuilder AddCustomLogger(this ConfigureHostBuilder hostBuilder, ConfigurationManager configuration)
         {
-            hostBuilder.UseSerilog((context, services, configuration) =>
-                configuration.ReadFrom.Configuration(context.Configuration)
+            hostBuilder.UseSerilog((context, services, cfg) =>
+                cfg.ReadFrom.Configuration(context.Configuration)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
-                .WriteTo.Seq("http://localhost:5345"));
+                .WriteTo.Seq(configuration["Seq:Address"]));
 
             return hostBuilder;
         }

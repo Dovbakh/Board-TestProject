@@ -9,49 +9,77 @@ using System.Threading.Tasks;
 namespace Board.Application.AppData.Contexts.Adverts.Repositories
 {
     /// <summary>
-    /// Репозиторий чтения/записи для работы с обьявлениями.
+    /// Репозиторий для работы с обьявлениями.
     /// </summary>
     public interface IAdvertRepository
     {
         /// <summary>
         /// Получить все обьявления с пагинацией.
         /// </summary>
-        /// <param name="take">Количество получаемых обьявлений.</param>
-        /// <param name="skip">Количество пропускаемых обьявлений.</param>
+        /// <param name="offset">Количество пропускаемых обьявлений.</param>
+        /// <param name="limit">Количество получаемых обьявлений.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns>Коллекция элементов <see cref="AdvertSummary"/>.</returns>
-        Task<IReadOnlyCollection<AdvertSummary>> GetAllAsync(int offset, int count, CancellationToken cancellation);
+        /// <returns>Список обьявлений с краткой информацией.</returns>
+        Task<IReadOnlyCollection<AdvertSummary>> GetAllAsync(int offset, int limit, CancellationToken cancellation);
 
         /// <summary>
-        /// Получить все обьявления по фильтру и с пагинацией.
+        /// Получить все обьявления с пагинацией и фильтрацией.
         /// </summary>
-        /// <param name="filter">Фильтр <see cref="AdvertFilterRequest"/> для поиска.</param>
-        /// <param name="take">Количество получаемых обьявлений.</param>
-        /// <param name="skip">Количество пропускаемых обьявлений.</param>
+        /// <param name="request">Модель фильтрации обьявлений.</param>
+        /// <param name="offset">Количество пропускаемых обьявлений.</param>
+        /// <param name="limit">Количество получаемых обьявлений.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        /// <returns></returns>
+        /// <returns>Список обьявлений с краткой информацией.</returns>
         Task<IReadOnlyCollection<AdvertSummary>> GetAllFilteredAsync(AdvertFilterRequest filter, int offset, int count, CancellationToken cancellation);
 
+        /// <summary>
+        /// Получить все обьявления с идентификаторами из списка с пагинацией.
+        /// </summary>
+        /// <param name="advertIds">Список идентификаторов обьявлений.</param>
+        /// <param name="offset">Количество пропускаемых обьявлений.</param>
+        /// <param name="limit">Количество получаемых обьявлений.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        /// <returns>Список обьявлений с краткой информацией.</returns>
         Task<IReadOnlyCollection<AdvertSummary>> GetByListIdAsync(List<Guid> advertIds, int offset, int limit, CancellationToken cancellation);
 
+        /// <summary>
+        /// Получить все избранные обьявления пользователя с пагинацией.
+        /// </summary>
+        /// <param name="userId">Идентификатор пользователя.</param>
+        /// <param name="offset">Количество пропускаемых обьявлений.</param>
+        /// <param name="limit">Количество получаемых обьявлений.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        /// <returns>Список обьявлений с краткой информацией.</returns>
         Task<IReadOnlyCollection<AdvertSummary>> GetFavoritesByUserIdAsync(Guid userId, int offset, int limit, CancellationToken cancellation);
 
         /// <summary>
         /// Получить обьявление по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор обьявления.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены</param>
-        /// <returns>Элемент <see cref="AdvertDetails"/>.</returns>
-        Task<AdvertDetails> GetByIdAsync(Guid id, CancellationToken cancellation);
+        /// <returns>Обьявление с детальной информацией.</returns>
+        Task<AdvertDetails> GetByIdAsync(Guid advertId, CancellationToken cancellation);
 
+        /// <summary>
+        /// Получить идентификатор пользователя, создавшего обьявление.
+        /// </summary>
+        /// <param name="advertId">Идентификатор обьявления.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        /// <returns>Идентификатор пользователя.</returns>
         Task<Guid> GetUserIdAsync(Guid advertId, CancellationToken cancellation);
 
+        /// <summary>
+        /// Проверить наличие обьявления.
+        /// </summary>
+        /// <param name="advertId">Идентификатор обьявления.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        /// <returns>Индикатор наличия обьявления.</returns>
         Task<bool> IsExists(Guid advertId, CancellationToken cancellation);
 
         /// <summary>
         /// Добавить новое обьявление.
         /// </summary>
-        /// <param name="addRequest">Элемент <see cref="AdvertAddRequest"/>.</param>
+        /// <param name="addRequest">Модель добавления нового обьявления..</param>
         /// <param name="cancellation">Токен отмены.</param>
         /// <returns>Идентификатор нового обьявления.</returns>
         Task<Guid> AddAsync(AdvertAddRequest addRequest, CancellationToken cancellation);
@@ -59,24 +87,24 @@ namespace Board.Application.AppData.Contexts.Adverts.Repositories
         /// <summary>
         /// Изменить обьявление.
         /// </summary>
-        /// <param name="id">Идентификатор обьявления.</param>
-        /// <param name="updateRequest">Элемент <see cref="AdvertUpdateRequest"/>.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
+        /// <param name="updateRequest">Модель изменения обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        Task<AdvertDetails> UpdateAsync(Guid id, AdvertUpdateRequest updateRequest, CancellationToken cancellation);
+        Task<AdvertDetails> UpdateAsync(Guid advertId, AdvertUpdateRequest updateRequest, CancellationToken cancellation);
 
         /// <summary>
-        /// Сделать обьявление неактивным.
+        /// Удалить обьявление, сделав неактивным.
         /// </summary>
-        /// <param name="id">Идентификатор обьявления.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        Task SoftDeleteAsync(Guid id, CancellationToken cancellation);
+        Task SoftDeleteAsync(Guid advertId, CancellationToken cancellation);
 
         /// <summary>
         /// Удалить обьявление.
         /// </summary>
-        /// <param name="id">Идентификатор обьявления.</param>
+        /// <param name="advertId">Идентификатор обьявления.</param>
         /// <param name="cancellation">Токен отмены.</param>
-        Task DeleteAsync(Guid id, CancellationToken cancellation);
+        Task DeleteAsync(Guid advertId, CancellationToken cancellation);
 
     }
 }

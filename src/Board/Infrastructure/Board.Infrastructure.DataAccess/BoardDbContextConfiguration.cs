@@ -10,16 +10,12 @@ using System.Threading.Tasks;
 
 namespace Board.Infrastructure.DataAccess
 {
+    /// <inheritdoc />
     public class BoardDbContextConfiguration : IDbContextOptionsConfigurator<BoardDbContext>
     {
         private const string PostgesConnectionStringName = "PostgresBoardDb";
         private readonly IConfiguration _configuration;
 
-        /// <summary>
-        /// Инициализирует экземпляр <see cref="ShoppingCartContextConfiguration"/>.
-        /// </summary>
-        /// <param name="configuration">Конфигурация.</param>
-        /// <param name="loggerFactory">Фабрика средства логирования.</param>
         public BoardDbContextConfiguration(IConfiguration configuration)
         {
             _configuration = configuration;

@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 
 namespace Board.Application.AppData.Contexts.AdvertViews.Services
 {
+    /// <inheritdoc />
     public class AdvertViewService : IAdvertViewService
     {
         private readonly IAdvertViewRepository _advertViewRepository;
@@ -24,6 +25,7 @@ namespace Board.Application.AppData.Contexts.AdvertViews.Services
         private readonly IAdvertRepository _advertRepository;
         private readonly IUserService _userService;
 
+        /// <inheritdoc />
         public AdvertViewService(IAdvertViewRepository advertViewRepository, ILogger<AdvertViewService> logger, IHttpContextAccessor contextAccessor,
             IAdvertRepository advertRepository, IUserService userService)
         {
@@ -34,6 +36,7 @@ namespace Board.Application.AppData.Contexts.AdvertViews.Services
             _userService = userService;
         }
 
+        /// <inheritdoc />
         public Task<int> GetCountAsync(Guid advertId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение количества просмотров обьявления с ID: {2}",
@@ -41,10 +44,12 @@ namespace Board.Application.AppData.Contexts.AdvertViews.Services
 
             return _advertViewRepository.GetCountAsync(advertId, cancellation);
         }
-        public async Task<Guid> AddAsync(Guid advertId, CancellationToken cancellation)
+
+        /// <inheritdoc />
+        public async Task<Guid> AddIfNotExistsAsync(Guid advertId, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Создание записи о просмотре обьявления с ID: {2}",
-                nameof(AdvertViewService), nameof(AddAsync), advertId);
+                nameof(AdvertViewService), nameof(AddIfNotExistsAsync), advertId);
 
             var isAdvertExists = await _advertRepository.IsExists(advertId, cancellation);
             if (!isAdvertExists) 

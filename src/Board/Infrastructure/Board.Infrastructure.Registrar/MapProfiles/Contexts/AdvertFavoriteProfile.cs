@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Board.Infrastructure.Registrar.MapProfiles.Contexts
 {
+    /// <summary>
+    /// Профиль AutoMapper для работы с AdvertFavorite
+    /// </summary>
     public class AdvertFavoriteProfile : Profile
     {
         public AdvertFavoriteProfile()

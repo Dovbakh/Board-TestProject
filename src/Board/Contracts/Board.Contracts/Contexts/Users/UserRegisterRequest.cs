@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Users
 {
+    /// <summary>
+    /// Модель регистрации пользователя.
+    /// </summary>
     public class UserRegisterRequest
     {
         /// <summary>

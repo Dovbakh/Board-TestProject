@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.AdvertFavorites
 {
+    /// <summary>
+    /// Модель избранного обьявления.
+    /// </summary>
     public class AdvertFavoriteSummary
     {
         /// <summary>
-        /// Идентификатор избранного обьявления.
+        /// Идентификатор записи.
         /// </summary>
         public Guid Id { get; set; }
 
@@ -18,6 +21,9 @@ namespace Board.Contracts.Contexts.AdvertFavorites
         /// </summary>
         public Guid AdvertId { get; set; }
 
+        /// <summary>
+        /// Идентификатор пользователя.
+        /// </summary>
         public Guid UserId { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Board.Host.Api.Controllers
 {
     /// <summary>
-    /// Работа с обьявлениями.
+    /// Контроллер для работы с просмотрами обьявлений.
     /// </summary>
     [ApiController]
     [Route("v2/[controller]")]
@@ -21,6 +21,12 @@ namespace Board.Host.Api.Controllers
             _advertViewService = advertViewService;
         }
 
+        /// <summary>
+        /// Получить количество просмотров обьявления. [anonymous]
+        /// </summary>
+        /// <param name="advertId">Идентификатор обьявления.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        /// <returns>Количество просмотров.</returns>
         [HttpGet("{advertId:Guid}")]
         [AllowAnonymous]
         public async Task<ActionResult<int>> GetCount(Guid advertId, CancellationToken cancellation)
@@ -30,13 +36,19 @@ namespace Board.Host.Api.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Добавить просмотр обьявления, если еще не просмотрено. [anonymous]
+        /// </summary>
+        /// <param name="advertId">Идентификатор обьявления.</param>
+        /// <param name="cancellation">Токен отмены.</param>
+        /// <returns>Идентификатор просмотра.</returns>
         [HttpPost("{advertId:Guid}")]
         [AllowAnonymous]
-        public async Task<ActionResult<Guid>> Add(Guid advertId, CancellationToken cancellation)
+        public async Task<ActionResult<Guid>> AddIfNotExists(Guid advertId, CancellationToken cancellation)
         {
-            var result = await _advertViewService.AddAsync(advertId, cancellation);
+            var viewId = await _advertViewService.AddIfNotExistsAsync(advertId, cancellation);
 
-            return Ok(result);
+            return CreatedAtAction(nameof(AddIfNotExists), viewId);
         }
 
     }

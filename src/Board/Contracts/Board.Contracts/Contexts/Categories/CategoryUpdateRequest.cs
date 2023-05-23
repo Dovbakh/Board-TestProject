@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Categories
 {
+    /// <summary>
+    /// Модель изменения категории.
+    /// </summary>
     public class CategoryUpdateRequest
     {
         /// <summary>

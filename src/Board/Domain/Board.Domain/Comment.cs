@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Board.Domain
 {
+    /// <summary>
+    /// Отзыв.
+    /// </summary>
     public class Comment
     {
         /// <summary>
@@ -43,6 +46,9 @@ namespace Board.Domain
         /// </summary>
         public Advert Advert { get; set; }
 
+        /// <summary>
+        /// Статус отзыва.
+        /// </summary>
         public bool IsActive { get; set; }
     }
 }

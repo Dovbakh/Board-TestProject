@@ -6,8 +6,14 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Users
 {
+    /// <summary>
+    /// Модель генерации подтверждения почты.
+    /// </summary>
     public class UserGenerateEmailConfirmationTokenRequest
     {
+        /// <summary>
+        /// Почта.
+        /// </summary>
         public string Email { get; set; }
 
     }

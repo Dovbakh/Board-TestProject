@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Users
 {
+    /// <summary>
+    /// Модель изменения пользователя.
+    /// </summary>
     public class UserUpdateRequest
     {
         /// <summary>
@@ -14,15 +17,13 @@ namespace Board.Contracts.Contexts.Users
         public string? Name { get; set; }
 
         /// <summary>
-        /// Номер телефона пользователя.
-        /// </summary>
-        public string? Phone { get; set; }
-
-        /// <summary>
         /// Адрес пользователя.
         /// </summary>
         public string? Address { get; set; }
 
+        /// <summary>
+        /// Фото пользователя.
+        /// </summary>
         public Guid? PhotoId { get; set; }
     }
 }

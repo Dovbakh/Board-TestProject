@@ -6,20 +6,23 @@ using System.Threading.Tasks;
 
 namespace Board.Contracts.Contexts.Images
 {
+    /// <summary>
+    /// Модель данных изображения.
+    /// </summary>
     public class ImageData
     {
         /// <summary>
-        /// Имя файла.
+        /// Имя изображения.
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// Контент файла.
+        /// Контент изображения.
         /// </summary>
         public byte[] Content { get; set; }
 
         /// <summary>
-        /// ContentType файла.
+        /// Тип контента изображения.
         /// </summary>
         public string ContentType { get; set; }
     }

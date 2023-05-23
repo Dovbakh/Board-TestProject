@@ -126,6 +126,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
             return advert;
         }
 
+        /// <inheritdoc />
         public async Task<IReadOnlyCollection<AdvertSummary>> GetByListIdAsync(List<Guid> advertIds, int offset, int limit, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение списка обьявлений с ID из списка: {2}",
@@ -143,6 +144,7 @@ namespace Board.Infrastructure.DataAccess.Contexts.Adverts.Repositories
             return adverts;
         }
 
+        /// <inheritdoc />
         public async Task<IReadOnlyCollection<AdvertSummary>> GetFavoritesByUserIdAsync(Guid userId, int offset, int limit, CancellationToken cancellation)
         {
             _logger.LogInformation("{0}:{1} -> Получение списка избранных обьявлений для пользователя с ID: {2}",
